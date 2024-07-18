@@ -1,9 +1,9 @@
 #*******************************************************************************************************************
 #
 # 0. Identification ---------------------------------------------------
-# Title: Data preparation and code book for EDUMER Survey Wave 1
+# Title: Data preparation for EDUMER Studentes Survey Wave 1
 # Author: Andreas Laffert            
-# Overview: EDUMER Survey Wave 1         
+# Overview: EDUMER Students Survey Wave 1         
 # Date: 13-066-2024            
 #
 #******************************************************************************************************************
@@ -41,8 +41,6 @@ clean_labels <- function(x) {
   return(x)
 }
 
-
-# 3.1 Students data -------------------------------------------------------
 
 # Select ----
 db1 <- db[,c(1:105)] %>% 
@@ -787,7 +785,6 @@ db1$p30 <- sjlabelled::set_labels(db1$p30,
 get_label(db1$p30)
 db1$p30 <- clean_labels(db1$p30)
 
-
 #4. Save and remove ----------------------------------------------------
 
 db_students <- db1 %>% 
@@ -797,5 +794,4 @@ db_students <- db1 %>%
   janitor::clean_names() %>% 
   as.data.frame()
 
-rm(db, db1, db_or_label, recodi)
 rm(list = ls(pattern = "^labels[0-9]+$"))

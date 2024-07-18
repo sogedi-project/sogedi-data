@@ -30,8 +30,8 @@ rm(list = ls())
 
 ```{r data-processing, include=FALSE}
 
-source(file = here("processing/codebook-edumer.R"), encoding = "UTF-8")
-
+source(file = here("processing/01-codebook.R"), encoding = "UTF-8")
+source(file = here("processing/02-codebook.R"), encoding = "UTF-8")
 ```
 
 ## Estudiantes
@@ -40,4 +40,8 @@ source(file = here("processing/codebook-edumer.R"), encoding = "UTF-8")
 codebook:::label_browser_static(db_students)
 ```
 
-## 
+## Docentes
+
+```{r code2, echo=FALSE}
+codebook:::label_browser_static(db_teachers)
+```
