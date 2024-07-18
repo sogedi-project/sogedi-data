@@ -5,9 +5,25 @@ editor: visual
 
 # Libro de Códigos {#codebook}
 
-Introduction...
+## Introducción
 
-Instructions...
+
+
+
+
+El presente documento consiste en el Libro de Códigos de la base de datos de la I ola de Encuesta Panel EDUMER. Este tiene por finalidad facilitar el uso de la base de datos, entregando la información correspondiente a los nombres de las variables, sus etiquetas, así como también las etiquetas de las categorías de respuesta de cada variable.
+
+El documento se compone de dos partes. En primer lugar, se detallan las instrucciones de cómo utilizar el libro de códigos interactivo. En segundo lugar, se presenta el libro de códigos propiamente tal para cada cuestionario por separado (estudiantes, docentes y padres y apoderados).
+
+## Instrucciones
+
+Los Libros de Códigos que se presentan en la siguiente sección corresponden a una herramienta interactiva que busca presentar de manera eficiente información respecto a las variables que componen la base de datos. A fin de usar esta herramienta de manera correcta, se listan algunos puntos a tener en consideración:
+
+* El libro cuenta con tres columnas denominadas name, label y value_label. Estas corresponden a los nombres de las variables en la base de datos, su etiqueta y las categorías de respuesta, respectivamente.
+
+* Se puede hacer uso del buscador que se encuentra al principio del libro para encontrar información de manera más rápida. También se pueden usar los buscadores por cada columna, los cuales irán filtrando los datos que contengan el término de búsqueda. 
+
+* En la columna value_labels se muestran las categorías de respuesta de cada variable. No obstante, si la variable es numérica o de respuesta abierta (por ejemplo, categorías “otros”), la casilla se mostrará en blanco, ya que no hay ninguna categoría que mostrar. También puede ocurrir el caso que la variable sea numérica, pero tenga disponibles las categorías “88. No Sabe” y “99. No Responde”. En estos casos solo se visibilizarán ambas categorías en el libro de código.
 
 ```{r setup, include=FALSE}
 library(knitr)

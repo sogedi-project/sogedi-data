@@ -14,7 +14,27 @@
     "href": "07-codebook.html",
     "title": "7  Libro de Códigos",
     "section": "",
-    "text": "7.1 Estudiantes",
+    "text": "7.1 Introducción\nEl presente documento consiste en el Libro de Códigos de la base de datos de la I ola de Encuesta Panel EDUMER. Este tiene por finalidad facilitar el uso de la base de datos, entregando la información correspondiente a los nombres de las variables, sus etiquetas, así como también las etiquetas de las categorías de respuesta de cada variable.\nEl documento se compone de dos partes. En primer lugar, se detallan las instrucciones de cómo utilizar el libro de códigos interactivo. En segundo lugar, se presenta el libro de códigos propiamente tal para cada cuestionario por separado (estudiantes, docentes y padres y apoderados).",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
+    ]
+  },
+  {
+    "objectID": "07-codebook.html#instrucciones",
+    "href": "07-codebook.html#instrucciones",
+    "title": "7  Libro de Códigos",
+    "section": "\n7.2 Instrucciones",
+    "text": "7.2 Instrucciones\nLos Libros de Códigos que se presentan en la siguiente sección corresponden a una herramienta interactiva que busca presentar de manera eficiente información respecto a las variables que componen la base de datos. A fin de usar esta herramienta de manera correcta, se listan algunos puntos a tener en consideración:\n\nEl libro cuenta con tres columnas denominadas name, label y value_label. Estas corresponden a los nombres de las variables en la base de datos, su etiqueta y las categorías de respuesta, respectivamente.\nSe puede hacer uso del buscador que se encuentra al principio del libro para encontrar información de manera más rápida. También se pueden usar los buscadores por cada columna, los cuales irán filtrando los datos que contengan el término de búsqueda.\nEn la columna value_labels se muestran las categorías de respuesta de cada variable. No obstante, si la variable es numérica o de respuesta abierta (por ejemplo, categorías “otros”), la casilla se mostrará en blanco, ya que no hay ninguna categoría que mostrar. También puede ocurrir el caso que la variable sea numérica, pero tenga disponibles las categorías “88. No Sabe” y “99. No Responde”. En estos casos solo se visibilizarán ambas categorías en el libro de código.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
+    ]
+  },
+  {
+    "objectID": "07-codebook.html#estudiantes",
+    "href": "07-codebook.html#estudiantes",
+    "title": "7  Libro de Códigos",
+    "section": "\n7.3 Estudiantes",
+    "text": "7.3 Estudiantes",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
     ]
@@ -23,8 +43,8 @@
     "objectID": "07-codebook.html#docentes",
     "href": "07-codebook.html#docentes",
     "title": "7  Libro de Códigos",
-    "section": "\n7.2 Docentes",
-    "text": "7.2 Docentes",
+    "section": "\n7.4 Docentes",
+    "text": "7.4 Docentes",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
     ]
@@ -33,8 +53,8 @@
     "objectID": "07-codebook.html#padres-y-apoderados",
     "href": "07-codebook.html#padres-y-apoderados",
     "title": "7  Libro de Códigos",
-    "section": "\n7.3 Padres y apoderados",
-    "text": "7.3 Padres y apoderados",
+    "section": "\n7.5 Padres y apoderados",
+    "text": "7.5 Padres y apoderados",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
     ]
