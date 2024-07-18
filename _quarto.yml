@@ -1,0 +1,49 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Manual Metodológico Encuesta Panel EDUMER"
+  author: "Equipo EDUMER"
+  date: "22/07/2023"
+  reader-mode: true
+  page-footer:
+    left: |
+      Proyecto Fondecyt No. 1210847.
+    right: |
+      Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.
+  page-navigation: true
+  cover-image: edumer.png
+  favicon: edumer.png
+  repo-url: https://github.com/educacion-meritocracia/edumer-data
+  repo-branch: main
+  chapters:
+    - index.qmd
+    - 01-antecedents.qmd
+    - 02-sample-desing.qmd
+    - 03-instrument-desing.qmd
+    - 04-survey-implementation.qmd
+    - 05-databases.qmd
+    - 06-etichs.qmd
+    - 07-codebook.qmd
+    - 08-questionnaires.qmd
+    - 09-technical-sheet.qmd
+  search:
+    location: sidebar
+    type: textbox
+  sidebar:
+    search: true
+    style: docked
+    pinned: false
+
+
+format:
+  html:
+    theme:
+      - cosmo
+      - edumer.scss
+    code-link: true
+
+editor: visual
+lang: es
+

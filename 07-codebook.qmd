@@ -1,0 +1,43 @@
+---
+format: html
+editor: visual
+---
+
+# Libro de Códigos {#codebook}
+
+Introduction...
+
+Instructions...
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      error = F, 
+                      message = F) 
+```
+
+```{r packages}
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               here, 
+               codebook)
+
+options(scipen=999)
+rm(list = ls())
+```
+
+```{r data-processing, include=FALSE}
+
+source(file = here("processing/codebook-edumer.R"), encoding = "UTF-8")
+
+```
+
+## Estudiantes
+
+```{r code1, echo=FALSE}
+codebook:::label_browser_static(db_students)
+```
+
+## 

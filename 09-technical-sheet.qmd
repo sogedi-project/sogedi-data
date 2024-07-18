@@ -1,0 +1,6 @@
+---
+format: html
+editor: visual
+---
+
+# Ficha Técnica {#ficha}

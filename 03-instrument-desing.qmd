@@ -1,0 +1,6 @@
+---
+format: html
+editor: visual
+---
+
+# Diseño del Instrumento {#dis-instrument}

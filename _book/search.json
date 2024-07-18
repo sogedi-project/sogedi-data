@@ -1,0 +1,32 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Manual Metodológico Encuesta Panel EDUMER",
+    "section": "",
+    "text": "Presentación\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.\n\n1 + 1\n\n[1] 2",
+    "crumbs": [
+      "Presentación"
+    ]
+  },
+  {
+    "objectID": "07-codebook.html",
+    "href": "07-codebook.html",
+    "title": "7  Libro de Códigos",
+    "section": "",
+    "text": "7.1 Estudiantes",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
+    ]
+  },
+  {
+    "objectID": "07-codebook.html#section",
+    "href": "07-codebook.html#section",
+    "title": "7  Libro de Códigos",
+    "section": "\n7.2 ",
+    "text": "7.2",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Libro de Códigos</span>"
+    ]
+  }
+]

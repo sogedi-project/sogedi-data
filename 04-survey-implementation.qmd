@@ -1,0 +1,6 @@
+---
+format: html
+editor: visual
+---
+
+# Implementación del Instrumento {#imp-instrument}
