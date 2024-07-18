@@ -32,6 +32,7 @@ rm(list = ls())
 
 source(file = here("processing/01-codebook.R"), encoding = "UTF-8")
 source(file = here("processing/02-codebook.R"), encoding = "UTF-8")
+source(file = here("processing/03-codebook.R"), encoding = "UTF-8")
 ```
 
 ## Estudiantes
@@ -45,3 +46,11 @@ codebook:::label_browser_static(db_students)
 ```{r code2, echo=FALSE}
 codebook:::label_browser_static(db_teachers)
 ```
+
+## Padres y apoderados
+
+```{r code3, echo=FALSE}
+codebook:::label_browser_static(db_parents)
+```
+
+

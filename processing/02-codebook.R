@@ -70,7 +70,7 @@ frq(db2$fecha)
 class(db2$fecha)
 db2$fecha <- lubridate::as_datetime(db2$fecha)
 get_label(db2$fecha)
-
+db2$fecha <- sjlabelled::set_label(db2$fecha, label = "Fecha de aplicación")
 ## p1_
 
 db2 %>% 
@@ -160,7 +160,7 @@ db2 <- db2 %>%
                      p3_0 == 8 ~ 9, 
                      p3_0 == 9 ~ 10, 
                      TRUE ~ NA_real_),
-    p3_0 = sjlabelled::set_label(p3_0, label = "¿Qué es más importante para obtener buenas notas, el esfuerzo o la inteligencia? Escala 1 a 10")
+    p3_0 = sjlabelled::set_label(p3_0, label = "¿Qué es más importante para obtener buenas notas, el esfuerzo o la inteligencia? Escala 1 (esfuerzo) a 10 (inteligencia)")
   )
 
 ## p3_1 y p3_2
@@ -224,7 +224,7 @@ db2 %>%
   select(starts_with("p5_")) %>% 
   get_label()
 
-db2$p5_1 <- clean_labels(db2$p5_1)
+db2$p5_1 <- sjlabelled::set_label(db2$p5_1, label = "Votar en todas las elecciones nacionales")
 db2$p5_2 <- clean_labels(db2$p5_2)
 db2$p5_3 <- clean_labels(db2$p5_3)
 db2$p5_4 <- clean_labels(db2$p5_4)
@@ -251,7 +251,7 @@ db2 %>%
   select(starts_with("p6_")) %>% 
   get_label()
 
-db2$p6_1 <- clean_labels(db2$p6_1)
+db2$p6_1 <- sjlabelled::set_label(db2$p6_1, label = "Participar en una marcha o manifestación pacífica")
 db2$p6_2 <- clean_labels(db2$p6_2)
 db2$p6_3 <- clean_labels(db2$p6_3)
 
@@ -276,7 +276,7 @@ db2 %>%
   select(starts_with("p7_")) %>% 
   get_label()
 
-db2$p7_1 <- clean_labels(db2$p7_1)
+db2$p7_1 <- sjlabelled::set_label(db2$p7_1, label = "Buscar sitios web de Internet para encontrar información sobre temas políticos o sociales")
 db2$p7_2 <- clean_labels(db2$p7_2)
 db2$p7_3 <- clean_labels(db2$p7_3)
 db2$p7_4 <- clean_labels(db2$p7_4)
@@ -434,7 +434,7 @@ db2$p15 <- sjlabelled::set_labels(db2$p15,
                                              "No responde" = 99))
 
 get_label(db2$p15)
-db2$p15 <- sjlabelled::set_label(db2$p15, label = "Posición política (eje izq. y der.")
+db2$p15 <- sjlabelled::set_label(db2$p15, label = "Posición política (eje izq. y der.)")
 
 ## p16
 frq(db2$p16)

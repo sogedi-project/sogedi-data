@@ -199,7 +199,7 @@ get_label(db1$p3)
 db1 <- db1 %>% 
   mutate(
     p3 = if_else(p3 == 0, 1, p3),
-    p3 = sjlabelled::set_label(p3, label = "¿Qué es más importante para obtener buenas notas, el esfuerzo o la inteligencia? Escala 1 a 10")
+    p3 = sjlabelled::set_label(p3, label = "¿Qué es más importante para obtener buenas notas, el esfuerzo o la inteligencia? Escala 1 (esfuerzo) a 10 (inteligencia)")
   )
 
 ## p4
