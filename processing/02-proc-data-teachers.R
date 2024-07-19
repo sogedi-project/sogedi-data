@@ -16,7 +16,8 @@ pacman::p_load(tidyverse,
                sjmisc, 
                rio,
                here, 
-               codebook)
+               codebook,
+               haven)
 
 options(scipen=999)
 
@@ -457,5 +458,9 @@ db_teachers <- db2 %>%
   rename_with(~ paste0(.,"_docente")) %>% 
   janitor::clean_names() %>% 
   as.data.frame()
+
+base::save(db_teachers, file = here("output/data/db_proc_teachers.RData"))
+haven::write_dta(db_teachers, path = here("output/data/db_proc_teachers.dta"))
+haven::write_sav(db_teachers, path = here("output/data/db_proc_teachers.sav"))
 
 rm(list = ls(pattern = "^labels[0-9]+$"))

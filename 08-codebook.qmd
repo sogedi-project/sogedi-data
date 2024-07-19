@@ -42,11 +42,11 @@ options(scipen=999)
 rm(list = ls())
 ```
 
-```{r data-processing, include=FALSE}
+```{r data, include=FALSE}
 
-source(file = here("processing/01-codebook.R"), encoding = "UTF-8")
-source(file = here("processing/02-codebook.R"), encoding = "UTF-8")
-source(file = here("processing/03-codebook.R"), encoding = "UTF-8")
+load(file = here("output", "data", "db_proc_students.RData"))
+load(file = here("output", "data", "db_proc_teachers.RData"))
+load(file = here("output", "data", "db_proc_parents.RData"))
 ```
 
 ## Estudiantes

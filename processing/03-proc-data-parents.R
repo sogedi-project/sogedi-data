@@ -16,7 +16,8 @@ pacman::p_load(tidyverse,
                sjmisc, 
                rio,
                here, 
-               codebook)
+               codebook,
+               haven)
 
 options(scipen=999)
 
@@ -480,5 +481,9 @@ db_parents <- db3 %>%
   rename_with(~ paste0(.,"_apoderado")) %>% 
   janitor::clean_names() %>% 
   as.data.frame()
+
+base::save(db_parents, file = here("output/data/db_proc_parents.RData"))
+haven::write_dta(db_parents, path = here("output/data/db_proc_parents.dta"))
+haven::write_sav(db_parents, path = here("output/data/db_proc_parents.sav"))
 
 rm(list = ls(pattern = "^labels[0-9]+$"))
