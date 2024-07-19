@@ -109,7 +109,7 @@ frq(db1$asignacion)
 get_label(db1$asignacion)
 db1 <- db1 %>%
   mutate(asignacion = asignacion %>%
-           set_labels(labels = c("Sí" = 1, "No" = 2)) %>%
+           set_labels(labels = c("Tratamiento" = 1, "Control" = 2)) %>%
            set_label(label = "Identificador asignación aleatoria al tratamiento"))
 
 
