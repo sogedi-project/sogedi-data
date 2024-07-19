@@ -1,0 +1,222 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Manual Metodológico Encuesta Panel EDUMER",
+    "section": "",
+    "text": "Presentación",
+    "crumbs": [
+      "Presentación"
+    ]
+  },
+  {
+    "objectID": "02-sample-desing.html",
+    "href": "02-sample-desing.html",
+    "title": "2  Diseño estadístico",
+    "section": "",
+    "text": "2.1 Diseño muestral",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
+    ]
+  },
+  {
+    "objectID": "02-sample-desing.html#diseño-y-estimación-ponderadores",
+    "href": "02-sample-desing.html#diseño-y-estimación-ponderadores",
+    "title": "2  Diseño estadístico",
+    "section": "2.2 Diseño y estimación ponderadores",
+    "text": "2.2 Diseño y estimación ponderadores",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
+    ]
+  },
+  {
+    "objectID": "02-sample-desing.html#medidas-de-precisión",
+    "href": "02-sample-desing.html#medidas-de-precisión",
+    "title": "2  Diseño estadístico",
+    "section": "2.3 Medidas de precisión",
+    "text": "2.3 Medidas de precisión",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
+    ]
+  },
+  {
+    "objectID": "03-instrument-desing.html",
+    "href": "03-instrument-desing.html",
+    "title": "3  Diseño del instrumento",
+    "section": "",
+    "text": "3.1 Diseño cuestionarios",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Diseño del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "03-instrument-desing.html#lista-de-variables",
+    "href": "03-instrument-desing.html#lista-de-variables",
+    "title": "3  Diseño del instrumento",
+    "section": "3.2 Lista de variables",
+    "text": "3.2 Lista de variables",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Diseño del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html",
+    "href": "04-survey-implementation.html",
+    "title": "4  Implementación del instrumento",
+    "section": "",
+    "text": "4.1 Técnica y métodos de recolección de datos",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#diseño-del-instrumento-de-captura-de-la-información",
+    "href": "04-survey-implementation.html#diseño-del-instrumento-de-captura-de-la-información",
+    "title": "4  Implementación del instrumento",
+    "section": "4.2 Diseño del instrumento de captura de la información",
+    "text": "4.2 Diseño del instrumento de captura de la información",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#método-para-la-capacitación-para-la-recolección-de-datos",
+    "href": "04-survey-implementation.html#método-para-la-capacitación-para-la-recolección-de-datos",
+    "title": "4  Implementación del instrumento",
+    "section": "4.3 Método para la capacitación para la recolección de datos",
+    "text": "4.3 Método para la capacitación para la recolección de datos",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#métodos-de-supervisión",
+    "href": "04-survey-implementation.html#métodos-de-supervisión",
+    "title": "4  Implementación del instrumento",
+    "section": "4.4 Métodos de supervisión",
+    "text": "4.4 Métodos de supervisión",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html",
+    "href": "05-survey-processing.html",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "",
+    "text": "5.1 Clasificación y codificación de datos",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#análisis-de-consistencia-de-datos-y-edición",
+    "href": "05-survey-processing.html#análisis-de-consistencia-de-datos-y-edición",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.2 Análisis de consistencia de datos y edición",
+    "text": "5.2 Análisis de consistencia de datos y edición",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#procedimientos-de-edición",
+    "href": "05-survey-processing.html#procedimientos-de-edición",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.3 Procedimientos de edición",
+    "text": "5.3 Procedimientos de edición",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#imputación-y-derivación-de-variables",
+    "href": "05-survey-processing.html#imputación-y-derivación-de-variables",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.4 Imputación y derivación de variables",
+    "text": "5.4 Imputación y derivación de variables",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#cálculo-y-ajustes-de-factores-de-expansión",
+    "href": "05-survey-processing.html#cálculo-y-ajustes-de-factores-de-expansión",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.5 Cálculo y ajustes de factores de expansión",
+    "text": "5.5 Cálculo y ajustes de factores de expansión",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "07-etichs.html",
+    "href": "07-etichs.html",
+    "title": "7  Ética",
+    "section": "",
+    "text": "7.1 Aprobación comité ético",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Ética</span>"
+    ]
+  },
+  {
+    "objectID": "07-etichs.html#consentimientos-informados",
+    "href": "07-etichs.html#consentimientos-informados",
+    "title": "7  Ética",
+    "section": "7.2 Consentimientos informados",
+    "text": "7.2 Consentimientos informados",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Ética</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html",
+    "href": "08-codebook.html",
+    "title": "8  Libro de códigos",
+    "section": "",
+    "text": "8.1 Introducción\nPara el uso adecuado de la base de datos Encuesta Panel EDUMER, recomendamos que los investigadores trabajen con el libro de códigos que se presenta a continuación. Esta sección busca facilitar el uso de la base de datos, entregando la información correspondiente a los nombres de las variables, sus etiquetas, así como también las etiquetas de las categorías de respuesta de cada variable. En primer lugar, se detallan las instrucciones de cómo utilizar el libro de códigos interactivo. En segundo lugar, se presenta el libro de códigos propiamente tal para cada cuestionario por separado (estudiantes, docentes y padres y apoderados).",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#instrucciones",
+    "href": "08-codebook.html#instrucciones",
+    "title": "8  Libro de códigos",
+    "section": "\n8.2 Instrucciones",
+    "text": "8.2 Instrucciones\nLos Libros de Códigos que se presentan en la siguiente sección corresponden a una herramienta interactiva que busca presentar de manera eficiente información respecto a las variables que componen la base de datos. Presentamos los ítems por cuestionario para facilitar su comprensión.\nCada libro muestra el código de cada variable, la etiqueta asociada a la variable con la redacción del ítem, y las categorías de respuesta y códigos asociados. Estas corresponden a tres columnas del libro de códigos denominadas name, label y value_label, respectivamente.\nSe puede hacer uso del buscador que se encuentra al principio del libro para encontrar información de manera más rápida. También se pueden usar los buscadores por cada columna, los cuales irán filtrando los datos que contengan el término de búsqueda.\nIncluimos etiquetas de variables en el Libro de Códigos y en las bases de datos. El equipo de EDUMER las diseñó con la intención de describir brevemente el fenómeno o dimensión a medir. La redacción de la pregunta sigue a las etiquetas, incluyendo códigos y categorías de respuesta. En la construcción de la base de datos, ingresamos los códigos de respuesta como valores numéricos y las categorías de respuesta como etiquetas.\nEn la columna value_labels se muestran las categorías de respuesta de cada variable. No obstante, si la variable es numérica o de respuesta abierta (texto), la casilla se mostrará en blanco, ya que no hay ninguna categoría que mostrar. También puede ocurrir el caso que la variable sea numérica, pero tenga disponibles las categorías “88. No Sabe” y “99. No Responde”. En estos casos sólo se visualizarán ambas categorías en el libro de código.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#estudiantes",
+    "href": "08-codebook.html#estudiantes",
+    "title": "8  Libro de códigos",
+    "section": "\n8.3 Estudiantes",
+    "text": "8.3 Estudiantes",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#docentes",
+    "href": "08-codebook.html#docentes",
+    "title": "8  Libro de códigos",
+    "section": "\n8.4 Docentes",
+    "text": "8.4 Docentes",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#padres-y-apoderados",
+    "href": "08-codebook.html#padres-y-apoderados",
+    "title": "8  Libro de códigos",
+    "section": "\n8.5 Padres y apoderados",
+    "text": "8.5 Padres y apoderados",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  }
+]

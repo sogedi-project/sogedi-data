@@ -3,4 +3,8 @@ format: html
 editor: visual
 ---
 
-# Diseño del Instrumento {#dis-instrument}
+# Diseño del instrumento {#dis-instrument}
+
+## Diseño cuestionarios
+
+## Lista de variables

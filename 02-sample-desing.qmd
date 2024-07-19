@@ -3,4 +3,10 @@ format: html
 editor: visual
 ---
 
-# Diseño Muestral {#dis-muest}
+# Diseño estadístico {#dis-muest}
+
+## Diseño muestral
+
+## Diseño y estimación ponderadores
+
+## Medidas de precisión

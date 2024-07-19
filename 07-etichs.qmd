@@ -1,0 +1,11 @@
+---
+format: html
+editor: visual
+---
+
+# Ética {#etica}
+
+
+## Aprobación comité ético
+
+## Consentimientos informados

@@ -1,6 +1,6 @@
 project:
   type: book
-  output-dir: _book
+  output-dir: docs
 
 book:
   title: "Manual Metodológico Encuesta Panel EDUMER"
@@ -23,11 +23,10 @@ book:
     - 02-sample-desing.qmd
     - 03-instrument-desing.qmd
     - 04-survey-implementation.qmd
-    - 05-databases.qmd
-    - 06-etichs.qmd
-    - 07-codebook.qmd
-    - 08-questionnaires.qmd
-    - 09-technical-sheet.qmd
+    - 05-survey-processing.qmd
+    - 06-database.qmd
+    - 07-etichs.qmd
+    - 08-codebook.qmd
   search:
     location: sidebar
     type: textbox

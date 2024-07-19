@@ -3,4 +3,12 @@ format: html
 editor: visual
 ---
 
-# Implementación del Instrumento {#imp-instrument}
+# Implementación del instrumento {#imp-instrument}
+
+## Técnica y métodos de recolección de datos
+
+## Diseño del instrumento de captura de la información
+
+## Método para la capacitación para la recolección de datos
+
+## Métodos de supervisión
