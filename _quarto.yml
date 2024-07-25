@@ -3,13 +3,14 @@ project:
   output-dir: docs
 
 book:
-  title: "Manual Metodológico Encuesta Panel EDUMER"
+  title: "Manual Metodológico EPJEC"
   author: "Equipo EDUMER"
   date: "22/07/2023"
   reader-mode: true
   page-footer:
     left: |
-      Proyecto Fondecyt No. 1210847.
+      Proyecto Fondecyt No. 1210847 "Educación y Meritocracia".
+
     right: |
       Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.
   page-navigation: true
@@ -45,4 +46,7 @@ format:
 
 editor: visual
 lang: es
+
+bibliography: "input/bib/manual-metod.bib"
+csl: "input/bib/apa6.csl"
 
