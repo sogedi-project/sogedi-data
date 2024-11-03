@@ -236,7 +236,7 @@ db1$p6 <- clean_labels(db1$p6)
 
 ## p7
 frq(db1$p7)
-db1$p5 <- sjlabelled::set_labels(db1$p5, 
+db1$p7 <- sjlabelled::set_labels(db1$p7, 
                                  labels = c("Menos de lo que merezco" = 1, 
                                             "Lo que merezco" = 2, 
                                             "Más de lo que merezco" = 3, 
