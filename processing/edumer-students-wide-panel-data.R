@@ -51,7 +51,7 @@ names(w01_wide)
 ## standardize names wave 2
 
 w02 <- w02 %>%
-  select(-d1_o2, -sbj_num_o1) %>% 
+  select(-d1_o2) %>% 
   rename(
     d3_def_w01_V = d3_def_o1,
     check_atencion = p10_check_atencion_o2 ,
@@ -70,7 +70,7 @@ w02 <- w02 %>%
 
 w02_wide <- w02 %>%
   rename(id_estudiante_w02 = id_estudiante,
-         matched_sbj_num_w01 = matched_sbj_num) %>%
+         sbj_num_w01 = sbj_num_o1) %>%
   rename_with(~ ifelse(!str_detect(., "_w01$|_w02$|_o1$|_o2$"), paste0(., "_w02"), .), .cols = everything()) %>%
   rename_with(~ str_replace_all(., c("o2" = "w02", "o1" = "w01")), .cols = everything()) %>%
   as_tibble()
@@ -83,11 +83,12 @@ sum(duplicated(w01_wide$id_estudiante_w01))
 
 sum(duplicated(w02_wide$id_estudiante_w02))
 
-sum(duplicated(w02_wide$matched_sbj_num_w01)) # only NA
+sum(duplicated(w02_wide$sbj_num_w01)) 
 
+w02_wide$sbj_num_w01[duplicated(w02_wide$sbj_num_w01)]# only NA
 
 # merge
-key_match <- c("id_estudiante_w01" = "matched_sbj_num_w01")
+key_match <- c("id_estudiante_w01" = "sbj_num_w01")
 
 names(w01_wide)
 names(w02_wide)
@@ -147,14 +148,14 @@ edumer_students_wide <- edumer_students_wide %>%
          starts_with("p29_"),
          starts_with("p30_"))
 
-# otorgar un id aleatorio a los 5 ids NA
+# otorgar un id aleatorio a los 35 ids NA
 
 l_id <- max(edumer_students_wide$id_estudiante, na.rm = T)
 m_id <- 999999999
 
 sum(is.na(edumer_students_wide$id_estudiante))
 
-ids_aleatorios <- sample((l_id + 1):m_id, 5)
+ids_aleatorios <- sample((l_id + 1):m_id, 35)
 
 edumer_students_wide$id_estudiante[is.na(edumer_students_wide$id_estudiante)] <- ids_aleatorios
 
