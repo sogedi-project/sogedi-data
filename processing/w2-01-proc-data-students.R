@@ -12,6 +12,7 @@
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
+               magrittr,
                sjlabelled, 
                sjmisc, 
                rio,

@@ -1,18 +1,51 @@
+#*******************************************************************************************************************
+#
+# 0. Identification ---------------------------------------------------
+# Title: Data preparation for EDUMER Survey Wave 2
+# Author: Andreas Laffert            
+# Overview: EDUMER Survey Wave 2         
+# Date: 29-10-2024            
+#
+#******************************************************************************************************************
 
-# duplicados ola 2
+# 1. Packages ---------------------------------------------------------
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               magrittr,
+               sjlabelled, 
+               sjmisc, 
+               rio,
+               here, 
+               stringi,
+               haven)
+
+options(scipen=999)
+rm(list = ls())
+
+# 2. Data --------------------------------------------------------------
 
 db2 <- rio::import(file = here("input","data", "original", "251024 Edumer Ola2 ID.sav")) %>% 
   as_tibble()
 
-db2$SbjNum_o1[duplicated(db2$SbjNum_o1)]
+names(db2)
+
+db2_or_label <- sjlabelled::get_label(db2)
+
+# 3. Processing -----------------------------------------------------------
+
+
+## ************************************************************************
+## Tratamiento mala codificacion de IDs para formato Long (SbjNum_o1)
+## ************************************************************************
+
+sum(duplicated(db2$SbjNum_o1))
+dup <- db2$SbjNum_o1[duplicated(db2$SbjNum_o1)]
 
 dupli_db2 <- db2 %>% 
   select(SbjNum, SbjNum_o1,starts_with("T_d"), Colegio_o1, d3_def_o1, everything()) %>% 
   filter(SbjNum_o1 %in% c(dup)) %>% 
   as_tibble()
-
-
-pacman::p_load(stringi)
 
 repe <- dupli_db2 %>%
   # Crear versiones normalizadas del primer nombre y del apellido
@@ -36,7 +69,6 @@ dupli_db2 <- dupli_db2 %>%
   filter(SbjNum_o1 %in% c(dup)) %>% 
   as_tibble()
 
-
 # nombres ola 1
 
 db1 <- rio::import(file = here("input","data", "original", "310524_BDD_edumer.sav")) %>% 
@@ -54,8 +86,6 @@ nombre_db1 <- db1 %>%
     first_name_norm = str_to_lower(stri_trans_general(word(T_d4_1, 1), "Latin-ASCII")),
     last_name_norm = str_to_lower(stri_trans_general(T_d4_2, "Latin-ASCII"))
   )
-
-
 
 dupli_db2 <- dupli_db2 %>%
   # Crear versiones normalizadas del primer nombre y del apellido
@@ -128,8 +158,8 @@ db2 <- db2 %>%
   )
 
 db2_f <- left_join(db2,
-          casos_mal_id_db2[,c(1,4:7)],
-          by = c("SbjNum_o1", "nombre_completo"))
+                   casos_mal_id_db2[,c(1,4:7)],
+                   by = c("SbjNum_o1", "nombre_completo"))
 
 db2_f %>% 
   select(c(1,2,6:10), nombre_completo, SbjNum_o1, match, matched_SbjNum) %>% 
@@ -161,4 +191,3 @@ db2_f %>%
 db2_f <- subset(db2_f, !(SbjNum %in% ids_to_remove))
 
 db2_f$matched_SbjNum[duplicated(db2_f$matched_SbjNum)]
-
