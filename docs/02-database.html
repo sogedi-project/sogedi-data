@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Manual Metodológico EPJEC - 2&nbsp; Diseño estadístico</title>
+<title>2&nbsp; Base de datos – Manual Metodológico CAIS</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./03-instrument-desing.html" rel="next">
+<link href="./03-codebook.html" rel="next">
 <link href="./01-antecedents.html" rel="prev">
 <link href="./edumer.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
@@ -78,13 +78,13 @@ ul.task-list li input[type="checkbox"] {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02-sample-desing.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Diseño estadístico</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02-database.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Base de datos</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -96,9 +96,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Manual Metodológico EPJEC</a> 
+      <a href="./">Manual Metodológico CAIS</a> 
         <div class="sidebar-tools-main">
-    <a href="https://github.com/educacion-meritocracia/edumer-data" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
+    <a href="https://github.com/lisa-coes/cais-book" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
@@ -128,44 +128,14 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-sample-desing.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Diseño estadístico</span></span></a>
+  <a href="./02-database.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Base de datos</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-instrument-desing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Diseño del instrumento</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./04-survey-implementation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Implementación del instrumento</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./05-survey-processing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Metodología de procesamiento de datos</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./06-database.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./07-etichs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ética</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./08-codebook.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Libro de códigos</span></span></a>
+  <a href="./03-codebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Libro de códigos</span></span></a>
   </div>
 </li>
     </ul>
@@ -178,9 +148,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Tabla de contenidos</h2>
    
   <ul>
-  <li><a href="#diseño-muestral" id="toc-diseño-muestral" class="nav-link active" data-scroll-target="#diseño-muestral"><span class="header-section-number">2.1</span> Diseño muestral</a></li>
-  <li><a href="#diseño-y-estimación-ponderadores" id="toc-diseño-y-estimación-ponderadores" class="nav-link" data-scroll-target="#diseño-y-estimación-ponderadores"><span class="header-section-number">2.2</span> Diseño y estimación ponderadores</a></li>
-  <li><a href="#medidas-de-precisión" id="toc-medidas-de-precisión" class="nav-link" data-scroll-target="#medidas-de-precisión"><span class="header-section-number">2.3</span> Medidas de precisión</a></li>
+  <li><a href="#algunas-informaciones-generales" id="toc-algunas-informaciones-generales" class="nav-link active" data-scroll-target="#algunas-informaciones-generales"><span class="header-section-number">2.1</span> Algunas informaciones generales</a></li>
   </ul>
 </nav>
     </div>
@@ -189,7 +157,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="dis-muest" class="quarto-section-identifier"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Diseño estadístico</span></span></h1>
+<h1 class="title"><span id="databases" class="quarto-section-identifier"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Base de datos</span></span></h1>
 </div>
 
 
@@ -206,14 +174,22 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="diseño-muestral" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="diseño-muestral"><span class="header-section-number">2.1</span> Diseño muestral</h2>
-</section>
-<section id="diseño-y-estimación-ponderadores" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="diseño-y-estimación-ponderadores"><span class="header-section-number">2.2</span> Diseño y estimación ponderadores</h2>
-</section>
-<section id="medidas-de-precisión" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="medidas-de-precisión"><span class="header-section-number">2.3</span> Medidas de precisión</h2>
+<p>La base de datos se encuentra disponible para libre descarga en el repositorio github del proyecto.</p>
+<ul>
+<li><p><a href="github.com/lisa-coes">Repositorio del proyecto LISA</a></p></li>
+<li><p><a href="github.com/lisa-coes/cais-book">Repositorio de este documento</a></p></li>
+<li><p><a href="github.com/lisa-coes/cais-book/input/data/original/cais.RData">Link directo de descarga de la base de datos</a></p></li>
+</ul>
+<section id="algunas-informaciones-generales" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="algunas-informaciones-generales"><span class="header-section-number">2.1</span> Algunas informaciones generales</h2>
+<p>La base de datos cuenta con 150 respuestas, que corresponden a la totalidad de personas que aceptaron participar en la investigación.</p>
+<p>Sin embargo, el desglose aproximado de respuestas completas es el siguiente:</p>
+<ul>
+<li><p>Cantidad de personas que respondieron la encuesta completa:</p></li>
+<li><p>Cantidad de personas que respondieron el 75% de la encuesta:</p></li>
+<li><p>Cantidad de personas que respondieron el 50% de la encuesta:</p></li>
+<li><p>Cantidad de personas que respondieron el 25% de la encuesta:</p></li>
+</ul>
 
 
 </section>
@@ -254,18 +230,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -297,7 +262,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp('/' + window.location.host + '/');
@@ -305,7 +292,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -635,8 +622,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./03-instrument-desing.html" class="pagination-link" aria-label="Diseño del instrumento">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Diseño del instrumento</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./03-codebook.html" class="pagination-link" aria-label="Libro de códigos">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Libro de códigos</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -644,7 +631,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>Proyecto Fondecyt No.&nbsp;1210847 “Educación y Meritocracia”.</p>
+<p>Proyecto Mini-COES “Prácticas, Creencias y Conocimiento en Ciencia Abierta: Propuestas para las ciencias sociales”.</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
