@@ -1,0 +1,10 @@
+---
+format: html
+editor: visual
+---
+
+# Diseño del instrumento {#dis-instrument}
+
+## Diseño cuestionarios
+
+## Lista de variables

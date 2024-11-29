@@ -1,0 +1,12 @@
+---
+format: html
+editor: visual
+---
+
+# Diseño estadístico {#dis-muest}
+
+## Diseño muestral
+
+## Diseño y estimación ponderadores
+
+## Medidas de precisión

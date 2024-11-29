@@ -3,26 +3,31 @@ project:
   output-dir: docs
 
 book:
-  title: "Manual Metodológico CAIS"
-  author: "Equipo LISA"
-  date: 29/11/2024
+  title: "Manual Metodológico EPJEC"
+  author: "Equipo EDUMER"
+  date: "22/07/2023"
   reader-mode: true
   page-footer:
     left: |
-      Proyecto Mini-COES "Prácticas, Creencias y Conocimiento en Ciencia Abierta: Propuestas para las ciencias sociales".
+      Proyecto Fondecyt No. 1210847 "Educación y Meritocracia".
 
     right: |
       Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.
   page-navigation: true
   cover-image: edumer.png
   favicon: edumer.png
-  repo-url: https://github.com/lisa-coes/cais-book
+  repo-url: https://github.com/educacion-meritocracia/edumer-data
   repo-branch: main
   chapters:
     - index.qmd
     - 01-antecedents.qmd
-    - 02-database.qmd
-    - 03-codebook.qmd
+    - 02-sample-desing.qmd
+    - 03-instrument-desing.qmd
+    - 04-survey-implementation.qmd
+    - 05-survey-processing.qmd
+    - 06-database.qmd
+    - 07-etichs.qmd
+    - 08-codebook.qmd
   search:
     location: sidebar
     type: textbox

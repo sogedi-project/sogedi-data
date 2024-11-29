@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Manual Metodológico CAIS",
+    "title": "Manual Metodológico EPJEC",
     "section": "",
-    "text": "Presentación\nLa Encuesta “Ciencia Abierta en Investigación Social” (CAIS) es un estudio diseñado para conocer el estado de la Ciencia Abierta en Ciencias Sociales en Chile.\nLa encuesta fue diseñada por investigadores del proyecto LISA, dirigido por Juan Carlos Castillo, profesor asociado del Departamento de Sociología de la Universidad de Chile (FACSO-UCH) e investigador principal del Centro de Estudios del Conflicto y Cohesión Social (COES). Este proyecto ha sido financiado por el proyecto minicoes “Prácticas, Creencias y Conocimiento en Ciencia Abierta: Propuestas para las ciencias sociales” del Centro de Estudios de Conflicto y Cohesión Social (COES). La recolección de datos de CAIS ha sido realizada mediante la plataforma abierta formr.org.\nEste proyecto también han participado:\n\nKevin Carrasco\nCristobal Ortiz\nMoira Martinez\nValentina Frometta\nNicolás Godoy\nCarolina Carrillo\nNicolás Tobar",
+    "text": "Presentación\nLa Encuesta Panel Justicia Educacional y Ciudadanía (EPJEC) es un estudio diseñado para analizar la relación entre aspectos morales del mercado educativo y diversas actitudes y comportamientos ligados a la formación ciudadana en estudiantes de ciclo básico y medio en Chile a lo largo del tiempo. Este proyecto examina las percepciones y valores sobre elementos característicos del mercado educativo, como la competencia, la selección y el mérito, para analizar sus implicancias individuales y contextuales en la formación ciudadana durante la etapa escolar. Su objetivo principal es proporcionar datos empíricos para comprender la conformación temprana de creencias sobre la meritocracia en la sociedad y en la escuela, y cómo sus cambios en el tiempo se relacionan con comportamientos y valores políticos y sociales.\nLa encuesta fue diseñada por investigadores del proyecto Educación y Meritocracia (EDUMER), dirigido por Juan Carlos Castillo, profesor asistente del Departamento de Sociología de la Universidad de Chile (FACSO-UCH) e investigador asociado al Centro de Estudios del Conflicto y Cohesión Social (COES). Este proyecto ha sido financiado por la beca Fondecyt No. 1210847 “Meritocracia en la escuela: fundamentos morales del mercado educativo y sus implicancias para la formación ciudadana en Chile” de la Agencia Nacional de Investigación y Desarrollo (ANID), una agencia dependiente del Ministerio de Ciencia, Tecnología, Conocimiento e Innovación de Chile. La recolección de datos de EPJEC ha sido licitada públicamente y adjudicada en todas sus mediciones a la Consultora Datavoz.\nEste manual se estructura en secciones temáticas. La primera sección presenta los antecedentes que motivan el proyecto Educación y Meritocracia. La segunda sección describe el diseño estadístico del estudio, incluyendo el diseño muestral, la estimación de ponderadores y las medidas de precisión. La tercera sección detalla el proceso de diseño del instrumento y el informe técnico del estudio. La cuarta sección resume los principales aspectos del trabajo de campo, destacando las particularidades del proceso de entrevista a los participantes. La quinta sección describe la metodología de procesamiento de datos en sus distintas etapas. La sexta sección detalla el almacenamiento de las versiones de la base de datos y el protocolo para su uso. Luego, se abordan los aspectos éticos y los consentimientos informados de la encuesta. Finalmente, se incluye una sección que contiene el libro de códigos para los tres cuestionarios de la base de datos del estudio.",
     "crumbs": [
       "Presentación"
     ]
@@ -14,59 +14,229 @@
     "href": "01-antecedents.html",
     "title": "1  Antecedentes",
     "section": "",
-    "text": "Durante los últimos años, el mundo académico ha experimentado una serie de desafíos relacionados con el concepto de apertura, que pueden describirse en dos aspectos principales. El primero se refiere a la llamada crisis de replicación (Baker, 2016; Nosek et al., 2015; Peng, 2015), referida a las dificultades para replicar los resultados de la investigación debido a la falta de transparencia en el proceso de investigación, donde se ha sido posible evidenciar importantes variaciones en los resultados en equipos de investigación con datos idénticos (Breznau et al., 2021). Esto ha tenido como consecuencia no sólo el fracaso en la replicación de muchos hallazgos publicados, sino también el descubrimiento y la denuncia de datos y resultados falsos (Chopik et al., 2018) con el fin de lograr publicar en revistas de alto impacto. El segundo desafío proviene de la apertura en términos de acceso, mediante el cual varias comunidades académicas han reaccionado contra las altas barreras de pago y el modelo de negocio impuesto por las compañías editoriales para acceder a los productos de la investigación científica: las universidades pagan una suscripción para acceder al trabajo incluso de sus propios investigadores, y a su vez el público fuera de la academia debe pagar nuevamente por obtener productos financiados por sus impuestos. Una de las reacciones más comentadas ha sido la cancelación de las suscripciones a revistas como Elsevier por parte de grandes universidades como UCLA, lo cual posteriormente se resolvió a través de un acuerdo basado en la adopción y promoción de prácticas en Open Access.\nLas barreras en la transparencia y el acceso son síntomas de una cultura académica presionada por la publicación de indicadores que están sesgados hacia resultados “significativos” en términos estadísticos, lo que lleva a una tendencia a forzar los resultados (p-hacking), llegando incluso a manipular y falsear datos para confirmar las hipótesis propuestas (Head et al., 2015) o también el establecer hipótesis ad-hoc luego de conocer los resultados de un estudio (Hollenbeck & Wright, 2017; Kerr, 1998). Esto tiene como consecuencia que finalmente el principal público objetivo de la ciencia son los editores de revistas de alto rango, dejando de lado a otros públicos como la sociedad civil, el estado y la ciudadanía. Tal escenario es particularmente sensible para las ciencias sociales, que se supone basan sus estudios en problemas sociales relevantes para las personas, las comunidades y las sociedades en general.\nUn número creciente de iniciativas en todo el mundo están abordando temas de replicabilidad, transparencia y acceso en la ciencia, como el Centro para la Ciencia Abierta (COS), la Iniciativa de Berkeley para la Transparencia en Ciencias Sociales (BITSS) y el proyecto Teaching Integrity in Empirical Research (TIER). Estas iniciativas fomentan la apertura en diferentes etapas del proceso de investigación, como la transparencia de los diseños de investigación a través de prerregistros de estudios, la reproducibilidad de los análisis y la manipulación de datos, así como en la publicación de preimpresiones libres de barreras de pago. Muchas de estas prácticas han sido adoptadas por revistas como recomendaciones o incluso requisitos para su publicación, así como promovidas por instituciones científicas gubernamentales. Todo esto implica un gran cambio en la forma de concebir, hacer y enseñar ciencia. Además, parece un paso necesario para hacer que la ciencia sea más relevante y cercana a quienes están fuera de la academia. En otras palabras, sería difícil mejorar la apertura y el intercambio con las comunidades locales si el trabajo dentro de la academia es mayormente cerrado y no colaborativo.\nComo muchos otros desarrollos en la ciencia, el movimiento de la ciencia abierta ha llegado lentamente a América Latina, particularmente en las ciencias sociales. Aunque ha habido algunas iniciativas en los últimos años (como el Congreso de Ciencia Abierta y Ciudadanía en Argentina 2018, OpenCon LatAm Colombia 2019), la mayoría de ellas son promovidas desde las ciencias naturales. En esta línea, a partir del año 2021 la Agencia Nacional de Investigación y Desarrollo (ANID) realizará la implementación de una Política de acceso abierto de información científica y datos de investigación, la cual busca establecer un estándar de acceso público a los productos de investigación que hayan sido financiados por recursos de ANID, por lo tanto es de carácter estratégico desarrollar iniciativas que se propongan contribuir a la apertura de la ciencia.\nA partir de este diagnóstico, el presente proyecto tiene por objetivo analizar el conocimiento, creencias y prácticas de ciencia abierta en académic_s de ciencias sociales en Chile, y desde este análisis generar recomendaciones y propuestas tanto para el quehacer académico como a las políticas científicas.",
+    "text": "Referencias",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Antecedentes</span>"
     ]
   },
   {
-    "objectID": "02-database.html",
-    "href": "02-database.html",
-    "title": "2  Base de datos",
+    "objectID": "01-antecedents.html#referencias",
+    "href": "01-antecedents.html#referencias",
+    "title": "1  Antecedentes",
     "section": "",
-    "text": "2.1 Algunas informaciones generales\nLa base de datos cuenta con 150 respuestas, que corresponden a la totalidad de personas que aceptaron participar en la investigación.\nSin embargo, el desglose aproximado de respuestas completas es el siguiente:",
+    "text": "Araujo, K., & Martuccelli, D. (2015). La escuela y la\ncuestión del mérito: Reflexiones desde la\nexperiencia chilena. Educação e\nPesquisa, 41(spe), 1503–1520. https://doi.org/10.1590/S1517-9702201508141653\n\n\nCorvalán, J., Carrasco, A., & García-Huidobro;J. E. (2017).\nMercado escolar: Libertad, diversidad y\ndesigualdad. Ediciones UC.\n\n\nCorvalán, J., & García-Huidobro, J. E. (2015). La\neducación de mercado en Chile y su propuesta\nde superación.\n\n\nCox, C., & Castillo, J. C. (2015). Aprendizaje de la\nciudadanía: Contextos, experiencias y\nresultados. Ediciones UC.\n\n\nDonoso, S., & Von Bülow, M. (Eds.). (2017). Social\nMovements in Chile. New York: Palgrave\nMacmillan US. https://doi.org/10.1057/978-1-137-60013-4\n\n\nFourcade, M., & Healy, K. (2007). Moral Views of\nMarket Society. Annual Review of Sociology,\n33(1), 285–311. https://doi.org/10.1146/annurev.soc.33.040406.131642\n\n\nFrei, R., Larranaga, O., Cocina, M., Herrera, R., Falck, D., &\nSilva, V. (2017). DESIGUALES. Orígenes, cambios y\ndesafíos de la brecha social en Chile.\n\n\nResh, N., & Sabbagh, C. (2014). Sense of justice in school and civic\nattitudes. Social Psychology of Education, 17(1),\n51–72. https://doi.org/10.1007/s11218-013-9240-8\n\n\nResh, N., & Sabbagh, C. (2017). Sense of justice in school and civic\nbehavior. Social Psychology of Education, 20(2),\n387–409. https://doi.org/10.1007/s11218-017-9375-0\n\n\nValenzuela, J. P., Bellei, C., & Ríos, D. D. L. (2013).\nSocioeconomic school segregation in a market-oriented educational\nsystem. The case of Chile. Journal of\nEducation Policy, 29(2), 217–241. https://doi.org/10.1080/02680939.2013.806995",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Base de datos</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Antecedentes</span>"
     ]
   },
   {
-    "objectID": "02-database.html#algunas-informaciones-generales",
-    "href": "02-database.html#algunas-informaciones-generales",
-    "title": "2  Base de datos",
+    "objectID": "02-sample-desing.html",
+    "href": "02-sample-desing.html",
+    "title": "2  Diseño estadístico",
     "section": "",
-    "text": "Cantidad de personas que respondieron la encuesta completa:\nCantidad de personas que respondieron el 75% de la encuesta:\nCantidad de personas que respondieron el 50% de la encuesta:\nCantidad de personas que respondieron el 25% de la encuesta:",
+    "text": "2.1 Diseño muestral",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Base de datos</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
     ]
   },
   {
-    "objectID": "03-codebook.html",
-    "href": "03-codebook.html",
-    "title": "3  Libro de códigos",
+    "objectID": "02-sample-desing.html#diseño-y-estimación-ponderadores",
+    "href": "02-sample-desing.html#diseño-y-estimación-ponderadores",
+    "title": "2  Diseño estadístico",
+    "section": "2.2 Diseño y estimación ponderadores",
+    "text": "2.2 Diseño y estimación ponderadores",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
+    ]
+  },
+  {
+    "objectID": "02-sample-desing.html#medidas-de-precisión",
+    "href": "02-sample-desing.html#medidas-de-precisión",
+    "title": "2  Diseño estadístico",
+    "section": "2.3 Medidas de precisión",
+    "text": "2.3 Medidas de precisión",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Diseño estadístico</span>"
+    ]
+  },
+  {
+    "objectID": "03-instrument-desing.html",
+    "href": "03-instrument-desing.html",
+    "title": "3  Diseño del instrumento",
     "section": "",
-    "text": "3.1 Introducción\nPara el uso adecuado de la base de datos de la encuesta “Ciencia Abierta en Investigación Social” (CAIS), recomendamos que los investigadores trabajen con el libro de códigos que se presenta a continuación. Esta sección busca facilitar el uso de la base de datos, entregando la información correspondiente a los nombres de las variables, sus etiquetas, así como también las etiquetas de las categorías de respuesta de cada variable. En primer lugar, se detallan las instrucciones de cómo utilizar el libro de códigos interactivo. En segundo lugar, se presenta el libro de códigos propiamente tal.",
+    "text": "3.1 Diseño cuestionarios",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Libro de códigos</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Diseño del instrumento</span>"
     ]
   },
   {
-    "objectID": "03-codebook.html#instrucciones",
-    "href": "03-codebook.html#instrucciones",
-    "title": "3  Libro de códigos",
-    "section": "\n3.2 Instrucciones",
-    "text": "3.2 Instrucciones\nEl Libro de Códigos que se presentan en la siguiente sección corresponden a una herramienta interactiva que busca presentar de manera eficiente información respecto a las variables que componen la base de datos.\nEl libro muestra el código de cada variable, la etiqueta asociada a la variable con la redacción del ítem, y las categorías de respuesta y códigos asociados. Estas corresponden a tres columnas del libro de códigos denominadas name, label y value_label, respectivamente.\nSe puede hacer uso del buscador que se encuentra al principio del libro para encontrar información de manera más rápida. También se pueden usar los buscadores por cada columna, los cuales irán filtrando los datos que contengan el término de búsqueda.\nIncluimos etiquetas de variables en el Libro de Códigos, pero no en las bases de datos. El equipo de LISA las diseñó con la intención de describir brevemente el fenómeno o dimensión a medir. La redacción de la pregunta sigue a las etiquetas, incluyendo códigos y categorías de respuesta. En la construcción de la base de datos, ingresamos solo los códigos de respuesta como valores numéricos.\nEn la columna value_labels se muestran las categorías de respuesta de cada variable. No obstante, si la variable es numérica o de respuesta abierta (texto), la casilla se mostrará en blanco, ya que no hay ninguna categoría que mostrar. También puede ocurrir el caso que la variable sea numérica, pero tenga disponibles las categorías “88. No Sabe” y “99. No Responde”. En estos casos sólo se visualizarán ambas categorías en el libro de código.",
+    "objectID": "03-instrument-desing.html#lista-de-variables",
+    "href": "03-instrument-desing.html#lista-de-variables",
+    "title": "3  Diseño del instrumento",
+    "section": "3.2 Lista de variables",
+    "text": "3.2 Lista de variables",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Libro de códigos</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Diseño del instrumento</span>"
     ]
   },
   {
-    "objectID": "03-codebook.html#libro-de-códigos",
-    "href": "03-codebook.html#libro-de-códigos",
-    "title": "3  Libro de códigos",
-    "section": "\n3.3 Libro de códigos",
-    "text": "3.3 Libro de códigos",
+    "objectID": "04-survey-implementation.html",
+    "href": "04-survey-implementation.html",
+    "title": "4  Implementación del instrumento",
+    "section": "",
+    "text": "4.1 Técnica y métodos de recolección de datos",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Libro de códigos</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#diseño-del-instrumento-de-captura-de-la-información",
+    "href": "04-survey-implementation.html#diseño-del-instrumento-de-captura-de-la-información",
+    "title": "4  Implementación del instrumento",
+    "section": "4.2 Diseño del instrumento de captura de la información",
+    "text": "4.2 Diseño del instrumento de captura de la información",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#método-para-la-capacitación-para-la-recolección-de-datos",
+    "href": "04-survey-implementation.html#método-para-la-capacitación-para-la-recolección-de-datos",
+    "title": "4  Implementación del instrumento",
+    "section": "4.3 Método para la capacitación para la recolección de datos",
+    "text": "4.3 Método para la capacitación para la recolección de datos",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "04-survey-implementation.html#métodos-de-supervisión",
+    "href": "04-survey-implementation.html#métodos-de-supervisión",
+    "title": "4  Implementación del instrumento",
+    "section": "4.4 Métodos de supervisión",
+    "text": "4.4 Métodos de supervisión",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Implementación del instrumento</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html",
+    "href": "05-survey-processing.html",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "",
+    "text": "5.1 Clasificación y codificación de datos",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#análisis-de-consistencia-de-datos-y-edición",
+    "href": "05-survey-processing.html#análisis-de-consistencia-de-datos-y-edición",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.2 Análisis de consistencia de datos y edición",
+    "text": "5.2 Análisis de consistencia de datos y edición",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#procedimientos-de-edición",
+    "href": "05-survey-processing.html#procedimientos-de-edición",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.3 Procedimientos de edición",
+    "text": "5.3 Procedimientos de edición",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#imputación-y-derivación-de-variables",
+    "href": "05-survey-processing.html#imputación-y-derivación-de-variables",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.4 Imputación y derivación de variables",
+    "text": "5.4 Imputación y derivación de variables",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "05-survey-processing.html#cálculo-y-ajustes-de-factores-de-expansión",
+    "href": "05-survey-processing.html#cálculo-y-ajustes-de-factores-de-expansión",
+    "title": "5  Metodología de procesamiento de datos",
+    "section": "5.5 Cálculo y ajustes de factores de expansión",
+    "text": "5.5 Cálculo y ajustes de factores de expansión",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Metodología de procesamiento de datos</span>"
+    ]
+  },
+  {
+    "objectID": "07-etichs.html",
+    "href": "07-etichs.html",
+    "title": "7  Ética",
+    "section": "",
+    "text": "7.1 Aprobación comité ético",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Ética</span>"
+    ]
+  },
+  {
+    "objectID": "07-etichs.html#consentimientos-informados",
+    "href": "07-etichs.html#consentimientos-informados",
+    "title": "7  Ética",
+    "section": "7.2 Consentimientos informados",
+    "text": "7.2 Consentimientos informados",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Ética</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html",
+    "href": "08-codebook.html",
+    "title": "8  Libro de códigos",
+    "section": "",
+    "text": "8.1 Introducción\nPara el uso adecuado de la base de datos Encuesta Panel Justicia Educacional y Ciudadanía, recomendamos que los investigadores trabajen con el libro de códigos que se presenta a continuación. Esta sección busca facilitar el uso de la base de datos, entregando la información correspondiente a los nombres de las variables, sus etiquetas, así como también las etiquetas de las categorías de respuesta de cada variable. En primer lugar, se detallan las instrucciones de cómo utilizar el libro de códigos interactivo. En segundo lugar, se presenta el libro de códigos propiamente tal para cada cuestionario por separado (estudiantes, docentes y padres y apoderados).",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#instrucciones",
+    "href": "08-codebook.html#instrucciones",
+    "title": "8  Libro de códigos",
+    "section": "\n8.2 Instrucciones",
+    "text": "8.2 Instrucciones\nLos Libros de Códigos que se presentan en la siguiente sección corresponden a una herramienta interactiva que busca presentar de manera eficiente información respecto a las variables que componen la base de datos. Presentamos los ítems por cuestionario para facilitar su comprensión.\nCada libro muestra el código de cada variable, la etiqueta asociada a la variable con la redacción del ítem, y las categorías de respuesta y códigos asociados. Estas corresponden a tres columnas del libro de códigos denominadas name, label y value_label, respectivamente.\nSe puede hacer uso del buscador que se encuentra al principio del libro para encontrar información de manera más rápida. También se pueden usar los buscadores por cada columna, los cuales irán filtrando los datos que contengan el término de búsqueda.\nIncluimos etiquetas de variables en el Libro de Códigos y en las bases de datos. El equipo de EDUMER las diseñó con la intención de describir brevemente el fenómeno o dimensión a medir. La redacción de la pregunta sigue a las etiquetas, incluyendo códigos y categorías de respuesta. En la construcción de la base de datos, ingresamos los códigos de respuesta como valores numéricos y las categorías de respuesta como etiquetas.\nEn la columna value_labels se muestran las categorías de respuesta de cada variable. No obstante, si la variable es numérica o de respuesta abierta (texto), la casilla se mostrará en blanco, ya que no hay ninguna categoría que mostrar. También puede ocurrir el caso que la variable sea numérica, pero tenga disponibles las categorías “88. No Sabe” y “99. No Responde”. En estos casos sólo se visualizarán ambas categorías en el libro de código.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#estudiantes",
+    "href": "08-codebook.html#estudiantes",
+    "title": "8  Libro de códigos",
+    "section": "\n8.3 Estudiantes",
+    "text": "8.3 Estudiantes",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#docentes",
+    "href": "08-codebook.html#docentes",
+    "title": "8  Libro de códigos",
+    "section": "\n8.4 Docentes",
+    "text": "8.4 Docentes",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
+    ]
+  },
+  {
+    "objectID": "08-codebook.html#padres-y-apoderados",
+    "href": "08-codebook.html#padres-y-apoderados",
+    "title": "8  Libro de códigos",
+    "section": "\n8.5 Padres y apoderados",
+    "text": "8.5 Padres y apoderados",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Libro de códigos</span>"
     ]
   }
 ]
