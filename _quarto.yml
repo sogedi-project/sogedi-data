@@ -3,20 +3,20 @@ project:
   output-dir: docs
 
 book:
-  title: "Manual Metodológico EPJEC"
-  author: "Equipo EDUMER"
+  title: "Manual Metodológico SOGEDI"
+  author: "Equipo SOGEDI"
   date: "22/07/2023"
   reader-mode: true
   page-footer:
     left: |
-      Proyecto Fondecyt No. 1210847 "Educación y Meritocracia".
+      Proyecto "Desigualdad Socioeconómica y de Género: Un Estudio Multi-País"
 
     right: |
       Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.
   page-navigation: true
-  cover-image: edumer.png
-  favicon: edumer.png
-  repo-url: https://github.com/educacion-meritocracia/edumer-data
+  cover-image: logo-sogedi.png
+  favicon: logo-sogedi.png
+  repo-url: https://github.com/sogedi-project/sogedi-data
   repo-branch: main
   chapters:
     - index.qmd
@@ -41,7 +41,7 @@ format:
   html:
     theme:
       - cosmo
-      - edumer.scss
+      - sogedi.scss
     code-link: true
 
 editor: visual
