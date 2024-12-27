@@ -8,7 +8,7 @@ fontsize: 12pt
 format:
   html:
     toc: true
-    toc-location: left
+    toc-location: right
     toc-depth: 2
     toc-expand: 2
     toc-title: Contents
@@ -28,7 +28,7 @@ editor_options:
 
 # Presentation
 
-This is the preparation code of the data for Study 1: Measuring meritocracy with international secondary data. The prepared data is `data_s1.RData`
+This is the preparation code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The prepared data is `SOGEDI_dataset_V1.sav`
 
 
 ```{r}
@@ -58,7 +58,35 @@ options(knitr.kable.NA = "")
 
 # Libraries
 
+```{r}
+#| label: libraries
+
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               sjmisc, 
+               here,
+               sjlabelled,
+               haven,
+               naniar,
+               car,
+               kableExtra)
+
+options(scipen=999)
+rm(list = ls())
+
+```
+
+
 # Data
+
+```{r}
+#| label: data
+
+sogedi_db <- haven::read_sav(file = here("input/data/original/SOGEDI_dataset_V1.sav"), user_na = T)
+
+glimpse(sogedi_db)
+```
 
 # Processing
 
@@ -69,6 +97,35 @@ options(knitr.kable.NA = "")
 ## Recode and transform
 
 ## Missing values
+
+```{r}
+#| label: missings
+#| collapse: false
+#| out-width: '100%'
+#| #| fig-asp: 1.22
+
+sogedi_db2 <- sogedi_db %>% 
+  dplyr::select(-c(starts_with("time"), 247:269)) # remove variables of time survey and dummy nationality
+
+n_miss(sogedi_db2) # total of NA's
+
+prop_miss(sogedi_db2)*100 # proportion of NA's
+
+miss_var_table(sogedi_db2) %>% 
+  kable(.,"markdown") 
+
+miss_var_summary(sogedi_db2) %>% 
+  filter(pct_miss > 0) %>% 
+  kable(.,"markdown") 
+
+sogedi_db2 %>% 
+  select(where(~ any(is.na(.)))) %>% # only variables with NA's, this change the total
+  vis_miss(., warn_large_data = F) + 
+  theme(axis.text.x = element_text(angle=80))
+
+```
+
+
 
 # Save and export
 
