@@ -7,6 +7,4 @@ editor: visual
 
 ## Aprobación comité ético
 
-
 ## Consentimientos informados
-

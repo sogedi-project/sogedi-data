@@ -1,0 +1,50 @@
+
+### Hostile support for poor mothers
+
+```{r}
+#| label: tbl-desc35
+#| tbl-cap: "Descriptive statistics of Hostile support for poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("wel_ho_1","wel_ho_2"))
+
+
+```
+
+```{r}
+#| label: fig-40
+#| fig-cap: "Correlation matrixes of Hostile support for poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "wel_ho"
+result2 <- alphas(db_proc, c("wel_ho_1","wel_ho_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_ho_1","wel_ho_2")], na.rm = TRUE)
+```
+

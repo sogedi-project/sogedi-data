@@ -9,7 +9,7 @@ format:
   html:
     toc: true
     toc-location: right
-    toc-depth: 2
+    toc-depth: 3
     toc-expand: 2
     toc-title: Contents
     number-sections: true
@@ -28,8 +28,7 @@ editor_options:
 
 # Presentation
 
-This is the calculation and analysis of variables code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The data used is `SOGEDI_dataset_V1.sav`
-
+This is the calculation and analysis of variables code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The data used is `db_proc.RData`
 
 ```{r}
 #| label: set
@@ -55,8 +54,10 @@ options(kableExtra.html.bsTable = T)
 options(knitr.kable.NA = "")
 ```
 
-
 # Libraries
+
+First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move. 
+
 
 ```{r}
 #| label: libraries
@@ -70,7 +71,7 @@ pacman::p_load(tidyverse,
                here,
                lavaan,
                psych,
-               corrplot,
+               rstatix,
                ggdist,
                patchwork,
                sjlabelled,
@@ -84,16 +85,2262 @@ rm(list = ls())
 
 ```
 
-
 # Data
+
+We load the database from the local path. Modify this later.
 
 ```{r}
 #| label: data
 
-sogedi_db <- haven::read_sav(file = here("input/data/original/SOGEDI_dataset_V1.sav"), user_na = T)
+load(file = here("output/data/db_proc.RData"))
 
-glimpse(sogedi_db)
+glimpse(db_proc)
 ```
 
+We have 4,209 cases or rows and 212 variables or columns.
+
+# Functions
+
+```{r}
+#| label: functions
+
+
+describe_kable <- function(data, vars) {
+  psych::describe(data[, vars]) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+}
+
+fit_correlations <- function(data, vars) {
+  M <- cor(data[, vars], method = "pearson", use = "complete.obs")
+  P <- psych::polychoric(data[, vars])
+  
+  diag(M) <- NA
+  diag(P$rho) <- NA
+  
+  rnames <- paste0(LETTERS[1:length(vars)], ". ", vars)
+  cnames <- paste0("(", LETTERS[1:length(vars)], ")")
+  
+  rownames(M) <- rnames
+  colnames(M) <- cnames
+  rownames(P$rho) <- rnames
+  colnames(P$rho) <- cnames
+  
+  list(pearson = M, polychoric = P$rho)
+}
+
+corr_plots <- function(cor_list, data, db_name = "SOGEDI") {
+  p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      cor_list$pearson,
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = 'I. Pearson correlations')
+  
+  p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      cor_list$polychoric,
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = 'II. Polychoric correlations')
+  
+  p1 / p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on ", db_name, 
+        " database (n=", nrow(data), ")"
+      )
+    )
+}
+
+alphas <- function(data, vars, new_var) {
+  alpha_cronbach <- psych::alpha(data[, vars])
+  raw_alpha <- alpha_cronbach$total$raw_alpha
+  
+  poly_matrix <- psych::polychoric(data[, vars])
+  alpha_ordinal <- psych::alpha(poly_matrix$rho)
+  ord_alpha <- alpha_ordinal$total$raw_alpha
+  
+  data[[new_var]] <- rowMeans(data[, vars], na.rm = TRUE)
+  new_var_summary <- summary(data[[new_var]])
+  
+  list(
+    raw_alpha       = raw_alpha,
+    ord_alpha       = ord_alpha,
+    new_var_summary = new_var_summary
+  )
+}
+
+cfa_tables <- function(model) {
+  
+  sum_loadings <- standardizedSolution(model) %>%
+    filter(op == "=~") %>%
+    select(lhs, rhs, est.std) %>%
+    rename(
+      Factor   = lhs,
+      Indicator = rhs,
+      Loading  = est.std
+    )
+  
+  loadings_table <- sum_loadings %>%
+    kableExtra::kable(
+      format    = "markdown",  
+      digits    = 3,
+      booktabs  = TRUE,
+      col.names = c("Factor", "Indicator", "Loading"),
+      caption   = NULL
+    ) %>%
+    kableExtra::kable_styling(
+      full_width        = FALSE,
+      font_size         = 10,
+      latex_options     = "HOLD_position",
+      bootstrap_options = c("striped", "bordered")
+    )
+  
+  sum_fit <- fitmeasures(model, output = "matrix")[c("chisq","pvalue","df","cfi","tli","rmsea","rmsea.ci.lower","rmsea.ci.upper"),]
+sum_fit$nobs <- nobs(model)
+sum_fit$est  <- "DWLS"  
+sum_fit <- data.frame(sum_fit) %>%
+  mutate(
+    across(.cols = c(cfi, tli, rmsea, rmsea.ci.lower, rmsea.ci.upper),
+           .fns = ~ round(., 3))
+  ) %>% 
+  mutate(stars=gtools::stars.pval(pvalue),
+         chisq=paste0(round(chisq,3)," (",df,") ", stars),
+    rmsea.ci = paste0(rmsea, "(", rmsea.ci.lower, "-", rmsea.ci.upper, ")")) %>%
+  select(nobs, est, chisq, cfi, tli, rmsea.ci)
+
+  colnames_fit <- c("$N$","Estimator","$\\chi^2$","CFI","TLI","RMSEA (90%)")
+  
+  fit_table <- sum_fit %>%
+    kableExtra::kable(
+      format     = "markdown", 
+      digits     = 3,
+      booktabs   = TRUE,
+      col.names  = colnames_fit,
+      caption    = NULL
+    ) %>%
+    kableExtra::kable_styling(
+      full_width        = TRUE,
+      font_size         = 10,
+      latex_options     = "HOLD_position",
+      bootstrap_options = c("striped", "bordered")
+    )
+  
+  list(
+    loadings_table = loadings_table,
+    fit_table      = fit_table
+  )
+}
+
+
+fit_correlations_pairwise <- function(data, vars) {
+  M <- cor(data[, vars], method = "pearson", use = "pairwise.complete.obs")
+  P <- psych::polychoric(data[, vars], global = FALSE)
+  
+  diag(M) <- NA
+  diag(P$rho) <- NA
+  
+  rnames <- paste0(LETTERS[1:length(vars)], ". ", vars)
+  cnames <- paste0("(", LETTERS[1:length(vars)], ")")
+  
+  rownames(M) <- rnames
+  colnames(M) <- cnames
+  rownames(P$rho) <- rnames
+  colnames(P$rho) <- cnames
+  
+  list(pearson = M, polychoric = P$rho)
+}
+
+```
+
+
 # Processing
+
+
+## Block 1. Class inequality / Attitudes
+
+### Perception of economic inequality in daily live
+
+```{r}
+#| label: tbl-desc1
+#| tbl-cap: "Descriptive statistics of Perception of economic inequality in daily live"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations
+
+# fit pearson and polychoric
+res1 <- fit_correlations(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"))
+
+```
+
+```{r}
+#| label: fig-1
+#| fig-cap: "Correlation matrixes of Perception of economic inequality in daily live"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res1, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "eco_in"
+result1 <- alphas(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"), mi_variable)
+
+result1$raw_alpha
+result1$ord_alpha
+result1$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("eco_in_1", "eco_in_2", "eco_in_3")], na.rm = TRUE)
+```
+
+```{r}
+# 3. CFA
+
+# model
+model_cfa <- ' perc_eco_inequality =~ eco_in_1 + eco_in_2 + eco_in_3 '
+
+# estimation 
+m1_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "DWLS",
+              ordered = T,
+              std.lv = F) 
+
+
+```
+
+
+```{r}
+#| label: tbl-1
+#| tbl-cap: "Standardized Factor Loadings of Perception of economic inequality in daily live"
+#| tbl-cap-location: top
+
+cfa_tables(m1_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-2
+#| tbl-cap: "Summary fit indices of Perception of economic inequality in daily live"
+#| tbl-cap-location: top
+
+cfa_tables(m1_cfa)$fit_table
+
+```
+
+
+### Protective paternalism toward poor women and men
+
+```{r}
+#| label: tbl-desc2
+#| tbl-cap: "Descriptive statistics of Protective paternalism toward poor women and men"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4", "pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4"))
+
+
+res3 <- fit_correlations(db_proc, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"))
+
+```
+
+```{r}
+#| label: fig-2
+#| fig-cap: "Correlation matrixes of Protective paternalism toward poor women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+#| label: fig-3
+#| fig-cap: "Correlation matrixes of Protective paternalism toward poor men"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "pp_pw"
+result2 <- alphas(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4")], na.rm = TRUE)
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "pp_pm"
+result3 <- alphas(db_proc, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4")], na.rm = TRUE)
+```
+
+Preguntar Mario por el CFA de esto: es por cada subdimension o toda la dimension?
+
+### Complementary class diferenciation toward poor women and men
+
+```{r}
+#| label: tbl-desc3
+#| tbl-cap: "Descriptive statistics of Complementary class diferenciation toward poor women and men"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4", "cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4"))
+
+
+res3 <- fit_correlations(db_proc, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"))
+
+```
+
+```{r}
+#| label: fig-4
+#| fig-cap: "Correlation matrixes of Complementary class diferenciation toward poor women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+#| label: fig-5
+#| fig-cap: "Correlation matrixes of Complementary class diferenciation toward poor men"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "cc_pw"
+result2 <- alphas(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4")], na.rm = TRUE)
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "cc_pm"
+result3 <- alphas(db_proc, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4")], na.rm = TRUE)
+```
+
+
+### Hostile classism toward poor women and men
+
+```{r}
+#| label: tbl-desc4
+#| tbl-cap: "Descriptive statistics of Hostile classism toward poor women and men"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4", "hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4"))
+
+res3 <- fit_correlations(db_proc, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4"))
+
+```
+
+```{r}
+#| label: fig-6
+#| fig-cap: "Correlation matrixes of Hostile classism toward poor women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+#| label: fig-7
+#| fig-cap: "Correlation matrixes of Hostile classism toward poor men"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "hc_pw"
+result2 <- alphas(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4")], na.rm = TRUE)
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "hc_pm"
+result3 <- alphas(db_proc, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4")], na.rm = TRUE)
+```
+
+
+## Block 2. Gender inequality / Attitudes
+
+### Paternalism sexism toward women
+
+```{r}
+#| label: tbl-desc5
+#| tbl-cap: "Descriptive statistics of Paternalism sexism toward women"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
+
+```
+
+```{r}
+#| label: fig-8
+#| fig-cap: "Correlation matrixes of Paternalism sexism toward women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ps_m"
+result2 <- alphas(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], na.rm = TRUE)
+```
+
+
+
+### Hostility sexism toward women
+
+```{r}
+#| label: tbl-desc6
+#| tbl-cap: "Descriptive statistics of Hostility sexism toward women"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
+
+```
+
+```{r}
+#| label: fig-9
+#| fig-cap: "Correlation matrixes of Hostility sexism toward women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "hs_m"
+result2 <- alphas(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], na.rm = TRUE)
+```
+
+
+### Perception of gender inequality
+
+```{r}
+#| label: tbl-desc7
+#| tbl-cap: "Descriptive statistics of Perception of gender inequality"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
+
+```
+
+```{r}
+#| label: fig-10
+#| fig-cap: "Correlation matrixes of Perception of gender inequality"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "gen_in"
+result2 <- alphas(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6")], na.rm = TRUE)
+```
+
+
+
+```{r}
+# 3. CFA
+
+# model
+model_cfa <- ' gender_inquality =~ gen_in_1 + gen_in_2 + gen_in_3 + gen_in_4 + gen_in_5 + gen_in_6 '
+
+# estimation 
+m2_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "DWLS",
+              ordered = T,
+              std.lv = F) 
+
+
+```
+
+
+```{r}
+#| label: tbl-3
+#| tbl-cap: "Standardized Factor Loadings of Perception of gender inequality"
+#| tbl-cap-location: top
+
+cfa_tables(m2_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-4
+#| tbl-cap: "Summary fit indices of Perception of gender inequality"
+#| tbl-cap-location: top
+
+cfa_tables(m2_cfa)$fit_table
+
+```
+
+
+### Belief in sexism shift
+
+```{r}
+#| label: tbl-desc8
+#| tbl-cap: "Descriptive statistics of Belief in sexism shift"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("shif_1", "shif_2", "shif_3"))
+
+```
+
+```{r}
+#| label: fig-11
+#| fig-cap: "Correlation matrixes of Belief in sexism shift"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "shif"
+result2 <- alphas(db_proc, c("shif_1", "shif_2", "shif_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], na.rm = TRUE)
+```
+
+
+
+```{r}
+# 3. CFA
+
+# model
+model_cfa <- ' shif_sexism =~ shif_1 + shif_2 + shif_3 '
+
+# estimation 
+m3_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "DWLS",
+              ordered = T,
+              std.lv = F) 
+
+
+```
+
+
+```{r}
+#| label: tbl-5
+#| tbl-cap: "Standardized Factor Loadings of Belief in sexism shift"
+#| tbl-cap-location: top
+
+cfa_tables(m3_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-6
+#| tbl-cap: "Summary fit indices of Belief in sexism shift"
+#| tbl-cap-location: top
+
+cfa_tables(m3_cfa)$fit_table
+
+```
+
+## Block 3. Contacts and rates
+
+
+
+### Perception of social mobility
+
+```{r}
+#| label: tbl-desc9
+#| tbl-cap: "Descriptive statistics of Perception of social mobility"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", "mobi_down_2", "mobi_down_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"))
+
+res3 <- fit_correlations(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"))
+```
+
+```{r}
+#| label: fig-12
+#| fig-cap: "Correlation matrixes of Perception of ascendent social mobility"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+```{r}
+#| label: fig-13
+#| fig-cap: "Correlation matrixes of Perception of descendent social mobility"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ascenmobi"
+result2 <- alphas(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_up_1", "mobi_up_2", "mobi_up_3")], na.rm = TRUE)
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "descenmobi"
+result3 <- alphas(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mobi_down_3")], na.rm = TRUE)
+```
+
+Preguntar mario si va CFA aqui
+
+
+## Block 4. Stereotypes
+
+### Stereotype content model: inmmorality
+
+```{r}
+#| label: tbl-desc10
+#| tbl-cap: "Descriptive statistics of Stereotype content model: inmmorality"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("inm_1", "inm_2", "inm_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("inm_1", "inm_2", "inm_3"))
+
+```
+
+```{r}
+#| label: fig-14
+#| fig-cap: "Correlation matrixes of Stereotype content model: inmmorality"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "inm"
+result2 <- alphas(db_proc, c("inm_1", "inm_2", "inm_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.rm = TRUE)
+```
+
+
+Preguntar mario si va CFA aqui
+
+### Stereotype content model: morality
+
+```{r}
+#| label: tbl-desc11
+#| tbl-cap: "Descriptive statistics of Stereotype content model: morality"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("mor_1", "mor_2", "mor_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("mor_1", "mor_2", "mor_3"))
+
+```
+
+```{r}
+#| label: fig-15
+#| fig-cap: "Correlation matrixes of Stereotype content model: morality"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "mor"
+result2 <- alphas(db_proc, c("mor_1", "mor_2", "mor_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.rm = TRUE)
+```
+### Stereotype content model: warmth
+
+```{r}
+#| label: tbl-desc12
+#| tbl-cap: "Descriptive statistics of Stereotype content model: warmth"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("war_1", "war_2", "war_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("war_1", "war_2", "war_3"))
+
+```
+
+```{r}
+#| label: fig-16
+#| fig-cap: "Correlation matrixes of Stereotype content model: warmth"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "war"
+result2 <- alphas(db_proc, c("war_1", "war_2", "war_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("war_1", "war_2", "war_3")], na.rm = TRUE)
+```
+
+
+Preguntar mario si va CFA aqui
+
+### Stereotype content model: competence
+
+```{r}
+#| label: tbl-desc13
+#| tbl-cap: "Descriptive statistics of Stereotype content model: competence"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("com_1", "com_2", "com_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("com_1", "com_2", "com_3"))
+
+```
+
+```{r}
+#| label: fig-17
+#| fig-cap: "Correlation matrixes of Stereotype content model: competence"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "com"
+result2 <- alphas(db_proc, c("com_1", "com_2", "com_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("com_1", "com_2", "com_3")], na.rm = TRUE)
+```
+
+
+Preguntar mario si va CFA aqui
+
+### Intergroup behavioural tendencies: passive harm
+
+```{r}
+#| label: tbl-desc14
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive harm"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ph_1", "ph_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("ph_1", "ph_2"))
+
+```
+
+```{r}
+#| label: fig-18
+#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: passive harm"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ph"
+result2 <- alphas(db_proc, c("ph_1", "ph_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
+```
+
+
+Preguntar mario si va CFA aqui
+
+### Intergroup behavioural tendencies: active harm
+
+```{r}
+#| label: tbl-desc15
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active harm"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ah_1", "ah_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("ah_1", "ah_2"))
+
+```
+
+```{r}
+#| label: fig-19
+#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: active harm"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ah"
+result2 <- alphas(db_proc, c("ah_1", "ah_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ah_1", "ah_2")], na.rm = TRUE)
+```
+
+### Intergroup behavioural tendencies: passive facilitation
+
+```{r}
+#| label: tbl-desc16
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive facilitation"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("pf_1", "pf_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("pf_1", "pf_2"))
+
+```
+
+```{r}
+#| label: fig-20
+#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: passive facilitation"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "pf"
+result2 <- alphas(db_proc, c("pf_1", "pf_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pf_1", "pf_2")], na.rm = TRUE)
+```
+
+### Intergroup behavioural tendencies: active facilitation
+
+```{r}
+#| label: tbl-desc17
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active facilitation"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("af_1", "af_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("af_1", "af_2"))
+
+```
+
+```{r}
+#| label: fig-21
+#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: active facilitation"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "af"
+result2 <- alphas(db_proc, c("af_1", "af_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
+```
+
+
+### Intergroup affect tendencies: admiration toward
+
+```{r}
+#| label: tbl-desc18
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: admiration toward"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ad_1", "ad_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations ppw
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("ad_1", "ad_2"))
+
+```
+
+```{r}
+#| label: fig-22
+#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: admiration toward"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ad"
+result2 <- alphas(db_proc, c("ad_1", "ad_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
+```
+
+
+### Intergroup affect tendencies: contempt toward
+
+```{r}
+#| label: tbl-desc19
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: contempt toward"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("co_1", "co_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("co_1", "co_2"))
+
+```
+
+```{r}
+#| label: fig-23
+#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: contempt toward"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "co"
+result2 <- alphas(db_proc, c("co_1", "co_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
+```
+
+
+
+### Intergroup affect tendencies: envy toward
+
+```{r}
+#| label: tbl-desc20
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: envy toward"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("en_1", "en_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("en_1", "en_2"))
+
+```
+
+```{r}
+#| label: fig-24
+#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: envy toward"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "en"
+result2 <- alphas(db_proc, c("en_1", "en_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
+```
+
+
+
+### Intergroup affect tendencies: pity toward
+
+```{r}
+#| label: tbl-desc21
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: pity toward"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("pi_1", "pi_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("pi_1", "pi_2"))
+
+```
+
+```{r}
+#| label: fig-25
+#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: pity toward"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "pity"
+result2 <- alphas(db_proc, c("pi_1", "pi_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
+```
+
+
+
+#### Greedy dispositions
+
+```{r}
+#| label: tbl-desc22
+#| tbl-cap: "Descriptive statistics of Greedy dispositions"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("greedy_1", "greedy_2", "greedy_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("greedy_1", "greedy_2", "greedy_3"))
+
+```
+
+```{r}
+#| label: fig-26
+#| fig-cap: "Correlation matrixes of Greedy dispositions"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "greedy"
+result2 <- alphas(db_proc, c("greedy_1", "greedy_2", "greedy_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3")], na.rm = TRUE)
+```
+
+
+
+#### Punishment rich
+
+```{r}
+#| label: tbl-desc23
+#| tbl-cap: "Descriptive statistics of Punishment rich"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("punish_1", "punish_2", "punish_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("punish_1", "punish_2", "punish_3"))
+
+```
+
+```{r}
+#| label: fig-27
+#| fig-cap: "Correlation matrixes of Punishment rich"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "punish"
+result2 <- alphas(db_proc, c("punish_1", "punish_2", "punish_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3")], na.rm = TRUE)
+```
+
+
+### Atributtions about poverty
+
+```{r}
+#| label: tbl-desc24
+#| tbl-cap: "Descriptive statistics of Atributtions about poverty"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("ex_po_1", "ex_po_2"))
+
+res3 <- fit_correlations_pairwise(db_proc, c("in_po_1", "in_po_2"))
+
+```
+
+```{r}
+#| label: fig-28
+#| fig-cap: "Correlation matrixes of Atributtions about poverty: external"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+```{r}
+#| label: fig-29
+#| fig-cap: "Correlation matrixes of Atributtions about poverty: internal"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ex_atri_po"
+result2 <- alphas(db_proc, c("ex_po_1", "ex_po_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_po_1", "ex_po_2")], na.rm = TRUE)
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "in_atri_po"
+result3 <- alphas(db_proc, c("in_po_1", "in_po_2"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = TRUE)
+```
+
+
+```{r}
+# 3. CFA
+
+# model
+model_cfa <- '
+  external_atri_po =~ ex_po_1 + ex_po_2
+  internal_atri_po =~ in_po_1 + in_po_2
+  
+'
+# estimation 
+m4_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "DWLS",
+              ordered = T,
+              std.lv = F) 
+
+
+```
+
+
+```{r}
+#| label: tbl-7
+#| tbl-cap: "Standardized Factor Loadings of Atributtions about poverty"
+#| tbl-cap-location: top
+
+cfa_tables(m4_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-8
+#| tbl-cap: "Summary fit indices of Atributtions about poverty"
+#| tbl-cap-location: top
+
+cfa_tables(m4_cfa)$fit_table
+
+```
+
+
+### Atributtions about wealth
+
+```{r}
+#| label: tbl-desc25
+#| tbl-cap: "Descriptive statistics of Atributtions about wealth"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("ex_we_1", "ex_we_2"))
+
+res3 <- fit_correlations_pairwise(db_proc, c("in_we_1", "in_we_2"))
+
+```
+
+```{r}
+#| label: fig-30
+#| fig-cap: "Correlation matrixes of Atributtions about wealth: external"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+```{r}
+#| label: fig-31
+#| fig-cap: "Correlation matrixes of Atributtions about wealth: internal"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res3, db_proc, "SOGEDI")
+
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "ex_atri_we"
+result2 <- alphas(db_proc, c("ex_we_1", "ex_we_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_we_1", "ex_we_2")], na.rm = TRUE)
+```
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "in_atri_we"
+result3 <- alphas(db_proc, c("in_we_1", "in_we_2"), mi_variable)
+
+result3$raw_alpha
+result3$ord_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = TRUE)
+```
+
+
+```{r}
+# 3. CFA
+
+# model
+model_cfa <- '
+  external_atri_we =~ ex_we_1 + ex_we_2
+  internal_atri_we =~ in_we_1 + in_we_2
+  
+'
+# estimation 
+m5_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "DWLS",
+              ordered = T,
+              std.lv = F) 
+
+
+```
+
+
+```{r}
+#| label: tbl-9
+#| tbl-cap: "Standardized Factor Loadings of Atributtions about wealth"
+#| tbl-cap-location: top
+
+cfa_tables(m5_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-10
+#| tbl-cap: "Summary fit indices of Atributtions about wealth"
+#| tbl-cap-location: top
+
+cfa_tables(m5_cfa)$fit_table
+
+```
+
+
+###Thick skin bias
+
+```{r}
+#| label: tbl-desc26
+#| tbl-cap: "Descriptive statistics of Thick skin bias"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations(db_proc, c("sk_1", "sk_2", "sk_3"))
+
+
+```
+
+```{r}
+#| label: fig-32
+#| fig-cap: "Correlation matrixes of Thick skin bias"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "sk"
+result2 <- alphas(db_proc, c("sk_1", "sk_2", "sk_3"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("sk_1", "sk_2", "sk_3")], na.rm = TRUE)
+```
+
+
+### Deservingness: control poverty
+
+```{r}
+#| label: tbl-desc27
+#| tbl-cap: "Descriptive statistics of Deservingness: control poverty"
+#| tbl-cap-location: top
+
+db_proc$carin_control_2_r <- sjmisc::rec(db_proc$carin_control_2,rec = "rev")
+
+describe_kable(db_proc, c("carin_control_1","carin_control_2_r"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("carin_control_1","carin_control_2_r"))
+
+
+```
+
+```{r}
+#| label: fig-33
+#| fig-cap: "Correlation matrixes of Deservingness: control poverty"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "carin_control"
+result2 <- alphas(db_proc, c("carin_control_1","carin_control_2_r"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_2_r")], na.rm = TRUE)
+```
+
+
+### Deservingness: attitude poverty
+
+```{r}
+#| label: tbl-desc28
+#| tbl-cap: "Descriptive statistics of Deservingness: attitude poverty"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("carin_attitude_1","carin_attitude_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("carin_attitude_1","carin_attitude_2"))
+
+
+```
+
+```{r}
+#| label: fig-34
+#| fig-cap: "Correlation matrixes of Deservingness: attitude poverty"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "carin_attitude"
+result2 <- alphas(db_proc, c("carin_attitude_1","carin_attitude_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitude_2")], na.rm = TRUE)
+```
+
+
+### Deservingness: reciprocity poverty
+
+```{r}
+#| label: tbl-desc29
+#| tbl-cap: "Descriptive statistics of Deservingness: reciprocity poverty"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"))
+
+
+```
+
+```{r}
+#| label: fig-35
+#| fig-cap: "Correlation matrixes of Deservingness: reciprocity poverty"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "carin_reciprocity"
+result2 <- alphas(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reciprocity_2")], na.rm = TRUE)
+```
+
+
+### Deservingness: identity poverty
+
+```{r}
+#| label: tbl-desc30
+#| tbl-cap: "Descriptive statistics of Deservingness: identity poverty"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("carin_identity_1","carin_identity_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("carin_identity_1","carin_identity_2"))
+
+
+```
+
+```{r}
+#| label: fig-36
+#| fig-cap: "Correlation matrixes of Deservingness: identity poverty"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "carin_identity"
+result2 <- alphas(db_proc, c("carin_identity_1","carin_identity_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_identity_1","carin_identity_2")], na.rm = TRUE)
+```
+
+
+### Deservingness: need poverty
+
+```{r}
+#| label: tbl-desc31
+#| tbl-cap: "Descriptive statistics of Deservingness: need poverty"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("carin_need_1","carin_need_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("carin_need_1","carin_need_2"))
+
+
+```
+
+```{r}
+#| label: fig-37
+#| fig-cap: "Correlation matrixes of Deservingness: need poverty"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "carin_need"
+result2 <- alphas(db_proc, c("carin_need_1","carin_need_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], na.rm = TRUE)
+```
+
+
+## Block 6. Sexuality
+
+
+### Abuse of social assistance by poor mothers
+
+```{r}
+#| label: tbl-desc33
+#| tbl-cap: "Descriptive statistics of Abuse of social assistance by poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_abu_1","wel_abu_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("wel_abu_1","wel_abu_2"))
+
+
+```
+
+```{r}
+#| label: fig-38
+#| fig-cap: "Correlation matrixes of Abuse of social assistance by poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "wel_abu"
+result2 <- alphas(db_proc, c("wel_abu_1","wel_abu_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm = TRUE)
+```
+
+
+### Paternalistic support for poor mothers
+
+```{r}
+#| label: tbl-desc34
+#| tbl-cap: "Descriptive statistics of Paternalistic support for poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_pa_1","wel_pa_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("wel_pa_1","wel_pa_2"))
+
+
+```
+
+```{r}
+#| label: fig-39
+#| fig-cap: "Correlation matrixes of Paternalistic support for poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "wel_pa"
+result2 <- alphas(db_proc, c("wel_pa_1","wel_pa_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_pa_1","wel_pa_2")], na.rm = TRUE)
+```
+
+### Hostile support for poor mothers
+
+```{r}
+#| label: tbl-desc35
+#| tbl-cap: "Descriptive statistics of Hostile support for poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
+
+```
+
+
+```{r}
+#| collapse: false
+# 1. Correlations 
+
+# fit pearson and polychoric
+res2 <- fit_correlations_pairwise(db_proc, c("wel_ho_1","wel_ho_2"))
+
+
+```
+
+```{r}
+#| label: fig-40
+#| fig-cap: "Correlation matrixes of Hostile support for poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '80%'
+
+#Plot the matrix using corrplot
+
+corr_plots(res2, db_proc, "SOGEDI")
+
+```
+
+
+```{r}
+# 2. Alpha
+
+mi_variable <- "wel_ho"
+result2 <- alphas(db_proc, c("wel_ho_1","wel_ho_2"), mi_variable)
+
+result2$raw_alpha
+result2$ord_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_ho_1","wel_ho_2")], na.rm = TRUE)
+```
 

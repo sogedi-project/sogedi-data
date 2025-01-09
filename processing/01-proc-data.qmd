@@ -58,6 +58,8 @@ options(knitr.kable.NA = "")
 
 # Libraries
 
+First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move. 
+
 ```{r}
 #| label: libraries
 
@@ -80,6 +82,8 @@ rm(list = ls())
 
 # Data
 
+We load the database from the local path. Modify this later.
+
 ```{r}
 #| label: data
 
@@ -88,44 +92,83 @@ sogedi_db <- haven::read_sav(file = here("input/data/original/SOGEDI_dataset_V1.
 glimpse(sogedi_db)
 ```
 
+We have 4,386 cases or rows and 283 variables or columns.
+
 # Processing
 
 ## Select
 
-## Filter
+We exclude variables related to attention checks, survey response time, dummy nationalities and the auxiliary variable `PrimarioÚltimo`, which indicates whether there are duplicate cases. 
 
-## Recode and transform
-
-## Missing values
 
 ```{r}
-#| label: missings
-#| collapse: false
-#| out-width: '100%'
-#| #| fig-asp: 1.22
+#| label: select
 
-sogedi_db2 <- sogedi_db %>% 
-  dplyr::select(-c(starts_with("time"), 247:269)) # remove variables of time survey and dummy nationality
-
-n_miss(sogedi_db2) # total of NA's
-
-prop_miss(sogedi_db2)*100 # proportion of NA's
-
-miss_var_table(sogedi_db2) %>% 
-  kable(.,"markdown") 
-
-miss_var_summary(sogedi_db2) %>% 
-  filter(pct_miss > 0) %>% 
-  kable(.,"markdown") 
-
-sogedi_db2 %>% 
-  select(where(~ any(is.na(.)))) %>% # only variables with NA's, this change the total
-  vis_miss(., warn_large_data = F) + 
-  theme(axis.text.x = element_text(angle=80))
+db_proc <- sogedi_db %>% 
+  dplyr::select(-c(matches("^(aten|time)"), 247:269, 283))
 
 ```
 
+## Filter
 
+We filter out cases from countries without a sufficiently large sample size for statistical analysis, retaining only those from Argentina, Chile, Colombia, Spain, and Mexico.
+
+```{r}
+#| label: filter
+
+frq(db_proc$natio_recoded)
+
+db_proc <- db_proc %>% 
+  dplyr::filter(natio_recoded %in% c(1,3,4,9,13)) 
+
+```
+
+## Recode and transform
+
+Not required. 
+
+## Missing values
+
+```{r, echo=FALSE}
+total_na <- n_miss(db_proc) # total of NA's
+
+prop_na <- prop_miss(db_proc)*100 # proportion of NA's
+
+```
+
+There is a total of `r format(total_na, big.mark = ".")` missing values in the database, which represents the `r scales::percent(prop_na, scale = 1, accuracy = 0.1)` of the total. 
+
+```{r}
+#| label: missings1
+#| collapse: false
+
+n_miss(db_proc) # total of NA's
+
+prop_miss(db_proc)*100 # proportion of NA's
+```
+
+Let's see the number and percentage of missing values per variable:
+
+```{r}
+#| label: missings2
+#| collapse: false
+
+db_proc %>% 
+  select(-c(ex_we_1, ex_we_2, in_we_1, in_we_2, 
+            ex_po_1, ex_po_2, in_po_1, in_po_2,
+            matches("^(greedy|punish|carin)"))) %>% 
+  miss_var_summary(.) %>% 
+  filter(pct_miss > 0) %>% 
+  kable(.,"markdown") 
+```
 
 # Save and export
+
+Finally, we save and export the processed database `db_proc` in `.RData`, `.dta` and `.sav` formats.
+
+```{r}
+save(db_proc, file = here("output/data/db_proc.RData"))
+haven::write_dta(db_proc, path = here("output/data/db_proc.dta"))
+haven::write_sav(db_proc, path = here("output/data/db_proc.sav"))
+```
 

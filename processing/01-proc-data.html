@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.4.554">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andreas Laffert, Research asistant">
-<meta name="dcterms.date" content="2024-12-27">
+<meta name="dcterms.date" content="2025-01-07">
 <title>Data preparation</title>
 <style>
 code{white-space: pre-wrap;}
@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 27, 2024</p>
+        <p class="date">January 7, 2025</p>
       </div>
     </div>
     
@@ -121,6 +121,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This is the preparation code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The prepared data is <code>SOGEDI_dataset_V1.sav</code></p>
 </section><section id="libraries" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> Libraries</h1>
+<p>First, we load the necessary libraries. In this case, we use <code><a href="https://rdrr.io/pkg/pacman/man/p_load.html">pacman::p_load</a></code> to load and call libraries in one move.</p>
 <div class="cell">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/trinker/pacman">"pacman"</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"pacman"</span><span class="op">)</span></span>
 <span></span>
@@ -138,6 +139,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section><section id="data" class="level1" data-number="3"><h1 data-number="3">
 <span class="header-section-number">3</span> Data</h1>
+<p>We load the database from the local path. Modify this later.</p>
 <div class="cell">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sogedi_db</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_spss.html">read_sav</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"input/data/original/SOGEDI_dataset_V1.sav"</span><span class="op">)</span>, user_na <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
@@ -430,92 +432,80 @@ $ regional_area               &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 $ PrimarioÚltimo              &lt;dbl+lbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…</code></pre>
 </div>
 </div>
+<p>We have 4,386 cases or rows and 283 variables or columns.</p>
 </section><section id="processing" class="level1" data-number="4"><h1 data-number="4">
 <span class="header-section-number">4</span> Processing</h1>
 <section id="select" class="level2" data-number="4.1"><h2 data-number="4.1" class="anchored" data-anchor-id="select">
 <span class="header-section-number">4.1</span> Select</h2>
+<p>We exclude variables related to attention checks, survey response time, dummy nationalities and the auxiliary variable <code>PrimarioÚltimo</code>, which indicates whether there are duplicate cases.</p>
+<div class="cell">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">db_proc</span> <span class="op">&lt;-</span> <span class="va">sogedi_db</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu">matches</span><span class="op">(</span><span class="st">"^(aten|time)"</span><span class="op">)</span>, <span class="fl">247</span><span class="op">:</span><span class="fl">269</span>, <span class="fl">283</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section><section id="filter" class="level2" data-number="4.2"><h2 data-number="4.2" class="anchored" data-anchor-id="filter">
 <span class="header-section-number">4.2</span> Filter</h2>
+<p>We filter out cases from countries without a sufficiently large sample size for statistical analysis, retaining only those from Argentina, Chile, Colombia, Spain, and Mexico.</p>
+<div class="cell">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">frq</span><span class="op">(</span><span class="va">db_proc</span><span class="op">$</span><span class="va">natio_recoded</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Recodification of nationality based on country of residence, declared nationality, and other variables that enabled the identification of the primary and actual nationality in cases of dual or multiple nationalities. (x) &lt;numeric&gt; 
+# total N=4386 valid N=4386 mean=6.46 sd=5.00
+
+Value |         Label |   N | Raw % | Valid % | Cum. %
+------------------------------------------------------
+    1 |     Argentine | 857 | 19.54 |   19.54 |  19.54
+    2 |      Bolivian |   1 |  0.02 |    0.02 |  19.56
+    3 |       Chilean | 860 | 19.61 |   19.61 |  39.17
+    4 |     Colombian | 824 | 18.79 |   18.79 |  57.96
+    5 |   Costa Rican |   0 |  0.00 |    0.00 |  57.96
+    6 |         Cuban |   5 |  0.11 |    0.11 |  58.07
+    7 |    Ecuadorian |   3 |  0.07 |    0.07 |  58.14
+    8 |    Salvadoran |   2 |  0.05 |    0.05 |  58.19
+    9 |       Spanish | 831 | 18.95 |   18.95 |  77.13
+   10 |    Guatemalan |   1 |  0.02 |    0.02 |  77.15
+   11 | Equatoguinean |   0 |  0.00 |    0.00 |  77.15
+   12 |      Honduran |   2 |  0.05 |    0.05 |  77.20
+   13 |       Mexican | 837 | 19.08 |   19.08 |  96.28
+   14 |    Nicaraguan |   1 |  0.02 |    0.02 |  96.31
+   15 |    Panamanian |   1 |  0.02 |    0.02 |  96.33
+   16 |    Paraguayan |   2 |  0.05 |    0.05 |  96.37
+   17 |      Peruvian |  70 |  1.60 |    1.60 |  97.97
+   18 |  Puerto Rican |   0 |  0.00 |    0.00 |  97.97
+   19 |     Dominican |   0 |  0.00 |    0.00 |  97.97
+   20 |     Uruguayan |   7 |  0.16 |    0.16 |  98.13
+   21 |    Venezuelan |  75 |  1.71 |    1.71 |  99.84
+   22 |        Rusian |   1 |  0.02 |    0.02 |  99.86
+   23 |         Swiss |   1 |  0.02 |    0.02 |  99.89
+   24 |          EEUU |   1 |  0.02 |    0.02 |  99.91
+   25 |     Brasilian |   4 |  0.09 |    0.09 | 100.00
+ &lt;NA&gt; |          &lt;NA&gt; |   0 |  0.00 |    &lt;NA&gt; |   &lt;NA&gt;</code></pre>
+</div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">db_proc</span> <span class="op">&lt;-</span> <span class="va">db_proc</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">natio_recoded</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">9</span>,<span class="fl">13</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section><section id="recode-and-transform" class="level2" data-number="4.3"><h2 data-number="4.3" class="anchored" data-anchor-id="recode-and-transform">
 <span class="header-section-number">4.3</span> Recode and transform</h2>
+<p>Not required.</p>
 </section><section id="missing-values" class="level2" data-number="4.4"><h2 data-number="4.4" class="anchored" data-anchor-id="missing-values">
 <span class="header-section-number">4.4</span> Missing values</h2>
+<p>There is a total of 50.569 missing values in the database, which represents the 5.7% of the total.</p>
 <div class="cell">
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sogedi_db2</span> <span class="op">&lt;-</span> <span class="va">sogedi_db</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu">starts_with</span><span class="op">(</span><span class="st">"time"</span><span class="op">)</span>, <span class="fl">247</span><span class="op">:</span><span class="fl">269</span><span class="op">)</span><span class="op">)</span> <span class="co"># remove variables of time survey and dummy nationality</span></span>
-<span></span>
-<span><span class="fu">n_miss</span><span class="op">(</span><span class="va">sogedi_db2</span><span class="op">)</span> <span class="co"># total of NA's</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">n_miss</span><span class="op">(</span><span class="va">db_proc</span><span class="op">)</span> <span class="co"># total of NA's</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 52722</code></pre>
+<pre><code>[1] 50569</code></pre>
 </div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">prop_miss</span><span class="op">(</span><span class="va">sogedi_db2</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span> <span class="co"># proportion of NA's</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">prop_miss</span><span class="op">(</span><span class="va">db_proc</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span> <span class="co"># proportion of NA's</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 5.565055</code></pre>
+<pre><code>[1] 5.667214</code></pre>
 </div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">miss_var_table</span><span class="op">(</span><span class="va">sogedi_db2</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">kable</span><span class="op">(</span><span class="va">.</span>,<span class="st">"markdown"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<table class="table table-sm table-striped small">
-<thead><tr class="header">
-<th style="text-align: right;">n_miss_in_var</th>
-<th style="text-align: right;">n_vars</th>
-<th style="text-align: right;">pct_vars</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">184</td>
-<td style="text-align: right;">85.185185</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">24</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.462963</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">24</td>
-<td style="text-align: right;">11.111111</td>
-</tr>
-</tbody>
-</table>
 </div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">miss_var_summary</span><span class="op">(</span><span class="va">sogedi_db2</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<p>Let’s see the number and percentage of missing values per variable:</p>
+<div class="cell">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">db_proc</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ex_we_1</span>, <span class="va">ex_we_2</span>, <span class="va">in_we_1</span>, <span class="va">in_we_2</span>, </span>
+<span>            <span class="va">ex_po_1</span>, <span class="va">ex_po_2</span>, <span class="va">in_po_1</span>, <span class="va">in_po_2</span>,</span>
+<span>            <span class="fu">matches</span><span class="op">(</span><span class="st">"^(greedy|punish|carin)"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">miss_var_summary</span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">pct_miss</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">kable</span><span class="op">(</span><span class="va">.</span>,<span class="st">"markdown"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -527,181 +517,57 @@ $ PrimarioÚltimo              &lt;dbl+lbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">ex_po_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ex_po_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">in_po_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">in_po_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">ex_we_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">ex_we_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">in_we_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">in_we_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">carin_control_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">carin_control_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">carin_attitude_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">carin_attitude_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">carin_reciprocity_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">carin_reciprocity_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">carin_identity_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">carin_identity_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">carin_need_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">carin_need_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">greedy_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">greedy_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">greedy_3</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">punish_1</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">punish_2</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">punish_3</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">50</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">po</td>
 <td style="text-align: right;">25</td>
-<td style="text-align: right;">0.570</td>
+<td style="text-align: right;">0.594</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">age</td>
-<td style="text-align: right;">24</td>
-<td style="text-align: right;">0.547</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">0.499</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ori_sex</td>
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">0.296</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.261</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">inc</td>
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">0.228</td>
+<td style="text-align: right;">0.238</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">relation</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">0.190</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">country_residence</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">0.137</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.119</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">lang_recoded</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">0.0684</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.0475</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">n_perso</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.0228</td>
+<td style="text-align: right;">0.0238</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sogedi_db2</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="fu">where</span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="co"># only variables with NA's, this change the total</span></span>
-<span>  <span class="fu">vis_miss</span><span class="op">(</span><span class="va">.</span>, warn_large_data <span class="op">=</span> <span class="cn">F</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">theme</span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>angle<span class="op">=</span><span class="fl">80</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure"><p><img src="01-proc-data_files/figure-html/missings-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
-</figure>
-</div>
-</div>
 </div>
 </section></section><section id="save-and-export" class="level1" data-number="5"><h1 data-number="5">
 <span class="header-section-number">5</span> Save and export</h1>
+<p>Finally, we save and export the processed database <code>db_proc</code> in <code>.RData</code>, <code>.dta</code> and <code>.sav</code> formats.</p>
+<div class="cell">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/save.html">save</a></span><span class="op">(</span><span class="va">db_proc</span>, file <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"output/data/db_proc.RData"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html">write_dta</a></span><span class="op">(</span><span class="va">db_proc</span>, path <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"output/data/db_proc.dta"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_spss.html">write_sav</a></span><span class="op">(</span><span class="va">db_proc</span>, path <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"output/data/db_proc.sav"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section></main><!-- /main column --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
