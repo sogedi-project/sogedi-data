@@ -28,7 +28,9 @@ editor_options:
 
 # Presentation
 
-This is the preparation code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The prepared data is `SOGEDI_dataset_V1.sav`
+This is the data preparation code for the project “Socioeconomic and Gender Disparities: A Multi-Country Study.” The prepared dataset is `SOGEDI_dataset_V1.sav`
+
+In this repository, data processing and cleaning exclude countries with insufficient sample sizes for robust statistical analysis, retaining only observations from Argentina, Chile, Colombia, Spain, and Mexico. However, for anyone wishing to use all cases and countries from the original dataset, it can be accessed at the following [link](https://osf.io/nv6rs/).
 
 
 ```{r}
@@ -55,10 +57,9 @@ options(kableExtra.html.bsTable = T)
 options(knitr.kable.NA = "")
 ```
 
-
 # Libraries
 
-First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move. 
+First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move.
 
 ```{r}
 #| label: libraries
@@ -79,7 +80,6 @@ rm(list = ls())
 
 ```
 
-
 # Data
 
 We load the database from the local path. Modify this later.
@@ -98,8 +98,7 @@ We have 4,386 cases or rows and 283 variables or columns.
 
 ## Select
 
-We exclude variables related to attention checks, survey response time, dummy nationalities and the auxiliary variable `PrimarioÚltimo`, which indicates whether there are duplicate cases. 
-
+We exclude variables related to attention checks, survey response time, dummy nationalities and the auxiliary variable `PrimarioÚltimo`, which indicates whether there are duplicate cases.
 
 ```{r}
 #| label: select
@@ -125,7 +124,7 @@ db_proc <- db_proc %>%
 
 ## Recode and transform
 
-Not required. 
+Not required.
 
 ## Missing values
 
@@ -136,7 +135,7 @@ prop_na <- prop_miss(db_proc)*100 # proportion of NA's
 
 ```
 
-There is a total of `r format(total_na, big.mark = ".")` missing values in the database, which represents the `r scales::percent(prop_na, scale = 1, accuracy = 0.1)` of the total. 
+There is a total of `r format(total_na, big.mark = ".")` missing values in the database, which represents the `r scales::percent(prop_na, scale = 1, accuracy = 0.1)` of the total.
 
 ```{r}
 #| label: missings1
@@ -171,4 +170,3 @@ save(db_proc, file = here("output/data/db_proc.RData"))
 haven::write_dta(db_proc, path = here("output/data/db_proc.dta"))
 haven::write_sav(db_proc, path = here("output/data/db_proc.sav"))
 ```
-

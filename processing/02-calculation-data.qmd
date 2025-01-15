@@ -9,11 +9,11 @@ format:
   html:
     toc: true
     toc-location: right
-    toc-depth: 3
+    toc-depth: 4
     toc-expand: 2
     toc-title: Contents
     number-sections: true
-    number-depth: 3
+    number-depth: 4
     theme:
       - cosmo
       - "../sogedi.scss"
@@ -24,11 +24,17 @@ format:
     number-depth: 3
 editor_options: 
   chunk_output_type: console
+bibliography: "../input/bib/sogedi-data.bib"
+csl: "../input/bib/apa6.csl"
+link-citations: true
+linkcolor: blue
 ---
 
 # Presentation
 
-This is the calculation and analysis of variables code of the data for the project Socioeconomic and Gender Disparities: A Multi-Country Study. The data used is `db_proc.RData`
+This document details the code used for calculating and analyzing variables in the project "Socioeconomic and Gender Disparities: A Multi-Country Study." The dataset utilized is `db_proc.RData`.
+
+For certain items, we will evaluate the factorial structures based on their original sources and the publications from which they were derived. However, alternative structures may be considered during the data exploration phase.
 
 ```{r}
 #| label: set
@@ -65,7 +71,6 @@ First, we load the necessary libraries. In this case, we use `pacman::p_load` to
 if (! require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
-               haven,
                sjmisc, 
                sjPlot,
                here,
@@ -75,10 +80,8 @@ pacman::p_load(tidyverse,
                ggdist,
                patchwork,
                sjlabelled,
-               semTools,
                gtools,
-               RColorBrewer,
-               skimr)
+               haven)
 
 options(scipen=999)
 rm(list = ls())
@@ -194,11 +197,11 @@ alphas <- function(data, vars, new_var) {
   )
 }
 
-cfa_tables <- function(model) {
+cfa_tab_loadings <- function(model) {
   
   sum_loadings <- standardizedSolution(model) %>%
-    filter(op == "=~") %>%
-    select(lhs, rhs, est.std) %>%
+    dplyr::filter(op == "=~") %>%
+    dplyr::select(lhs, rhs, est.std) %>%
     rename(
       Factor   = lhs,
       Indicator = rhs,
@@ -215,27 +218,52 @@ cfa_tables <- function(model) {
     ) %>%
     kableExtra::kable_styling(
       full_width        = FALSE,
-      font_size         = 10,
+      font_size         = 11,
       latex_options     = "HOLD_position",
       bootstrap_options = c("striped", "bordered")
     )
   
-  sum_fit <- fitmeasures(model, output = "matrix")[c("chisq","pvalue","df","cfi","tli","rmsea","rmsea.ci.lower","rmsea.ci.upper"),]
-sum_fit$nobs <- nobs(model)
-sum_fit$est  <- "DWLS"  
-sum_fit <- data.frame(sum_fit) %>%
-  mutate(
-    across(.cols = c(cfi, tli, rmsea, rmsea.ci.lower, rmsea.ci.upper),
-           .fns = ~ round(., 3))
-  ) %>% 
-  mutate(stars=gtools::stars.pval(pvalue),
-         chisq=paste0(round(chisq,3)," (",df,") ", stars),
-    rmsea.ci = paste0(rmsea, "(", rmsea.ci.lower, "-", rmsea.ci.upper, ")")) %>%
-  select(nobs, est, chisq, cfi, tli, rmsea.ci)
+    list(
+    loadings_table = loadings_table)
+  
+}
 
-  colnames_fit <- c("$N$","Estimator","$\\chi^2$","CFI","TLI","RMSEA (90%)")
+cfa_tab_fit <- function(models, 
+                              country_names = NULL, 
+                              colnames_fit  = c("","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")) {
+ 
+  
+  get_fit_df <- function(model) {
+    sum_fit <- fitmeasures(model, output = "matrix")[c("chisq","pvalue","df","cfi","tli",
+                                                       "rmsea","rmsea.ci.lower","rmsea.ci.upper",
+                                                       "srmr", "aic"),]
+    sum_fit$nobs <- nobs(model)
+    sum_fit$est  <- summary(model)$optim$estimator
+    sum_fit <- data.frame(sum_fit) %>%
+      dplyr::mutate(
+        dplyr::across(
+          .cols = c(cfi, tli, rmsea, rmsea.ci.lower, rmsea.ci.upper, srmr, aic),
+          .fns  = ~ round(., 3)
+        ),
+        stars   = gtools::stars.pval(pvalue),
+        chisq   = paste0(round(chisq,3), " (", df, ") ", stars),
+        rmsea.ci= paste0(rmsea, " [", rmsea.ci.lower, "-", rmsea.ci.upper, "]")
+      ) %>%
+      dplyr::select(nobs, est, chisq, cfi, tli, rmsea.ci, srmr, aic)
+    
+    return(sum_fit)
+  }
+  
+  fit_list <- purrr::map(models, get_fit_df)
+  
+  for (i in seq_along(fit_list)) {
+    fit_list[[i]]$country <- country_names[i]
+  }
+  
+  sum_fit <- dplyr::bind_rows(fit_list)
   
   fit_table <- sum_fit %>%
+    dplyr::select(country, dplyr::everything()) %>%
     kableExtra::kable(
       format     = "markdown", 
       digits     = 3,
@@ -245,14 +273,15 @@ sum_fit <- data.frame(sum_fit) %>%
     ) %>%
     kableExtra::kable_styling(
       full_width        = TRUE,
-      font_size         = 10,
+      font_size         = 11,
       latex_options     = "HOLD_position",
       bootstrap_options = c("striped", "bordered")
     )
   
-  list(
-    loadings_table = loadings_table,
-    fit_table      = fit_table
+  return(
+    list(
+      fit_table = fit_table,
+      sum_fit = sum_fit)
   )
 }
 
@@ -278,12 +307,17 @@ fit_correlations_pairwise <- function(data, vars) {
 ```
 
 
-# Processing
+# Processing and analysis
 
 
 ## Block 1. Class inequality / Attitudes
 
 ### Perception of economic inequality in daily live
+
+
+The items to capture individual subjective perception of daily economic inequality came from previous research from García-Castro et al. [-@garcia-castro_know_2019]. For the SOGEDI study we selected the items from the original scale that had the highest saturation on the construct and could potentially be more suitable for application in different countries.
+
+##### **Descriptive analysis**
 
 ```{r}
 #| label: tbl-desc1
@@ -317,6 +351,7 @@ corr_plots(res1, db_proc, "SOGEDI")
 
 ```
 
+##### **Internal consistency**
 
 ```{r}
 # 2. Alpha
@@ -331,8 +366,13 @@ result1$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("eco_in_1", "eco_in_2", "eco_in_3")], na.rm = TRUE)
 ```
 
+##### **Confirmatory Factor Analysis**
+
 ```{r}
 # 3. CFA
+
+mardia(db_proc[,c("eco_in_1", "eco_in_2", "eco_in_3")], 
+       na.rm = T, plot=F)
 
 # model
 model_cfa <- ' perc_eco_inequality =~ eco_in_1 + eco_in_2 + eco_in_3 '
@@ -340,20 +380,50 @@ model_cfa <- ' perc_eco_inequality =~ eco_in_1 + eco_in_2 + eco_in_3 '
 # estimation 
 m1_cfa <- cfa(model = model_cfa, 
               data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
+              estimator = "MLR",
+              ordered = F,
               std.lv = F) 
 
+m1_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m1_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m1_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m1_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m1_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
 
 ```
 
 
 ```{r}
 #| label: tbl-1
-#| tbl-cap: "Standardized Factor Loadings of Perception of economic inequality in daily live"
+#| tbl-cap: "Standardized Factor Loadings of Perception of economic inequality in daily live all countries"
 #| tbl-cap-location: top
+#| warning: false
 
-cfa_tables(m1_cfa)$loadings_table
+cfa_tab_loadings(m1_cfa)$loadings_table
 
 
 ```
@@ -362,13 +432,24 @@ cfa_tables(m1_cfa)$loadings_table
 #| label: tbl-2
 #| tbl-cap: "Summary fit indices of Perception of economic inequality in daily live"
 #| tbl-cap-location: top
+#| warning: false
 
-cfa_tables(m1_cfa)$fit_table
+cfa_tab_fit(
+  models = list(m1_cfa, m1_cfa_arg, m1_cfa_cl, m1_cfa_col, m1_cfa_es, m1_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
 
 ```
 
+### Ambivalent classism
 
-### Protective paternalism toward poor women and men
+The items to capture ambivalent classism came from previous research from Sainz et al. [-@sainz_spanish_2021]. For the SOGEDI study we used all items from the paternalistic/complementary dimensions of the scale adapted by the authors. For the hostile dimension, we selected the four items most strongly associated with the construct, based on the scale adaptation, while omitting items that could be misinterpreted in other spanish speaker contexts.
+
+
+#### Protective paternalism toward poor women and men
+
+##### **Descriptive analysis**
 
 ```{r}
 #| label: tbl-desc2
@@ -419,6 +500,7 @@ corr_plots(res3, db_proc, "SOGEDI")
 
 ```
 
+##### **Internal consistency**
 
 ```{r}
 # 2. Alpha
@@ -447,9 +529,9 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4")], na.rm = TRUE)
 ```
 
-Preguntar Mario por el CFA de esto: es por cada subdimension o toda la dimension?
+#### Complementary class diferenciation toward poor women and men
 
-### Complementary class diferenciation toward poor women and men
+##### **Descriptive analysis**
 
 ```{r}
 #| label: tbl-desc3
@@ -500,7 +582,7 @@ corr_plots(res3, db_proc, "SOGEDI")
 
 ```
 
-
+##### **Internal consistency**
 ```{r}
 # 2. Alpha
 
@@ -529,7 +611,10 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", 
 ```
 
 
-### Hostile classism toward poor women and men
+#### Hostile classism toward poor women and men
+
+
+##### **Descriptive analysis**
 
 ```{r}
 #| label: tbl-desc4
@@ -579,7 +664,7 @@ corr_plots(res3, db_proc, "SOGEDI")
 
 ```
 
-
+##### **Internal consistency**
 ```{r}
 # 2. Alpha
 
@@ -608,9 +693,176 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc
 ```
 
 
+##### **Confirmatory Factor Analysis**
+
+```{r}
+# 3. CFA
+
+mardia(db_proc[,c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4", 
+                  "cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4",
+                  "hc_pw_1", "hc_pw_2", "hc_pw_3", "hc_pw_4")], 
+       na.rm = T, plot=F)
+
+
+# model
+model_cfa <- ' 
+  aci_pp =~ pp_pw_1 + pp_pw_2 + pp_pw_3 + pp_pw_4
+  aci_cc =~ cc_pw_1 + cc_pw_2 + cc_pw_3 + cc_pw_4
+  aci_hc =~ hc_pw_1 + hc_pw_2 + hc_pw_3 + hc_pw_4 
+  aci =~ aci_pp + aci_cc + aci_hc '
+
+# estimation 
+m2_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m2_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m2_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m2_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m2_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m2_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+```
+
+
+```{r}
+#| label: tbl-3
+#| tbl-cap: "Standardized Factor Loadings of Ambivalent Classism Inventory: poor women all countries"
+#| tbl-cap-location: top
+
+cfa_tab_loadings(m2_cfa)$loadings_table
+
+```
+
+```{r}
+#| label: tbl-4
+#| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory: poor women"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m2_cfa, m2_cfa_arg, m2_cfa_cl, m2_cfa_col, m2_cfa_es, m2_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
+
+```
+
+
+```{r}
+# 3. CFA
+
+mardia(db_proc[,c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4", 
+                  "cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4",
+                  "hc_pm_1", "hc_pm_2", "hc_pm_3", "hc_pm_4")], 
+       na.rm = T, plot=F)
+
+
+# model
+model_cfa <- ' 
+  aci_pp =~ pp_pm_1 + pp_pm_2 + pp_pm_3 + pp_pm_4
+  aci_cc =~ cc_pm_1 + cc_pm_2 + cc_pm_3 + cc_pm_4
+  aci_hc =~ hc_pm_1 + hc_pm_2 + hc_pm_3 + hc_pm_4 
+  aci =~ aci_pp + aci_cc + aci_hc '
+
+# estimation 
+m3_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m3_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m3_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m3_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m3_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m3_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+```
+
+
+```{r}
+#| label: tbl-5
+#| tbl-cap: "Standardized Factor Loadings of Ambivalent Classism Inventory: poor men"
+#| tbl-cap-location: top
+
+cfa_tab_loadings(m3_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-6
+#| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory: poor men"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m3_cfa, m3_cfa_arg, m3_cfa_cl, m3_cfa_col, m3_cfa_es, m3_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
+
+```
+
+
 ## Block 2. Gender inequality / Attitudes
 
-### Paternalism sexism toward women
+### Ambivalent sexism
+
+The items to capture ambivalent sexism came from previous research from Rollero et al. [-@rollero_psychometric_2014] and Rodríguez-Castro et al. [-@rodriguezcastro_validacion_2009]. For the SOGEDI study ee included the Ambivalent Sexism Inventory (ASI) and the Ambivalence Toward Men Inventory (AMI), attempting to have a structure similar to that of ambivalent classim scale. We used the short versions of the scales and selected the items that best fit our study. The items are from the adaptation to Spanish.
+
+
+#### Paternalism sexism toward women
+
+##### **Descriptive results**
 
 ```{r}
 #| label: tbl-desc5
@@ -620,7 +872,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc
 describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -645,6 +896,8 @@ corr_plots(res2, db_proc, "SOGEDI")
 ```
 
 
+##### **Internal consistency**
+
 ```{r}
 # 2. Alpha
 
@@ -658,9 +911,9 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], na.rm = TRUE)
 ```
 
+#### Hostility sexism toward women
 
-
-### Hostility sexism toward women
+##### **Descriptive results**
 
 ```{r}
 #| label: tbl-desc6
@@ -670,7 +923,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], n
 describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -695,6 +947,9 @@ corr_plots(res2, db_proc, "SOGEDI")
 ```
 
 
+##### **Internal consistency**
+
+
 ```{r}
 # 2. Alpha
 
@@ -709,7 +964,91 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], n
 ```
 
 
+##### **Confirmatory Factor Analysis**
+
+
+```{r}
+# 3. CFA
+
+mardia(db_proc[,c("ps_m_1", "ps_m_2", "ps_m_3", 
+                  "hs_m_1", "hs_m_2", "hs_m_3")], 
+       na.rm = T, plot=F)
+
+
+# model
+model_cfa <- ' 
+  psm =~ ps_m_1 + ps_m_2 + ps_m_3
+  hsm =~ hs_m_1 + hs_m_2 + hs_m_3
+  asi =~ psm + hsm '
+
+# estimation 
+m4_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m4_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m4_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m4_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m4_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m4_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+```
+
+
+```{r}
+#| label: tbl-7
+#| tbl-cap: "Standardized Factor Loadings of Ambivalent Sexism all countries"
+#| tbl-cap-location: top
+
+cfa_tab_loadings(m4_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-8
+#| tbl-cap: "Summary fit indices of Ambivalent Sexism"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m4_cfa, m4_cfa_arg, m4_cfa_cl, m4_cfa_col, m4_cfa_es, m4_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
+
+```
+
 ### Perception of gender inequality
+
+We selected six items from the original scale developed by Schwartz-Salazar et al. [-@schwartz-salazar_development_2024] that have several subdimensions. The reduced scale has not being published before so we will explore the factor structure of this four items.
+
+
+##### **Descriptive results**
 
 ```{r}
 #| label: tbl-desc7
@@ -719,7 +1058,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], n
 describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -744,6 +1082,8 @@ corr_plots(res2, db_proc, "SOGEDI")
 ```
 
 
+##### **Internal consistency**
+
 ```{r}
 # 2. Alpha
 
@@ -758,45 +1098,85 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3
 ```
 
 
+##### **Confirmatory factor analysis**
 
 ```{r}
 # 3. CFA
+
+mardia(db_proc[,c("gen_in_1", "gen_in_2", "gen_in_3", 
+                  "gen_in_4", "gen_in_5", "gen_in_6")], 
+       na.rm = T, plot=F)
+
 
 # model
 model_cfa <- ' gender_inquality =~ gen_in_1 + gen_in_2 + gen_in_3 + gen_in_4 + gen_in_5 + gen_in_6 '
 
 # estimation 
-m2_cfa <- cfa(model = model_cfa, 
+m5_cfa <- cfa(model = model_cfa, 
               data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
+              estimator = "MLR",
+              ordered = F,
               std.lv = F) 
 
+m5_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
 
+m5_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m5_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m5_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m5_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
 ```
 
-
 ```{r}
-#| label: tbl-3
-#| tbl-cap: "Standardized Factor Loadings of Perception of gender inequality"
+#| label: tbl-9
+#| tbl-cap: "Standardized Factor Loadings of Perception of gender inequality all countries"
 #| tbl-cap-location: top
 
-cfa_tables(m2_cfa)$loadings_table
+cfa_tab_loadings(m5_cfa)$loadings_table
 
 
 ```
 
 ```{r}
-#| label: tbl-4
+#| label: tbl-10
 #| tbl-cap: "Summary fit indices of Perception of gender inequality"
 #| tbl-cap-location: top
 
-cfa_tables(m2_cfa)$fit_table
+cfa_tab_fit(
+  models = list(m5_cfa, m5_cfa_arg, m5_cfa_cl, m5_cfa_col, m5_cfa_es, m5_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
 
 ```
 
 
-### Belief in sexism shift
+
+#### Belief in sexism shift
+
+##### **Descriptive results**
 
 ```{r}
 #| label: tbl-desc8
@@ -806,7 +1186,6 @@ cfa_tables(m2_cfa)$fit_table
 describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -830,6 +1209,8 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
+##### **Internal consistency**
+
 
 ```{r}
 # 2. Alpha
@@ -845,48 +1226,82 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], n
 ```
 
 
+##### **Confirmatory factor analysis**
 
 ```{r}
 # 3. CFA
-
+mardia(db_proc[,c("shif_1", "shif_2", "shif_3")], 
+       na.rm = T, plot=F)
 # model
 model_cfa <- ' shif_sexism =~ shif_1 + shif_2 + shif_3 '
 
 # estimation 
-m3_cfa <- cfa(model = model_cfa, 
+m6_cfa <- cfa(model = model_cfa, 
               data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
+              estimator = "MLR",
+              ordered = F,
               std.lv = F) 
 
+m6_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
 
+m6_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m6_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m6_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m6_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
 ```
 
-
 ```{r}
-#| label: tbl-5
-#| tbl-cap: "Standardized Factor Loadings of Belief in sexism shift"
+#| label: tbl-11
+#| tbl-cap: "Standardized Factor Loadings of Belief in sexism shift all countries"
 #| tbl-cap-location: top
 
-cfa_tables(m3_cfa)$loadings_table
+
+cfa_tab_loadings(m6_cfa)$loadings_table
 
 
 ```
 
 ```{r}
-#| label: tbl-6
+#| label: tbl-12
 #| tbl-cap: "Summary fit indices of Belief in sexism shift"
 #| tbl-cap-location: top
 
-cfa_tables(m3_cfa)$fit_table
-
+cfa_tab_fit(
+  models = list(m6_cfa, m6_cfa_arg, m6_cfa_cl, m6_cfa_col, m6_cfa_es, m6_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
 ```
+
 
 ## Block 3. Contacts and rates
 
-
-
 ### Perception of social mobility
+
+
+##### **Descriptive results**
 
 ```{r}
 #| label: tbl-desc9
@@ -896,7 +1311,6 @@ cfa_tables(m3_cfa)$fit_table
 describe_kable(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", "mobi_down_2", "mobi_down_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -934,6 +1348,9 @@ corr_plots(res3, db_proc, "SOGEDI")
 
 ```
 
+
+##### **Internal consistency**
+
 ```{r}
 # 2. Alpha
 
@@ -960,12 +1377,87 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mobi_down_3")], na.rm = TRUE)
 ```
 
-Preguntar mario si va CFA aqui
+
+##### **Confirmatory factor analysis**
+
+```{r}
+# 3. CFA
+mardia(db_proc[,c("mobi_up_1", "mobi_up_2", "mobi_up_3",
+                  "mobi_down_1", "mobi_down_2", "mobi_down_3")], 
+       na.rm = T, plot=F)
+
+# model
+model_cfa <- ' 
+  ascen_mobi =~ mobi_up_1 + mobi_up_2 + mobi_up_3
+  descen_mobi =~ mobi_down_1 + mobi_down_2 + mobi_down_3
+   '
+
+# estimation 
+m7_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m7_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m7_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m7_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m7_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m7_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+```
+
+```{r}
+#| label: tbl-13
+#| tbl-cap: "Standardized Factor Loadings of Social mobility all countries"
+#| tbl-cap-location: top
+
+
+cfa_tab_loadings(m7_cfa)$loadings_table
+
+
+```
+
+```{r}
+#| label: tbl-14
+#| tbl-cap: "Summary fit indices of Social mobility"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m7_cfa, m7_cfa_arg, m7_cfa_cl, m7_cfa_col, m7_cfa_es, m7_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+```
 
 
 ## Block 4. Stereotypes
 
 ### Stereotype content model: inmmorality
+
+##### **Descriptive analysis**
 
 ```{r}
 #| label: tbl-desc10
@@ -975,7 +1467,6 @@ Preguntar mario si va CFA aqui
 describe_kable(db_proc, c("inm_1", "inm_2", "inm_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -999,6 +1490,7 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
+##### **Internal consistency**
 
 ```{r}
 # 2. Alpha
@@ -1013,1334 +1505,236 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.rm = TRUE)
 ```
 
-
-Preguntar mario si va CFA aqui
-
-### Stereotype content model: morality
-
-```{r}
-#| label: tbl-desc11
-#| tbl-cap: "Descriptive statistics of Stereotype content model: morality"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("mor_1", "mor_2", "mor_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("mor_1", "mor_2", "mor_3"))
-
-```
-
-```{r}
-#| label: fig-15
-#| fig-cap: "Correlation matrixes of Stereotype content model: morality"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "mor"
-result2 <- alphas(db_proc, c("mor_1", "mor_2", "mor_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.rm = TRUE)
-```
-### Stereotype content model: warmth
-
-```{r}
-#| label: tbl-desc12
-#| tbl-cap: "Descriptive statistics of Stereotype content model: warmth"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("war_1", "war_2", "war_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("war_1", "war_2", "war_3"))
-
-```
-
-```{r}
-#| label: fig-16
-#| fig-cap: "Correlation matrixes of Stereotype content model: warmth"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "war"
-result2 <- alphas(db_proc, c("war_1", "war_2", "war_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("war_1", "war_2", "war_3")], na.rm = TRUE)
-```
-
-
-Preguntar mario si va CFA aqui
-
-### Stereotype content model: competence
-
-```{r}
-#| label: tbl-desc13
-#| tbl-cap: "Descriptive statistics of Stereotype content model: competence"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("com_1", "com_2", "com_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("com_1", "com_2", "com_3"))
-
-```
-
-```{r}
-#| label: fig-17
-#| fig-cap: "Correlation matrixes of Stereotype content model: competence"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "com"
-result2 <- alphas(db_proc, c("com_1", "com_2", "com_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("com_1", "com_2", "com_3")], na.rm = TRUE)
-```
-
-
-Preguntar mario si va CFA aqui
-
-### Intergroup behavioural tendencies: passive harm
-
-```{r}
-#| label: tbl-desc14
-#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive harm"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ph_1", "ph_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("ph_1", "ph_2"))
-
-```
-
-```{r}
-#| label: fig-18
-#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: passive harm"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ph"
-result2 <- alphas(db_proc, c("ph_1", "ph_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
-```
-
-
-Preguntar mario si va CFA aqui
-
-### Intergroup behavioural tendencies: active harm
-
-```{r}
-#| label: tbl-desc15
-#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active harm"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ah_1", "ah_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("ah_1", "ah_2"))
-
-```
-
-```{r}
-#| label: fig-19
-#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: active harm"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ah"
-result2 <- alphas(db_proc, c("ah_1", "ah_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ah_1", "ah_2")], na.rm = TRUE)
-```
-
-### Intergroup behavioural tendencies: passive facilitation
-
-```{r}
-#| label: tbl-desc16
-#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive facilitation"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("pf_1", "pf_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("pf_1", "pf_2"))
-
-```
-
-```{r}
-#| label: fig-20
-#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: passive facilitation"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "pf"
-result2 <- alphas(db_proc, c("pf_1", "pf_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pf_1", "pf_2")], na.rm = TRUE)
-```
-
-### Intergroup behavioural tendencies: active facilitation
-
-```{r}
-#| label: tbl-desc17
-#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active facilitation"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("af_1", "af_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("af_1", "af_2"))
-
-```
-
-```{r}
-#| label: fig-21
-#| fig-cap: "Correlation matrixes of Intergroup behavioural tendencies: active facilitation"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "af"
-result2 <- alphas(db_proc, c("af_1", "af_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
-```
-
-
-### Intergroup affect tendencies: admiration toward
-
-```{r}
-#| label: tbl-desc18
-#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: admiration toward"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ad_1", "ad_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("ad_1", "ad_2"))
-
-```
-
-```{r}
-#| label: fig-22
-#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: admiration toward"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ad"
-result2 <- alphas(db_proc, c("ad_1", "ad_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
-```
-
-
-### Intergroup affect tendencies: contempt toward
-
-```{r}
-#| label: tbl-desc19
-#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: contempt toward"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("co_1", "co_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("co_1", "co_2"))
-
-```
-
-```{r}
-#| label: fig-23
-#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: contempt toward"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "co"
-result2 <- alphas(db_proc, c("co_1", "co_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
-```
-
-
-
-### Intergroup affect tendencies: envy toward
-
-```{r}
-#| label: tbl-desc20
-#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: envy toward"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("en_1", "en_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("en_1", "en_2"))
-
-```
-
-```{r}
-#| label: fig-24
-#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: envy toward"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "en"
-result2 <- alphas(db_proc, c("en_1", "en_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
-```
-
-
-
-### Intergroup affect tendencies: pity toward
-
-```{r}
-#| label: tbl-desc21
-#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: pity toward"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("pi_1", "pi_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("pi_1", "pi_2"))
-
-```
-
-```{r}
-#| label: fig-25
-#| fig-cap: "Correlation matrixes of Intergroup affect tendencies: pity toward"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "pity"
-result2 <- alphas(db_proc, c("pi_1", "pi_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
-```
-
-
-
-#### Greedy dispositions
-
-```{r}
-#| label: tbl-desc22
-#| tbl-cap: "Descriptive statistics of Greedy dispositions"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("greedy_1", "greedy_2", "greedy_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("greedy_1", "greedy_2", "greedy_3"))
-
-```
-
-```{r}
-#| label: fig-26
-#| fig-cap: "Correlation matrixes of Greedy dispositions"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "greedy"
-result2 <- alphas(db_proc, c("greedy_1", "greedy_2", "greedy_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3")], na.rm = TRUE)
-```
-
-
-
-#### Punishment rich
-
-```{r}
-#| label: tbl-desc23
-#| tbl-cap: "Descriptive statistics of Punishment rich"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("punish_1", "punish_2", "punish_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("punish_1", "punish_2", "punish_3"))
-
-```
-
-```{r}
-#| label: fig-27
-#| fig-cap: "Correlation matrixes of Punishment rich"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "punish"
-result2 <- alphas(db_proc, c("punish_1", "punish_2", "punish_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3")], na.rm = TRUE)
-```
-
-
-### Atributtions about poverty
-
-```{r}
-#| label: tbl-desc24
-#| tbl-cap: "Descriptive statistics of Atributtions about poverty"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("ex_po_1", "ex_po_2"))
-
-res3 <- fit_correlations_pairwise(db_proc, c("in_po_1", "in_po_2"))
-
-```
-
-```{r}
-#| label: fig-28
-#| fig-cap: "Correlation matrixes of Atributtions about poverty: external"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-```{r}
-#| label: fig-29
-#| fig-cap: "Correlation matrixes of Atributtions about poverty: internal"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ex_atri_po"
-result2 <- alphas(db_proc, c("ex_po_1", "ex_po_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_po_1", "ex_po_2")], na.rm = TRUE)
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "in_atri_po"
-result3 <- alphas(db_proc, c("in_po_1", "in_po_2"), mi_variable)
-
-result3$raw_alpha
-result3$ord_alpha
-result3$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = TRUE)
-```
-
+##### **Confirmatory factor analysis**
 
 ```{r}
 # 3. CFA
+mardia(db_proc[,c("inm_1", "inm_2", "inm_3")], 
+       na.rm = T, plot=F)
 
 # model
-model_cfa <- '
-  external_atri_po =~ ex_po_1 + ex_po_2
-  internal_atri_po =~ in_po_1 + in_po_2
-  
-'
+model_cfa <- ' 
+  inmorality =~ inm_1 + inm_2 + inm_3
+   '
+
 # estimation 
-m4_cfa <- cfa(model = model_cfa, 
-              data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
+
+# gender condition
+m8_cfa_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1),
+              estimator = "MLR",
+              ordered = F,
               std.lv = F) 
 
 
-```
+# men
 
-
-```{r}
-#| label: tbl-7
-#| tbl-cap: "Standardized Factor Loadings of Atributtions about poverty"
-#| tbl-cap-location: top
-
-cfa_tables(m4_cfa)$loadings_table
-
-
-```
-
-```{r}
-#| label: tbl-8
-#| tbl-cap: "Summary fit indices of Atributtions about poverty"
-#| tbl-cap-location: top
-
-cfa_tables(m4_cfa)$fit_table
-
-```
-
-
-### Atributtions about wealth
-
-```{r}
-#| label: tbl-desc25
-#| tbl-cap: "Descriptive statistics of Atributtions about wealth"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("ex_we_1", "ex_we_2"))
-
-res3 <- fit_correlations_pairwise(db_proc, c("in_we_1", "in_we_2"))
-
-```
-
-```{r}
-#| label: fig-30
-#| fig-cap: "Correlation matrixes of Atributtions about wealth: external"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-```{r}
-#| label: fig-31
-#| fig-cap: "Correlation matrixes of Atributtions about wealth: internal"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ex_atri_we"
-result2 <- alphas(db_proc, c("ex_we_1", "ex_we_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_we_1", "ex_we_2")], na.rm = TRUE)
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "in_atri_we"
-result3 <- alphas(db_proc, c("in_we_1", "in_we_2"), mi_variable)
-
-result3$raw_alpha
-result3$ord_alpha
-result3$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = TRUE)
-```
-
-
-```{r}
-# 3. CFA
-
-# model
-model_cfa <- '
-  external_atri_we =~ ex_we_1 + ex_we_2
-  internal_atri_we =~ in_we_1 + in_we_2
-  
-'
-# estimation 
-m5_cfa <- cfa(model = model_cfa, 
-              data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
+m8_cfa_arg_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
               std.lv = F) 
 
+m8_cfa_cl_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_col_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_es_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_mex_men <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# women
+
+m8_cfa_arg_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_cl_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_col_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_es_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m8_cfa_mex_women <- cfa(model = model_cfa, 
+              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# class condition
+m8_cfa_poor <- cfa(model = model_cfa, 
+                   data = subset(db_proc, condi_class == 0),
+                   estimator = "MLR",
+                   ordered = F,
+                   std.lv = F) 
+
+m8_cfa_rich <- cfa(model = model_cfa, 
+                   data = subset(db_proc, condi_class == 1),
+                   estimator = "MLR",
+                   ordered = F,
+                   std.lv = F) 
+
+# poor
+
+m8_cfa_arg_poor <- cfa(model = model_cfa, 
+                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 1),
+                      estimator = "MLR",
+                      ordered = F,
+                      std.lv = F) 
+
+m8_cfa_cl_poor <- cfa(model = model_cfa, 
+                     data = subset(db_proc, condi_class == 0 & country_residence_recoded == 3),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_col_poor <- cfa(model = model_cfa, 
+                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 4),
+                      estimator = "MLR",
+                      ordered = F,
+                      std.lv = F) 
+
+m8_cfa_es_poor <- cfa(model = model_cfa, 
+                     data = subset(db_proc, condi_class == 0 & country_residence_recoded == 9),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_mex_poor <- cfa(model = model_cfa, 
+                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 13),
+                      estimator = "MLR",
+                      ordered = F,
+                      std.lv = F) 
+
+# rich
+
+m8_cfa_arg_rich <- cfa(model = model_cfa, 
+                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 1),
+                        estimator = "MLR",
+                        ordered = F,
+                        std.lv = F) 
+
+m8_cfa_cl_rich <- cfa(model = model_cfa, 
+                       data = subset(db_proc, condi_class == 1 & country_residence_recoded == 3),
+                       estimator = "MLR",
+                       ordered = F,
+                       std.lv = F) 
+
+m8_cfa_col_rich <- cfa(model = model_cfa, 
+                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 4),
+                        estimator = "MLR",
+                        ordered = F,
+                        std.lv = F) 
+
+m8_cfa_es_rich <- cfa(model = model_cfa, 
+                       data = subset(db_proc, condi_class == 1 & country_residence_recoded == 9),
+                       estimator = "MLR",
+                       ordered = F,
+                       std.lv = F) 
+
+m8_cfa_mex_rich <- cfa(model = model_cfa, 
+                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 13),
+                        estimator = "MLR",
+                        ordered = F,
+                        std.lv = F) 
 
 ```
 
-
 ```{r}
-#| label: tbl-9
-#| tbl-cap: "Standardized Factor Loadings of Atributtions about wealth"
+#| label: tbl-15
+#| tbl-cap: "Standardized Factor Loadings of SStereotype content model: inmmorality"
 #| tbl-cap-location: top
 
-cfa_tables(m5_cfa)$loadings_table
+
 
 
 ```
 
 ```{r}
-#| label: tbl-10
-#| tbl-cap: "Summary fit indices of Atributtions about wealth"
+#| label: tbl-16
+#| tbl-cap: "Summary fit indices of Stereotype content model: inmmorality"
 #| tbl-cap-location: top
-
-cfa_tables(m5_cfa)$fit_table
-
-```
-
-
-###Thick skin bias
-
-```{r}
-#| label: tbl-desc26
-#| tbl-cap: "Descriptive statistics of Thick skin bias"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("sk_1", "sk_2", "sk_3"))
-
-
-```
-
-```{r}
-#| label: fig-32
-#| fig-cap: "Correlation matrixes of Thick skin bias"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "sk"
-result2 <- alphas(db_proc, c("sk_1", "sk_2", "sk_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("sk_1", "sk_2", "sk_3")], na.rm = TRUE)
-```
-
-
-### Deservingness: control poverty
-
-```{r}
-#| label: tbl-desc27
-#| tbl-cap: "Descriptive statistics of Deservingness: control poverty"
-#| tbl-cap-location: top
-
-db_proc$carin_control_2_r <- sjmisc::rec(db_proc$carin_control_2,rec = "rev")
-
-describe_kable(db_proc, c("carin_control_1","carin_control_2_r"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("carin_control_1","carin_control_2_r"))
-
-
-```
-
-```{r}
-#| label: fig-33
-#| fig-cap: "Correlation matrixes of Deservingness: control poverty"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "carin_control"
-result2 <- alphas(db_proc, c("carin_control_1","carin_control_2_r"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_2_r")], na.rm = TRUE)
-```
-
-
-### Deservingness: attitude poverty
-
-```{r}
-#| label: tbl-desc28
-#| tbl-cap: "Descriptive statistics of Deservingness: attitude poverty"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("carin_attitude_1","carin_attitude_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("carin_attitude_1","carin_attitude_2"))
-
-
-```
-
-```{r}
-#| label: fig-34
-#| fig-cap: "Correlation matrixes of Deservingness: attitude poverty"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "carin_attitude"
-result2 <- alphas(db_proc, c("carin_attitude_1","carin_attitude_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitude_2")], na.rm = TRUE)
-```
-
-
-### Deservingness: reciprocity poverty
-
-```{r}
-#| label: tbl-desc29
-#| tbl-cap: "Descriptive statistics of Deservingness: reciprocity poverty"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"))
-
-
-```
-
-```{r}
-#| label: fig-35
-#| fig-cap: "Correlation matrixes of Deservingness: reciprocity poverty"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "carin_reciprocity"
-result2 <- alphas(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reciprocity_2")], na.rm = TRUE)
-```
-
-
-### Deservingness: identity poverty
-
-```{r}
-#| label: tbl-desc30
-#| tbl-cap: "Descriptive statistics of Deservingness: identity poverty"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("carin_identity_1","carin_identity_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("carin_identity_1","carin_identity_2"))
-
-
-```
-
-```{r}
-#| label: fig-36
-#| fig-cap: "Correlation matrixes of Deservingness: identity poverty"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "carin_identity"
-result2 <- alphas(db_proc, c("carin_identity_1","carin_identity_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_identity_1","carin_identity_2")], na.rm = TRUE)
-```
-
-
-### Deservingness: need poverty
-
-```{r}
-#| label: tbl-desc31
-#| tbl-cap: "Descriptive statistics of Deservingness: need poverty"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("carin_need_1","carin_need_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("carin_need_1","carin_need_2"))
-
-
-```
-
-```{r}
-#| label: fig-37
-#| fig-cap: "Correlation matrixes of Deservingness: need poverty"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "carin_need"
-result2 <- alphas(db_proc, c("carin_need_1","carin_need_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], na.rm = TRUE)
-```
-
-
-## Block 6. Sexuality
-
-
-### Abuse of social assistance by poor mothers
-
-```{r}
-#| label: tbl-desc33
-#| tbl-cap: "Descriptive statistics of Abuse of social assistance by poor mothers"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("wel_abu_1","wel_abu_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("wel_abu_1","wel_abu_2"))
-
-
-```
-
-```{r}
-#| label: fig-38
-#| fig-cap: "Correlation matrixes of Abuse of social assistance by poor mothers"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "wel_abu"
-result2 <- alphas(db_proc, c("wel_abu_1","wel_abu_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm = TRUE)
-```
-
-
-### Paternalistic support for poor mothers
-
-```{r}
-#| label: tbl-desc34
-#| tbl-cap: "Descriptive statistics of Paternalistic support for poor mothers"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("wel_pa_1","wel_pa_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("wel_pa_1","wel_pa_2"))
-
-
-```
-
-```{r}
-#| label: fig-39
-#| fig-cap: "Correlation matrixes of Paternalistic support for poor mothers"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "wel_pa"
-result2 <- alphas(db_proc, c("wel_pa_1","wel_pa_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_pa_1","wel_pa_2")], na.rm = TRUE)
-```
-
-### Hostile support for poor mothers
-
-```{r}
-#| label: tbl-desc35
-#| tbl-cap: "Descriptive statistics of Hostile support for poor mothers"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations 
-
-# fit pearson and polychoric
-res2 <- fit_correlations_pairwise(db_proc, c("wel_ho_1","wel_ho_2"))
-
-
-```
-
-```{r}
-#| label: fig-40
-#| fig-cap: "Correlation matrixes of Hostile support for poor mothers"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "wel_ho"
-result2 <- alphas(db_proc, c("wel_ho_1","wel_ho_2"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_ho_1","wel_ho_2")], na.rm = TRUE)
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m8_cfa_men, m8_cfa_arg_men, m8_cfa_cl_men, m8_cfa_col_men, m8_cfa_es_men, m8_cfa_mex_men),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Men")
+,
+cfa_tab_fit(
+  models = list(m8_cfa_women, m8_cfa_arg_women, m8_cfa_cl_women, m8_cfa_col_women, m8_cfa_es_women, m8_cfa_mex_women),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Women")
+,
+cfa_tab_fit(
+  models = list(m8_cfa_poor, m8_cfa_arg_poor, m8_cfa_cl_poor, m8_cfa_col_poor, m8_cfa_es_poor, m8_cfa_mex_poor),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor")
+,
+cfa_tab_fit(
+  models = list(m8_cfa_rich, m8_cfa_arg_rich, m8_cfa_cl_rich, m8_cfa_col_rich, m8_cfa_es_rich, m8_cfa_mex_rich),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
 ```
 
