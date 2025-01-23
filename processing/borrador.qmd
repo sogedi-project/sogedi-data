@@ -1,407 +1,4 @@
-## Block 2. Gender inequality / Attitudes
 
-### Paternalism sexism toward women
-
-```{r}
-#| label: tbl-desc5
-#| tbl-cap: "Descriptive statistics of Paternalism sexism toward women"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
-
-```
-
-```{r}
-#| label: fig-8
-#| fig-cap: "Correlation matrixes of Paternalism sexism toward women"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '70%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ps_m"
-result2 <- alphas(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], na.rm = TRUE)
-```
-
-
-
-### Hostility sexism toward women
-
-```{r}
-#| label: tbl-desc6
-#| tbl-cap: "Descriptive statistics of Hostility sexism toward women"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
-
-```
-
-```{r}
-#| label: fig-9
-#| fig-cap: "Correlation matrixes of Hostility sexism toward women"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '70%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "hs_m"
-result2 <- alphas(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], na.rm = TRUE)
-```
-
-
-### Perception of gender inequality
-
-```{r}
-#| label: tbl-desc7
-#| tbl-cap: "Descriptive statistics of Perception of gender inequality"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
-
-```
-
-```{r}
-#| label: fig-10
-#| fig-cap: "Correlation matrixes of Perception of gender inequality"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "gen_in"
-result2 <- alphas(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6")], na.rm = TRUE)
-```
-
-
-
-```{r}
-# 3. CFA
-
-# model
-model_cfa <- ' gender_inquality =~ gen_in_1 + gen_in_2 + gen_in_3 + gen_in_4 + gen_in_5 + gen_in_6 '
-
-# estimation 
-m2_cfa <- cfa(model = model_cfa, 
-              data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
-              std.lv = F) 
-
-
-```
-
-
-```{r}
-#| label: tbl-3
-#| tbl-cap: "Standardized Factor Loadings of Perception of gender inequality"
-#| tbl-cap-location: top
-
-cfa_tables(m2_cfa)$loadings_table
-
-
-```
-
-```{r}
-#| label: tbl-4
-#| tbl-cap: "Summary fit indices of Perception of gender inequality"
-#| tbl-cap-location: top
-
-cfa_tables(m2_cfa)$fit_table
-
-```
-
-
-### Belief in sexism shift
-
-```{r}
-#| label: tbl-desc8
-#| tbl-cap: "Descriptive statistics of Belief in sexism shift"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("shif_1", "shif_2", "shif_3"))
-
-```
-
-```{r}
-#| label: fig-11
-#| fig-cap: "Correlation matrixes of Belief in sexism shift"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "shif"
-result2 <- alphas(db_proc, c("shif_1", "shif_2", "shif_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], na.rm = TRUE)
-```
-
-
-
-```{r}
-# 3. CFA
-
-# model
-model_cfa <- ' shif_sexism =~ shif_1 + shif_2 + shif_3 '
-
-# estimation 
-m3_cfa <- cfa(model = model_cfa, 
-              data = db_proc,
-              estimator = "DWLS",
-              ordered = T,
-              std.lv = F) 
-
-
-```
-
-
-```{r}
-#| label: tbl-5
-#| tbl-cap: "Standardized Factor Loadings of Belief in sexism shift"
-#| tbl-cap-location: top
-
-cfa_tables(m3_cfa)$loadings_table
-
-
-```
-
-```{r}
-#| label: tbl-6
-#| tbl-cap: "Summary fit indices of Belief in sexism shift"
-#| tbl-cap-location: top
-
-cfa_tables(m3_cfa)$fit_table
-
-```
-
-## Block 3. Contacts and rates
-
-
-
-### Perception of social mobility
-
-```{r}
-#| label: tbl-desc9
-#| tbl-cap: "Descriptive statistics of Perception of social mobility"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", "mobi_down_2", "mobi_down_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"))
-
-res3 <- fit_correlations(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"))
-```
-
-```{r}
-#| label: fig-12
-#| fig-cap: "Correlation matrixes of Perception of ascendent social mobility"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-```{r}
-#| label: fig-13
-#| fig-cap: "Correlation matrixes of Perception of descendent social mobility"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "ascenmobi"
-result2 <- alphas(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_up_1", "mobi_up_2", "mobi_up_3")], na.rm = TRUE)
-```
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "descenmobi"
-result3 <- alphas(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"), mi_variable)
-
-result3$raw_alpha
-result3$ord_alpha
-result3$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mobi_down_3")], na.rm = TRUE)
-```
-
-Preguntar mario si va CFA aqui
-
-
-## Block 4. Stereotypes
-
-### Stereotype content model: inmmorality
-
-```{r}
-#| label: tbl-desc10
-#| tbl-cap: "Descriptive statistics of Stereotype content model: inmmorality"
-#| tbl-cap-location: top
-
-describe_kable(db_proc, c("inm_1", "inm_2", "inm_3"))
-
-```
-
-
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("inm_1", "inm_2", "inm_3"))
-
-```
-
-```{r}
-#| label: fig-14
-#| fig-cap: "Correlation matrixes of Stereotype content model: inmmorality"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
-
-```{r}
-# 2. Alpha
-
-mi_variable <- "inm"
-result2 <- alphas(db_proc, c("inm_1", "inm_2", "inm_3"), mi_variable)
-
-result2$raw_alpha
-result2$ord_alpha
-result2$new_var_summary
-
-db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.rm = TRUE)
-```
 
 
 Preguntar mario si va CFA aqui
@@ -416,7 +13,6 @@ Preguntar mario si va CFA aqui
 describe_kable(db_proc, c("mor_1", "mor_2", "mor_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -440,7 +36,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -453,6 +48,7 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.rm = TRUE)
 ```
+
 ### Stereotype content model: warmth
 
 ```{r}
@@ -463,7 +59,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.r
 describe_kable(db_proc, c("war_1", "war_2", "war_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -487,7 +82,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -501,7 +95,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("war_1", "war_2", "war_3")], na.rm = TRUE)
 ```
 
-
 Preguntar mario si va CFA aqui
 
 ### Stereotype content model: competence
@@ -514,7 +107,6 @@ Preguntar mario si va CFA aqui
 describe_kable(db_proc, c("com_1", "com_2", "com_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -538,7 +130,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -552,7 +143,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("com_1", "com_2", "com_3")], na.rm = TRUE)
 ```
 
-
 Preguntar mario si va CFA aqui
 
 ### Intergroup behavioural tendencies: passive harm
@@ -565,7 +155,6 @@ Preguntar mario si va CFA aqui
 describe_kable(db_proc, c("ph_1", "ph_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -589,7 +178,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -603,7 +191,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
 ```
 
-
 Preguntar mario si va CFA aqui
 
 ### Intergroup behavioural tendencies: active harm
@@ -616,7 +203,6 @@ Preguntar mario si va CFA aqui
 describe_kable(db_proc, c("ah_1", "ah_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -639,7 +225,6 @@ res2 <- fit_correlations_pairwise(db_proc, c("ah_1", "ah_2"))
 corr_plots(res2, db_proc, "SOGEDI")
 
 ```
-
 
 ```{r}
 # 2. Alpha
@@ -665,7 +250,6 @@ describe_kable(db_proc, c("pf_1", "pf_2"))
 
 ```
 
-
 ```{r}
 #| collapse: false
 # 1. Correlations ppw
@@ -687,7 +271,6 @@ res2 <- fit_correlations_pairwise(db_proc, c("pf_1", "pf_2"))
 corr_plots(res2, db_proc, "SOGEDI")
 
 ```
-
 
 ```{r}
 # 2. Alpha
@@ -713,7 +296,6 @@ describe_kable(db_proc, c("af_1", "af_2"))
 
 ```
 
-
 ```{r}
 #| collapse: false
 # 1. Correlations ppw
@@ -736,7 +318,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -750,7 +331,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
 ```
 
-
 ### Intergroup affect tendencies: admiration toward
 
 ```{r}
@@ -761,7 +341,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
 describe_kable(db_proc, c("ad_1", "ad_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -785,7 +364,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -799,7 +377,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
 ```
 
-
 ### Intergroup affect tendencies: contempt toward
 
 ```{r}
@@ -810,7 +387,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
 describe_kable(db_proc, c("co_1", "co_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -834,7 +410,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -848,8 +423,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
 ```
 
-
-
 ### Intergroup affect tendencies: envy toward
 
 ```{r}
@@ -860,7 +433,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
 describe_kable(db_proc, c("en_1", "en_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -884,7 +456,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -898,8 +469,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
 ```
 
-
-
 ### Intergroup affect tendencies: pity toward
 
 ```{r}
@@ -910,7 +479,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
 describe_kable(db_proc, c("pi_1", "pi_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -934,7 +502,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -948,8 +515,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
 ```
 
-
-
 #### Greedy dispositions
 
 ```{r}
@@ -960,7 +525,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
 describe_kable(db_proc, c("greedy_1", "greedy_2", "greedy_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -984,7 +548,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -998,8 +561,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3")], na.rm = TRUE)
 ```
 
-
-
 #### Punishment rich
 
 ```{r}
@@ -1010,7 +571,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3
 describe_kable(db_proc, c("punish_1", "punish_2", "punish_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1034,7 +594,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1048,7 +607,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3")], na.rm = TRUE)
 ```
 
-
 ### Atributtions about poverty
 
 ```{r}
@@ -1059,7 +617,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3
 describe_kable(db_proc, c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1124,7 +681,6 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = TRUE)
 ```
 
-
 ```{r}
 # 3. CFA
 
@@ -1143,7 +699,6 @@ m4_cfa <- cfa(model = model_cfa,
 
 
 ```
-
 
 ```{r}
 #| label: tbl-7
@@ -1164,7 +719,6 @@ cfa_tables(m4_cfa)$fit_table
 
 ```
 
-
 ### Atributtions about wealth
 
 ```{r}
@@ -1175,7 +729,6 @@ cfa_tables(m4_cfa)$fit_table
 describe_kable(db_proc, c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1240,7 +793,6 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = TRUE)
 ```
 
-
 ```{r}
 # 3. CFA
 
@@ -1259,7 +811,6 @@ m5_cfa <- cfa(model = model_cfa,
 
 
 ```
-
 
 ```{r}
 #| label: tbl-9
@@ -1280,7 +831,6 @@ cfa_tables(m5_cfa)$fit_table
 
 ```
 
-
 ###Thick skin bias
 
 ```{r}
@@ -1291,7 +841,6 @@ cfa_tables(m5_cfa)$fit_table
 describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1316,7 +865,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1330,7 +878,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("sk_1", "sk_2", "sk_3")], na.rm = TRUE)
 ```
 
-
 ### Deservingness: control poverty
 
 ```{r}
@@ -1343,7 +890,6 @@ db_proc$carin_control_2_r <- sjmisc::rec(db_proc$carin_control_2,rec = "rev")
 describe_kable(db_proc, c("carin_control_1","carin_control_2_r"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1368,7 +914,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1382,7 +927,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_2_r")], na.rm = TRUE)
 ```
 
-
 ### Deservingness: attitude poverty
 
 ```{r}
@@ -1393,7 +937,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_
 describe_kable(db_proc, c("carin_attitude_1","carin_attitude_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1418,7 +961,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1432,7 +974,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitude_2")], na.rm = TRUE)
 ```
 
-
 ### Deservingness: reciprocity poverty
 
 ```{r}
@@ -1443,7 +984,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitud
 describe_kable(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1468,7 +1008,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1482,7 +1021,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reciprocity_2")], na.rm = TRUE)
 ```
 
-
 ### Deservingness: identity poverty
 
 ```{r}
@@ -1493,7 +1031,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reci
 describe_kable(db_proc, c("carin_identity_1","carin_identity_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1518,7 +1055,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1532,7 +1068,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_identity_1","carin_identity_2")], na.rm = TRUE)
 ```
 
-
 ### Deservingness: need poverty
 
 ```{r}
@@ -1543,7 +1078,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_identity_1","carin_identit
 describe_kable(db_proc, c("carin_need_1","carin_need_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1568,7 +1102,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1582,9 +1115,7 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], na.rm = TRUE)
 ```
 
-
 ## Block 6. Sexuality
-
 
 ### Abuse of social assistance by poor mothers
 
@@ -1596,7 +1127,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], 
 describe_kable(db_proc, c("wel_abu_1","wel_abu_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1621,7 +1151,6 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
-
 ```{r}
 # 2. Alpha
 
@@ -1635,7 +1164,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm = TRUE)
 ```
 
-
 ### Paternalistic support for poor mothers
 
 ```{r}
@@ -1646,7 +1174,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm 
 describe_kable(db_proc, c("wel_pa_1","wel_pa_2"))
 
 ```
-
 
 ```{r}
 #| collapse: false
@@ -1670,7 +1197,6 @@ res2 <- fit_correlations_pairwise(db_proc, c("wel_pa_1","wel_pa_2"))
 corr_plots(res2, db_proc, "SOGEDI")
 
 ```
-
 
 ```{r}
 # 2. Alpha
@@ -1696,7 +1222,6 @@ describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
 
 ```
 
-
 ```{r}
 #| collapse: false
 # 1. Correlations 
@@ -1719,7 +1244,6 @@ res2 <- fit_correlations_pairwise(db_proc, c("wel_ho_1","wel_ho_2"))
 corr_plots(res2, db_proc, "SOGEDI")
 
 ```
-
 
 ```{r}
 # 2. Alpha

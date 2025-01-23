@@ -28,10 +28,9 @@ editor_options:
 
 # Presentation
 
-This is the data preparation code for the project “Socioeconomic and Gender Disparities: A Multi-Country Study.” The prepared dataset is `SOGEDI_dataset_V1.sav`
+This is the data preparation code for the project "Socioeconomic and Gender Disparities: A Multi-Country Study." The prepared dataset is `SOGEDI_dataset_V1.sav`
 
 In this repository, data processing and cleaning exclude countries with insufficient sample sizes for robust statistical analysis, retaining only observations from Argentina, Chile, Colombia, Spain, and Mexico. However, for anyone wishing to use all cases and countries from the original dataset, it can be accessed at the following [link](https://osf.io/nv6rs/).
-
 
 ```{r}
 #| label: set

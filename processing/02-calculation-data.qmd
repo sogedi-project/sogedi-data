@@ -27,14 +27,28 @@ editor_options:
 bibliography: "../input/bib/sogedi-data.bib"
 csl: "../input/bib/apa6.csl"
 link-citations: true
-linkcolor: blue
 ---
 
 # Presentation
 
-This document details the code used for calculating and analyzing variables in the project "Socioeconomic and Gender Disparities: A Multi-Country Study." The dataset utilized is `db_proc.RData`.
+This document presents the code employed for calculating and analyzing the variables in the project Socioeconomic and Gender Disparities: A Multi-Country Study. The dataset used, `db_proc.RData`,  is derived from a previously processed [source](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html).
 
-For certain items, we will evaluate the factorial structures based on their original sources and the publications from which they were derived. However, alternative structures may be considered during the data exploration phase.
+A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and internal consistency indices (Cronbach’s alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.
+
+Data processing and variable construction are organized according to the SOGEDI survey modules. For those items whose internal consistency or factorial structure prove insufficient, we make recommendations for their use in empirical research.
+
+In order to assess the multivariate normality of the items included in the measurement models, we apply Mardia’s test, which evaluates deviations in both skewness and kurtosis [@mardia_measures_1970]. A statistically significant result suggests that the data deviate from a multivariate normal distribution, underscoring the need to use estimation methods suited to potential non-normality.
+
+The following fit criteria, drawn from Brown [-@brown_confirmatory_2015] and Kline [-@kline_principles_2023], guide the evaluation of model adequacy:
+
+- Chi-square: $p$>0.05
+- Chi-square ratio $(\chi^2/df)$: < 3
+- Comparative Fit Index (CFI): > 0.95
+- Tucker–Lewis Index (TLI): > 0.95
+- Root Mean Square Error of Approximation (RMSEA): < 0.06
+- Standardized Root Mean Square Residual (SRMR): < 0.08 
+- Akaike Information Criterion (AIC): no fixed cutoff; lower values indicate better fit.
+
 
 ```{r}
 #| label: set
@@ -104,9 +118,10 @@ We have 4,209 cases or rows and 212 variables or columns.
 
 # Functions
 
+In order to streamline the processing and calculation of variables, we develop a series of functions that automate specific statistical analyses and table generation.
+
 ```{r}
 #| label: functions
-
 
 describe_kable <- function(data, vars) {
   psych::describe(data[, vars]) %>%
@@ -115,118 +130,32 @@ describe_kable <- function(data, vars) {
 
 fit_correlations <- function(data, vars) {
   M <- cor(data[, vars], method = "pearson", use = "complete.obs")
-  P <- psych::polychoric(data[, vars])
-  
+
   diag(M) <- NA
-  diag(P$rho) <- NA
-  
+
   rnames <- paste0(LETTERS[1:length(vars)], ". ", vars)
   cnames <- paste0("(", LETTERS[1:length(vars)], ")")
   
   rownames(M) <- rnames
   colnames(M) <- cnames
-  rownames(P$rho) <- rnames
-  colnames(P$rho) <- cnames
   
-  list(pearson = M, polychoric = P$rho)
+  return(M)
 }
 
-corr_plots <- function(cor_list, data, db_name = "SOGEDI") {
-  p1 <- wrap_elements(
-    ~corrplot::corrplot(
-      cor_list$pearson,
-      method = "color",
-      type = "upper",
-      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
-      tl.pos = "lt",
-      tl.col = "black",
-      addrect = 2,
-      rect.col = "black",
-      addCoef.col = "white",
-      cl.cex = 0.8,
-      cl.align.text = 'l',
-      number.cex = 1.1,
-      na.label = "-",
-      bg = "white"
-    )
-  ) + labs(title = 'I. Pearson correlations')
-  
-  p2 <- wrap_elements(
-    ~corrplot::corrplot(
-      cor_list$polychoric,
-      method = "color",
-      type = "upper",
-      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
-      tl.pos = "lt",
-      tl.col = "black",
-      addrect = 2,
-      rect.col = "black",
-      addCoef.col = "white",
-      cl.cex = 0.8,
-      cl.align.text = 'l',
-      number.cex = 1.1,
-      na.label = "-",
-      bg = "white"
-    )
-  ) + labs(title = 'II. Polychoric correlations')
-  
-  p1 / p2 +
-    plot_annotation(
-      caption = paste0(
-        "Source: Authors calculation based on ", db_name, 
-        " database (n=", nrow(data), ")"
-      )
-    )
-}
 
 alphas <- function(data, vars, new_var) {
   alpha_cronbach <- psych::alpha(data[, vars])
   raw_alpha <- alpha_cronbach$total$raw_alpha
-  
-  poly_matrix <- psych::polychoric(data[, vars])
-  alpha_ordinal <- psych::alpha(poly_matrix$rho)
-  ord_alpha <- alpha_ordinal$total$raw_alpha
   
   data[[new_var]] <- rowMeans(data[, vars], na.rm = TRUE)
   new_var_summary <- summary(data[[new_var]])
   
   list(
     raw_alpha       = raw_alpha,
-    ord_alpha       = ord_alpha,
     new_var_summary = new_var_summary
   )
 }
 
-cfa_tab_loadings <- function(model) {
-  
-  sum_loadings <- standardizedSolution(model) %>%
-    dplyr::filter(op == "=~") %>%
-    dplyr::select(lhs, rhs, est.std) %>%
-    rename(
-      Factor   = lhs,
-      Indicator = rhs,
-      Loading  = est.std
-    )
-  
-  loadings_table <- sum_loadings %>%
-    kableExtra::kable(
-      format    = "markdown",  
-      digits    = 3,
-      booktabs  = TRUE,
-      col.names = c("Factor", "Indicator", "Loading"),
-      caption   = NULL
-    ) %>%
-    kableExtra::kable_styling(
-      full_width        = FALSE,
-      font_size         = 11,
-      latex_options     = "HOLD_position",
-      bootstrap_options = c("striped", "bordered")
-    )
-  
-    list(
-    loadings_table = loadings_table)
-  
-}
 
 cfa_tab_fit <- function(models, 
                               country_names = NULL, 
@@ -288,20 +217,16 @@ cfa_tab_fit <- function(models,
 
 fit_correlations_pairwise <- function(data, vars) {
   M <- cor(data[, vars], method = "pearson", use = "pairwise.complete.obs")
-  P <- psych::polychoric(data[, vars], global = FALSE)
-  
+
   diag(M) <- NA
-  diag(P$rho) <- NA
-  
+
   rnames <- paste0(LETTERS[1:length(vars)], ". ", vars)
   cnames <- paste0("(", LETTERS[1:length(vars)], ")")
   
   rownames(M) <- rnames
   colnames(M) <- cnames
-  rownames(P$rho) <- rnames
-  colnames(P$rho) <- cnames
-  
-  list(pearson = M, polychoric = P$rho)
+
+  return(M)
 }
 
 ```
@@ -320,7 +245,7 @@ The items to capture individual subjective perception of daily economic inequali
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc1
+#| label: tbl-1
 #| tbl-cap: "Descriptive statistics of Perception of economic inequality in daily live"
 #| tbl-cap-location: top
 
@@ -330,37 +255,45 @@ describe_kable(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"))
 
 
 ```{r}
-#| collapse: false
-# 1. Correlations
-
-# fit pearson and polychoric
-res1 <- fit_correlations(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"))
-
-```
-
-```{r}
 #| label: fig-1
-#| fig-cap: "Correlation matrixes of Perception of economic inequality in daily live"
+#| fig-cap: "Correlation matrix of Perception of economic inequality in daily live"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
 
-#Plot the matrix using corrplot
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
-corr_plots(res1, db_proc, "SOGEDI")
 
 ```
 
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "eco_in"
 result1 <- alphas(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"), mi_variable)
 
 result1$raw_alpha
-result1$ord_alpha
 result1$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("eco_in_1", "eco_in_2", "eco_in_3")], na.rm = TRUE)
@@ -368,11 +301,24 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("eco_in_1", "eco_in_2", "eco_in_3
 
 ##### **Confirmatory Factor Analysis**
 
+Mardia's test for evaluate multivariate normality.
+
 ```{r}
-# 3. CFA
+#| label: fig-2
+#| fig-cap: "Mardia's test of Perception of economic inequality in daily live"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
 
 mardia(db_proc[,c("eco_in_1", "eco_in_2", "eco_in_3")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
 
 # model
 model_cfa <- ' perc_eco_inequality =~ eco_in_1 + eco_in_2 + eco_in_3 '
@@ -418,17 +364,6 @@ m1_cfa_mex <- cfa(model = model_cfa,
 
 
 ```{r}
-#| label: tbl-1
-#| tbl-cap: "Standardized Factor Loadings of Perception of economic inequality in daily live all countries"
-#| tbl-cap-location: top
-#| warning: false
-
-cfa_tab_loadings(m1_cfa)$loadings_table
-
-
-```
-
-```{r}
 #| label: tbl-2
 #| tbl-cap: "Summary fit indices of Perception of economic inequality in daily live"
 #| tbl-cap-location: top
@@ -442,6 +377,39 @@ cfa_tab_fit(
 
 ```
 
+
+### Socioeconomic inequality justification
+
+The item to capture individual justification of socioeconomic inequality was created by the project team. 
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Socioeconomic inequality justification"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$jus_ine) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+
+### Economic inequality collective action
+
+The item to capture individual collective action toward economic inequality was adapted from Fresno-Díaz et al. [-@delfresno-diaz_fighting_2023].
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Economic inequality collective action"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$co_eco) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+
 ### Ambivalent classism
 
 The items to capture ambivalent classism came from previous research from Sainz et al. [-@sainz_spanish_2021]. For the SOGEDI study we used all items from the paternalistic/complementary dimensions of the scale adapted by the authors. For the hostile dimension, we selected the four items most strongly associated with the construct, based on the scale adaptation, while omitting items that could be misinterpreted in other spanish speaker contexts.
@@ -452,7 +420,7 @@ The items to capture ambivalent classism came from previous research from Sainz 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc2
+#| label: tbl-3
 #| tbl-cap: "Descriptive statistics of Protective paternalism toward poor women and men"
 #| tbl-cap-location: top
 
@@ -461,55 +429,72 @@ describe_kable(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4", "pp_pm_1",
 ```
 
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4"))
-
-
-res3 <- fit_correlations(db_proc, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"))
-
-```
-
-```{r}
-#| label: fig-2
-#| fig-cap: "Correlation matrixes of Protective paternalism toward poor women"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '70%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
-
-```
-
 
 ```{r}
 #| label: fig-3
-#| fig-cap: "Correlation matrixes of Protective paternalism toward poor men"
+#| fig-cap: "Correlation matrices of Protective paternalism toward poor women and men"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
 
-#Plot the matrix using corrplot
 
-corr_plots(res3, db_proc, "SOGEDI")
+p1 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'I. Poor Women')
+
+p2 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'II. Poor Men')
+
+p1 / p2 + labs(
+         caption = paste0(
+  "Source: Authors calculation based on SOGEDI", 
+  " database (n=", nrow(db_proc), ")"
+))
+
 
 ```
+
+
 
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "pp_pw"
 result2 <- alphas(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4")], na.rm = TRUE)
@@ -517,13 +502,11 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pw_1", "pp_pw_2", "pp_pw_3", 
 
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "pp_pm"
 result3 <- alphas(db_proc, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"), mi_variable)
 
 result3$raw_alpha
-result3$ord_alpha
 result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4")], na.rm = TRUE)
@@ -534,7 +517,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc3
+#| label: tbl-4
 #| tbl-cap: "Descriptive statistics of Complementary class diferenciation toward poor women and men"
 #| tbl-cap-location: top
 
@@ -544,53 +527,70 @@ describe_kable(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4", "cc_pm_1",
 
 
 ```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4"))
-
-
-res3 <- fit_correlations(db_proc, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"))
-
-```
-
-```{r}
 #| label: fig-4
-#| fig-cap: "Correlation matrixes of Complementary class diferenciation toward poor women"
+#| fig-cap: "Correlation matrices of Complementary class diferenciation toward poor women and men"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
 
-#Plot the matrix using corrplot
 
-corr_plots(res2, db_proc, "SOGEDI")
+p1 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'I. Poor Women')
+
+p2 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'II. Poor Men')
+
+p1 / p2 + labs(
+         caption = paste0(
+  "Source: Authors calculation based on SOGEDI", 
+  " database (n=", nrow(db_proc), ")"
+))
+
 
 ```
 
 
-```{r}
-#| label: fig-5
-#| fig-cap: "Correlation matrixes of Complementary class diferenciation toward poor men"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '70%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
 
 ##### **Internal consistency**
 ```{r}
-# 2. Alpha
+
 
 mi_variable <- "cc_pw"
 result2 <- alphas(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4")], na.rm = TRUE)
@@ -598,13 +598,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pw_1", "cc_pw_2", "cc_pw_3", 
 
 
 ```{r}
-# 2. Alpha
+
 
 mi_variable <- "cc_pm"
 result3 <- alphas(db_proc, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"), mi_variable)
 
 result3$raw_alpha
-result3$ord_alpha
 result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4")], na.rm = TRUE)
@@ -617,7 +616,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc4
+#| label: tbl-5
 #| tbl-cap: "Descriptive statistics of Hostile classism toward poor women and men"
 #| tbl-cap-location: top
 
@@ -625,54 +624,68 @@ describe_kable(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4", "hc_pm_1","hc
 
 ```
 
-
 ```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4"))
-
-res3 <- fit_correlations(db_proc, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4"))
-
-```
-
-```{r}
-#| label: fig-6
-#| fig-cap: "Correlation matrixes of Hostile classism toward poor women"
+#| fig-cap: "Correlation matrics of Hostile classism toward poor women and men"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
+#| results: asis
 
-#Plot the matrix using corrplot
+p1 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("hc_pw_1", "h_pw_2", "hc_pw_3", "hc_pw_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'I. Poor Women')
 
-corr_plots(res2, db_proc, "SOGEDI")
+p2 <- wrap_elements(
+  ~corrplot::corrplot(
+    fit_correlations(db_proc, c("hc_pm_1", "hc_pm_2", "hc_pm_3", "hc_pm_4")),
+    method = "color",
+    type = "upper",
+    col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+    tl.pos = "lt",
+    tl.col = "black",
+    addrect = 2,
+    rect.col = "black",
+    addCoef.col = "white",
+    cl.cex = 0.8,
+    cl.align.text = 'l',
+    number.cex = 1.1,
+    na.label = "-",
+    bg = "white"
+  )
+) + labs(title = 'II. Poor Men')
+
+p1 / p2 + labs(
+         caption = paste0(
+  "Source: Authors calculation based on SOGEDI", 
+  " database (n=", nrow(db_proc), ")"
+))
 
 ```
 
 
-```{r}
-#| label: fig-7
-#| fig-cap: "Correlation matrixes of Hostile classism toward poor men"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '70%'
-
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
 
 ##### **Internal consistency**
 ```{r}
-# 2. Alpha
 
 mi_variable <- "hc_pw"
 result2 <- alphas(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4")], na.rm = TRUE)
@@ -680,13 +693,11 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pw_1","hc_pw_2","hc_pw_3","hc
 
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "hc_pm"
 result3 <- alphas(db_proc, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4"), mi_variable)
 
 result3$raw_alpha
-result3$ord_alpha
 result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4")], na.rm = TRUE)
@@ -695,14 +706,27 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc
 
 ##### **Confirmatory Factor Analysis**
 
+_**Ambilavent classim with woman as target**_
+
+Mardia's test for evaluate multivariate normality.
+
 ```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Ambivalent classism with women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
 
 mardia(db_proc[,c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4", 
                   "cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4",
                   "hc_pw_1", "hc_pw_2", "hc_pw_3", "hc_pw_4")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T)
+```
 
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
 
 # model
 model_cfa <- ' 
@@ -750,38 +774,27 @@ m2_cfa_mex <- cfa(model = model_cfa,
 
 ```
 
+_**Ambilavent classim with men as target**_
+
+Mardia's test for evaluate multivariate normality.
 
 ```{r}
-#| label: tbl-3
-#| tbl-cap: "Standardized Factor Loadings of Ambivalent Classism Inventory: poor women all countries"
-#| tbl-cap-location: top
-
-cfa_tab_loadings(m2_cfa)$loadings_table
-
-```
-
-```{r}
-#| label: tbl-4
-#| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory: poor women"
-#| tbl-cap-location: top
-
-cfa_tab_fit(
-  models = list(m2_cfa, m2_cfa_arg, m2_cfa_cl, m2_cfa_col, m2_cfa_es, m2_cfa_mex),
-  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
-)$fit_table
-
-
-```
-
-
-```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Ambivalent classism with men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
 
 mardia(db_proc[,c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4", 
                   "cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4",
                   "hc_pm_1", "hc_pm_2", "hc_pm_3", "hc_pm_4")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T)
+```
 
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
 
 # model
 model_cfa <- ' 
@@ -830,27 +843,48 @@ m3_cfa_mex <- cfa(model = model_cfa,
 
 
 ```{r}
-#| label: tbl-5
-#| tbl-cap: "Standardized Factor Loadings of Ambivalent Classism Inventory: poor men"
+#| label: tbl-a
+#| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory"
 #| tbl-cap-location: top
 
-cfa_tab_loadings(m3_cfa)$loadings_table
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
 
+bind_rows(
+  cfa_tab_fit(
+    models = list(m2_cfa, m2_cfa_arg, m2_cfa_cl, m2_cfa_col, m2_cfa_es, m2_cfa_mex),
+    country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+  )$sum_fit %>% 
+    mutate(target = "Poor Women")
+  ,
+  cfa_tab_fit(
+    models = list(m3_cfa, m3_cfa_arg, m3_cfa_cl, m3_cfa_col, m3_cfa_es, m3_cfa_mex),
+    country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+  )$sum_fit %>% 
+    mutate(target = "Poor Men")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+    format     = "markdown", 
+    digits     = 3,
+    booktabs   = TRUE,
+    col.names  = colnames_fit,
+    caption    = NULL
+  ) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
 
 ```
 
-```{r}
-#| label: tbl-6
-#| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory: poor men"
-#| tbl-cap-location: top
 
-cfa_tab_fit(
-  models = list(m3_cfa, m3_cfa_arg, m3_cfa_cl, m3_cfa_col, m3_cfa_es, m3_cfa_mex),
-  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
-)$fit_table
-
-
-```
 
 
 ## Block 2. Gender inequality / Attitudes
@@ -865,7 +899,6 @@ The items to capture ambivalent sexism came from previous research from Rollero 
 ##### **Descriptive results**
 
 ```{r}
-#| label: tbl-desc5
 #| tbl-cap: "Descriptive statistics of Paternalism sexism toward women"
 #| tbl-cap-location: top
 
@@ -873,25 +906,36 @@ describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
 
 ```
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
 
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
-
-```
 
 ```{r}
-#| label: fig-8
-#| fig-cap: "Correlation matrixes of Paternalism sexism toward women"
+#| fig-cap: "Correlation matrix of Paternalism sexism toward women"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
 
-#Plot the matrix using corrplot
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
-corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
@@ -899,13 +943,10 @@ corr_plots(res2, db_proc, "SOGEDI")
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
-
 mi_variable <- "ps_m"
 result2 <- alphas(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], na.rm = TRUE)
@@ -916,7 +957,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], n
 ##### **Descriptive results**
 
 ```{r}
-#| label: tbl-desc6
 #| tbl-cap: "Descriptive statistics of Hostility sexism toward women"
 #| tbl-cap-location: top
 
@@ -924,25 +964,36 @@ describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
 
 ```
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
-
-```
 
 ```{r}
-#| label: fig-9
-#| fig-cap: "Correlation matrixes of Hostility sexism toward women"
+#| fig-cap: "Correlation matrix of Hostility sexism toward women"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '70%'
 
-#Plot the matrix using corrplot
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
-corr_plots(res2, db_proc, "SOGEDI")
+
 
 ```
 
@@ -951,13 +1002,10 @@ corr_plots(res2, db_proc, "SOGEDI")
 
 
 ```{r}
-# 2. Alpha
-
 mi_variable <- "hs_m"
 result2 <- alphas(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], na.rm = TRUE)
@@ -966,14 +1014,23 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], n
 
 ##### **Confirmatory Factor Analysis**
 
+Mardia's test for evaluate multivariate normality.
 
 ```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Ambivalent sexism toward women"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
 
 mardia(db_proc[,c("ps_m_1", "ps_m_2", "ps_m_3", 
                   "hs_m_1", "hs_m_2", "hs_m_3")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T) 
+```
 
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
 
 # model
 model_cfa <- ' 
@@ -1020,19 +1077,9 @@ m4_cfa_mex <- cfa(model = model_cfa,
 ```
 
 
-```{r}
-#| label: tbl-7
-#| tbl-cap: "Standardized Factor Loadings of Ambivalent Sexism all countries"
-#| tbl-cap-location: top
-
-cfa_tab_loadings(m4_cfa)$loadings_table
-
-
-```
 
 ```{r}
-#| label: tbl-8
-#| tbl-cap: "Summary fit indices of Ambivalent Sexism"
+#| tbl-cap: "Summary fit indices of Ambivalent sexism toward women"
 #| tbl-cap-location: top
 
 cfa_tab_fit(
@@ -1051,7 +1098,6 @@ We selected six items from the original scale developed by Schwartz-Salazar et a
 ##### **Descriptive results**
 
 ```{r}
-#| label: tbl-desc7
 #| tbl-cap: "Descriptive statistics of Perception of gender inequality"
 #| tbl-cap-location: top
 
@@ -1059,25 +1105,35 @@ describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_i
 
 ```
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
-
-```
 
 ```{r}
-#| label: fig-10
-#| fig-cap: "Correlation matrixes of Perception of gender inequality"
+#| fig-cap: "Correlation matrix of Perception of gender inequality"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '80%'
 
-#Plot the matrix using corrplot
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
-corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
@@ -1085,13 +1141,10 @@ corr_plots(res2, db_proc, "SOGEDI")
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
-
 mi_variable <- "gen_in"
 result2 <- alphas(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6")], na.rm = TRUE)
@@ -1100,14 +1153,24 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3
 
 ##### **Confirmatory factor analysis**
 
+Mardia's test for evaluate multivariate normality.
+
 ```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Perception of gender inequality"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
 
 mardia(db_proc[,c("gen_in_1", "gen_in_2", "gen_in_3", 
                   "gen_in_4", "gen_in_5", "gen_in_6")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
 
 
+```{r}
 # model
 model_cfa <- ' gender_inquality =~ gen_in_1 + gen_in_2 + gen_in_3 + gen_in_4 + gen_in_5 + gen_in_6 '
 
@@ -1149,18 +1212,8 @@ m5_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-```{r}
-#| label: tbl-9
-#| tbl-cap: "Standardized Factor Loadings of Perception of gender inequality all countries"
-#| tbl-cap-location: top
-
-cfa_tab_loadings(m5_cfa)$loadings_table
-
-
-```
 
 ```{r}
-#| label: tbl-10
 #| tbl-cap: "Summary fit indices of Perception of gender inequality"
 #| tbl-cap-location: top
 
@@ -1174,12 +1227,13 @@ cfa_tab_fit(
 
 
 
-#### Belief in sexism shift
+### Belief in sexism shift
+
+The items to capture belief in sexism shift came from previous research from Zehnter et al. [-@zehnter_belief_2021]. We translated four items from the original scale, adapting them to our context and objectives. These items are the ones that saturate the most in the scale across various studies.
 
 ##### **Descriptive results**
 
 ```{r}
-#| label: tbl-desc8
 #| tbl-cap: "Descriptive statistics of Belief in sexism shift"
 #| tbl-cap-location: top
 
@@ -1187,25 +1241,36 @@ describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
 
 ```
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("shif_1", "shif_2", "shif_3"))
-
-```
 
 ```{r}
 #| label: fig-11
-#| fig-cap: "Correlation matrixes of Belief in sexism shift"
+#| fig-cap: "Correlation matrix of Belief in sexism shift"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '80%'
 
-#Plot the matrix using corrplot
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("shif_1", "shif_2", "shif_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
-corr_plots(res2, db_proc, "SOGEDI")
 
 ```
 
@@ -1219,7 +1284,6 @@ mi_variable <- "shif"
 result2 <- alphas(db_proc, c("shif_1", "shif_2", "shif_3"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], na.rm = TRUE)
@@ -1228,10 +1292,26 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], n
 
 ##### **Confirmatory factor analysis**
 
+
+Mardia's test for evaluate multivariate normality.
+
 ```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Belief in sexism shift"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
 mardia(db_proc[,c("shif_1", "shif_2", "shif_3")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+
+```{r}
+
 # model
 model_cfa <- ' shif_sexism =~ shif_1 + shif_2 + shif_3 '
 
@@ -1273,19 +1353,9 @@ m6_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-```{r}
-#| label: tbl-11
-#| tbl-cap: "Standardized Factor Loadings of Belief in sexism shift all countries"
-#| tbl-cap-location: top
 
-
-cfa_tab_loadings(m6_cfa)$loadings_table
-
-
-```
 
 ```{r}
-#| label: tbl-12
 #| tbl-cap: "Summary fit indices of Belief in sexism shift"
 #| tbl-cap-location: top
 
@@ -1296,7 +1366,119 @@ cfa_tab_fit(
 ```
 
 
+### Feminism identification
+
+The item to capture feminism identification came from previous research from Estevan-Reina et al. [-@estevan-reina_feminist_2020]. We translated the item from the original scale, adapting to our context and objectives.
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Feminism identification"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$femi) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+### Gender inequality justification
+
+The item to capture feminism identification came from previous research from Jost & Kay [-@jost_exposure_2005]. We translated the item from the original scale, adapting to our context and objectives.
+
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Gender inequality justification"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$jus_gen) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+### Gender inequality collective action
+
+The item to capture gender inequality collective action was created by the project team.
+
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Gender inequality collective action"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$co_gen) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+
+### Perception of gender competition
+
+The item to capture gender inequality collective action was created by the project team.
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Perception of gender competition"
+#| tbl-cap-location: top
+
+psych::describe(db_proc$gen_compe) %>%
+    kableExtra::kable(format = "markdown", digits = 3)
+
+```
+
+
+
+
 ## Block 3. Contacts and rates
+
+### Gendered poverty rates
+
+The items to capture gender poverty rates was inspired by the research of Kuo et al. [-@kuo_highstatus_2020].
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Gendered poverty rates"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ge_ra_wo", "ge_ra_me"))
+
+```
+
+### Intergroup contacts: quantity of contacts 
+
+The variables used to capture this inter group contacts was derived from previous research from Vargas et al. [-@salfate_contact_2023] and Vázquez et al. [-@vazquez_positive_2023]. The wording of the items is based on the COES longitudinal survey, incorporating some supplementary information from Vargas et al. [-@salfate_contact_2023] regarding the places where contact can occur. 
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup contacts: quantity of contacts"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("quan_pw", "quan_pm", "quan_rw", "quan_rm"))
+
+```
+
+
+### Intergroup contacts: friendship
+
+The variables used to capture this inter group friendship was developed by the project team.
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup contacts: friendship"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("fri_pw", "fri_pm", "fri_rw", "fri_rm"))
+
+```
+
+### Intergroup contacts: quality of contacts 
+
+The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. [-@vazquez_positive_2023] and from Roberto Gonzalez FONDECYT dataset.
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup contacts: quality of contacts"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("qual_pw", "qual_pm", "qual_rw", "qual_rm"))
+
+```
+
+
+
 
 ### Perception of social mobility
 
@@ -1304,7 +1486,6 @@ cfa_tab_fit(
 ##### **Descriptive results**
 
 ```{r}
-#| label: tbl-desc9
 #| tbl-cap: "Descriptive statistics of Perception of social mobility"
 #| tbl-cap-location: top
 
@@ -1313,65 +1494,57 @@ describe_kable(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", 
 ```
 
 ```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"))
-
-res3 <- fit_correlations(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"))
-```
-
-```{r}
-#| label: fig-12
-#| fig-cap: "Correlation matrixes of Perception of ascendent social mobility"
+#| fig-cap: "Correlation matrixes of Perception of social mobility"
 #| fig-cap-location: top
 #| fig-asp: 1.1
 #| out-width: '80%'
 
-#Plot the matrix using corrplot
-
-corr_plots(res2, db_proc, "SOGEDI")
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", "mobi_down_2", "mobi_down_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(caption = paste0(
+    "Source: Authors calculation based on SOGEDI", 
+    " database (n=", nrow(db_proc), ")"
+  ))
 
 ```
 
-```{r}
-#| label: fig-13
-#| fig-cap: "Correlation matrixes of Perception of descendent social mobility"
-#| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
 
-#Plot the matrix using corrplot
-
-corr_plots(res3, db_proc, "SOGEDI")
-
-```
 
 
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "ascenmobi"
 result2 <- alphas(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_up_1", "mobi_up_2", "mobi_up_3")], na.rm = TRUE)
 ```
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "descenmobi"
 result3 <- alphas(db_proc, c("mobi_down_1", "mobi_down_2", "mobi_down_3"), mi_variable)
 
 result3$raw_alpha
-result3$ord_alpha
 result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mobi_down_3")], na.rm = TRUE)
@@ -1380,12 +1553,25 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mo
 
 ##### **Confirmatory factor analysis**
 
+Mardia's test for evaluate multivariate normality.
+
 ```{r}
-# 3. CFA
+#| fig-cap: "Mardia's test of Perception of social mobility"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
 mardia(db_proc[,c("mobi_up_1", "mobi_up_2", "mobi_up_3",
                   "mobi_down_1", "mobi_down_2", "mobi_down_3")], 
-       na.rm = T, plot=F)
+       na.rm = T, plot=T) 
+```
 
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+
+```{r}
 # model
 model_cfa <- ' 
   ascen_mobi =~ mobi_up_1 + mobi_up_2 + mobi_up_3
@@ -1430,19 +1616,8 @@ m7_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-```{r}
-#| label: tbl-13
-#| tbl-cap: "Standardized Factor Loadings of Social mobility all countries"
-#| tbl-cap-location: top
-
-
-cfa_tab_loadings(m7_cfa)$loadings_table
-
-
-```
 
 ```{r}
-#| label: tbl-14
 #| tbl-cap: "Summary fit indices of Social mobility"
 #| tbl-cap-location: top
 
@@ -1453,6 +1628,7 @@ cfa_tab_fit(
 ```
 
 
+
 ## Block 4. Stereotypes
 
 ### Stereotype content model: inmmorality
@@ -1460,46 +1636,153 @@ cfa_tab_fit(
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc10
-#| tbl-cap: "Descriptive statistics of Stereotype content model: inmmorality"
+#| tbl-cap: "Descriptive statistics of Inmmorality"
 #| tbl-cap-location: top
 
-describe_kable(db_proc, c("inm_1", "inm_2", "inm_3"))
+db_proc <- db_proc %>% 
+  mutate(condi_gender = if_else(condi_gender == 0, "Men", "Women"),
+         condi_class = if_else(condi_class == 0, "Poor", "Rich")) %>% 
+  rowwise() %>% 
+  mutate(target = interaction(condi_class, condi_gender)) %>% 
+  ungroup()
+
+db_rm <- subset(db_proc, target == "Rich.Men")
+db_pm <- subset(db_proc, target == "Poor.Men")
+db_rw <- subset(db_proc, target == "Rich.Women")
+db_pw <- subset(db_proc, target == "Poor.Women")
+
+bind_rows(
+psych::describe(db_rm[,c("inm_1", "inm_2", "inm_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("inm_1", "inm_2", "inm_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("inm_1", "inm_2", "inm_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("inm_1", "inm_2", "inm_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("inm_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
 
 ```
 
-```{r}
-#| collapse: false
-# 1. Correlations ppw
-
-# fit pearson and polychoric
-res2 <- fit_correlations(db_proc, c("inm_1", "inm_2", "inm_3"))
-
-```
 
 ```{r}
-#| label: fig-14
-#| fig-cap: "Correlation matrixes of Stereotype content model: inmmorality"
+#| fig-cap: "Correlation matrix of Inmmorality"
 #| fig-cap-location: top
-#| fig-asp: 1.1
-#| out-width: '80%'
+#| fig-asp: 0.8
+#| out-width: '100%'
 
-#Plot the matrix using corrplot
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("inm_1", "inm_2", "inm_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
 
-corr_plots(res2, db_proc, "SOGEDI")
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pm, c("inm_1", "inm_2", "inm_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("inm_1", "inm_2", "inm_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pw, c("inm_1", "inm_2", "inm_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
 
 ```
 
 ##### **Internal consistency**
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "inm"
 result2 <- alphas(db_proc, c("inm_1", "inm_2", "inm_3"), mi_variable)
 
 result2$raw_alpha
-result2$ord_alpha
 result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.rm = TRUE)
@@ -1507,187 +1790,220 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.r
 
 ##### **Confirmatory factor analysis**
 
-```{r}
-# 3. CFA
-mardia(db_proc[,c("inm_1", "inm_2", "inm_3")], 
-       na.rm = T, plot=F)
+Mardia's test for evaluate multivariate normality for each target.
 
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("inm_1", "inm_2", "inm_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("inm_1", "inm_2", "inm_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rw[,c("inm_1", "inm_2", "inm_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("inm_1", "inm_2", "inm_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
 # model
 model_cfa <- ' 
   inmorality =~ inm_1 + inm_2 + inm_3
    '
 
 # estimation 
-
-# gender condition
-m8_cfa_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0),
+# overall
+m8_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
               estimator = "MLR",
               ordered = F,
               std.lv = F) 
 
-m8_cfa_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1),
+m8_cfa_pm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Men"),
               estimator = "MLR",
               ordered = F,
               std.lv = F) 
 
-
-# men
-
-m8_cfa_arg_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 1),
+m8_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
               estimator = "MLR",
               ordered = F,
               std.lv = F) 
 
-m8_cfa_cl_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 3),
+m8_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
               estimator = "MLR",
               ordered = F,
               std.lv = F) 
 
-m8_cfa_col_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 4),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
+# per country
+db_proc$group <- interaction(db_proc$natio_recoded, db_proc$target)
 
-m8_cfa_es_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 9),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
+# argentina
+m8_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
 
-m8_cfa_mex_men <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 0 & country_residence_recoded == 13),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
+m8_cfa_pm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
 
-# women
+m8_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
 
-m8_cfa_arg_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 1),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
+m8_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
 
-m8_cfa_cl_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 3),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
-
-m8_cfa_col_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 4),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
-
-m8_cfa_es_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 9),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
-
-m8_cfa_mex_women <- cfa(model = model_cfa, 
-              data = subset(db_proc, condi_gender == 1 & country_residence_recoded == 13),
-              estimator = "MLR",
-              ordered = F,
-              std.lv = F) 
-
-# class condition
-m8_cfa_poor <- cfa(model = model_cfa, 
-                   data = subset(db_proc, condi_class == 0),
-                   estimator = "MLR",
-                   ordered = F,
-                   std.lv = F) 
-
-m8_cfa_rich <- cfa(model = model_cfa, 
-                   data = subset(db_proc, condi_class == 1),
-                   estimator = "MLR",
-                   ordered = F,
-                   std.lv = F) 
-
-# poor
-
-m8_cfa_arg_poor <- cfa(model = model_cfa, 
-                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 1),
-                      estimator = "MLR",
-                      ordered = F,
-                      std.lv = F) 
-
-m8_cfa_cl_poor <- cfa(model = model_cfa, 
-                     data = subset(db_proc, condi_class == 0 & country_residence_recoded == 3),
+# chile
+m8_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
                      estimator = "MLR",
                      ordered = F,
                      std.lv = F) 
 
-m8_cfa_col_poor <- cfa(model = model_cfa, 
-                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 4),
-                      estimator = "MLR",
-                      ordered = F,
-                      std.lv = F) 
-
-m8_cfa_es_poor <- cfa(model = model_cfa, 
-                     data = subset(db_proc, condi_class == 0 & country_residence_recoded == 9),
+m8_cfa_pm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Men"),
                      estimator = "MLR",
                      ordered = F,
                      std.lv = F) 
 
-m8_cfa_mex_poor <- cfa(model = model_cfa, 
-                      data = subset(db_proc, condi_class == 0 & country_residence_recoded == 13),
-                      estimator = "MLR",
-                      ordered = F,
-                      std.lv = F) 
+m8_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-# rich
+m8_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-m8_cfa_arg_rich <- cfa(model = model_cfa, 
-                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 1),
-                        estimator = "MLR",
-                        ordered = F,
-                        std.lv = F) 
+# colombia
+m8_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-m8_cfa_cl_rich <- cfa(model = model_cfa, 
-                       data = subset(db_proc, condi_class == 1 & country_residence_recoded == 3),
-                       estimator = "MLR",
-                       ordered = F,
-                       std.lv = F) 
+m8_cfa_pm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-m8_cfa_col_rich <- cfa(model = model_cfa, 
-                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 4),
-                        estimator = "MLR",
-                        ordered = F,
-                        std.lv = F) 
+m8_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-m8_cfa_es_rich <- cfa(model = model_cfa, 
-                       data = subset(db_proc, condi_class == 1 & country_residence_recoded == 9),
-                       estimator = "MLR",
-                       ordered = F,
-                       std.lv = F) 
+m8_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
-m8_cfa_mex_rich <- cfa(model = model_cfa, 
-                        data = subset(db_proc, condi_class == 1 & country_residence_recoded == 13),
-                        estimator = "MLR",
-                        ordered = F,
-                        std.lv = F) 
+# españa
+m8_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 
+m8_cfa_pm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+m8_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_pm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m8_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
 ```
 
-```{r}
-#| label: tbl-15
-#| tbl-cap: "Standardized Factor Loadings of SStereotype content model: inmmorality"
-#| tbl-cap-location: top
 
-
-
-
-```
 
 ```{r}
-#| label: tbl-16
 #| tbl-cap: "Summary fit indices of Stereotype content model: inmmorality"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -1695,33 +2011,34 @@ colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","R
 
 bind_rows(
 cfa_tab_fit(
-  models = list(m8_cfa_men, m8_cfa_arg_men, m8_cfa_cl_men, m8_cfa_col_men, m8_cfa_es_men, m8_cfa_mex_men),
+  models = list(m8_cfa_rm, m8_cfa_rm_arg, m8_cfa_rm_cl, m8_cfa_rm_col, m8_cfa_rm_esp, m8_cfa_rm_mex),
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$sum_fit %>% 
-  mutate(target = "Men")
+  mutate(target = "Rich Men")
 ,
 cfa_tab_fit(
-  models = list(m8_cfa_women, m8_cfa_arg_women, m8_cfa_cl_women, m8_cfa_col_women, m8_cfa_es_women, m8_cfa_mex_women),
+  models = list(m8_cfa_pm, m8_cfa_pm_arg, m8_cfa_pm_cl, m8_cfa_pm_col, m8_cfa_pm_esp, m8_cfa_pm_mex),
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$sum_fit %>% 
-  mutate(target = "Women")
+  mutate(target = "Poor Men")
 ,
 cfa_tab_fit(
-  models = list(m8_cfa_poor, m8_cfa_arg_poor, m8_cfa_cl_poor, m8_cfa_col_poor, m8_cfa_es_poor, m8_cfa_mex_poor),
+  models = list(m8_cfa_rw, m8_cfa_rw_arg, m8_cfa_rw_cl, m8_cfa_rw_col, m8_cfa_rw_esp, m8_cfa_rw_mex),
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$sum_fit %>% 
-  mutate(target = "Poor")
+  mutate(target = "Rich Women")
 ,
 cfa_tab_fit(
-  models = list(m8_cfa_rich, m8_cfa_arg_rich, m8_cfa_cl_rich, m8_cfa_col_rich, m8_cfa_es_rich, m8_cfa_mex_rich),
+  models = list(m8_cfa_pw, m8_cfa_pw_arg, m8_cfa_pw_cl, m8_cfa_pw_col, m8_cfa_pw_esp, m8_cfa_pw_mex),
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$sum_fit %>% 
-  mutate(target = "Rich")
+  mutate(target = "Poor Women")
 ) %>% 
   select(country, target, everything()) %>% 
   mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
   group_by(country) %>% 
   arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
   kableExtra::kable(
   format     = "markdown", 
   digits     = 3,
@@ -1738,3 +2055,4011 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
+### Stereotype content model: morality
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Morality"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("mor_1", "mor_2", "mor_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("mor_1", "mor_2", "mor_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("mor_1", "mor_2", "mor_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("mor_1", "mor_2", "mor_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("mor_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Morality"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("mor_1", "mor_2", "mor_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pm, c("mor_1", "mor_2", "mor_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("mor_1", "mor_2", "mor_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pw, c("mor_1", "mor_2", "mor_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "mor"
+result2 <- alphas(db_proc, c("mor_1", "mor_2", "mor_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Morality with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("mor_1", "mor_2", "mor_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Morality with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("mor_1", "mor_2", "mor_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rw[,c("mor_1", "mor_2", "mor_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Inmorality with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("mor_1", "mor_2", "mor_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+# model
+model_cfa <- ' 
+  morality =~ mor_1 + mor_2 + mor_3
+   '
+
+# estimation 
+# overall
+m9_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m9_cfa_pm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m9_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m9_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+
+# argentina
+m9_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m9_cfa_pm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m9_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m9_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m9_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m9_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# españa
+m9_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+m9_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m9_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+```
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Stereotype content model: morality"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m9_cfa_rm, m9_cfa_rm_arg, m9_cfa_rm_cl, m9_cfa_rm_col, m9_cfa_rm_esp, m9_cfa_rm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m9_cfa_pm, m9_cfa_pm_arg, m9_cfa_pm_cl, m9_cfa_pm_col, m9_cfa_pm_esp, m9_cfa_pm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Men")
+,
+cfa_tab_fit(
+  models = list(m9_cfa_rw, m9_cfa_rw_arg, m9_cfa_rw_cl, m9_cfa_rw_col, m9_cfa_rw_esp, m9_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+,
+cfa_tab_fit(
+  models = list(m9_cfa_pw, m9_cfa_pw_arg, m9_cfa_pw_cl, m9_cfa_pw_col, m9_cfa_pw_esp, m9_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+
+### Stereotype content model: warmth
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Warmth"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("war_1", "war_2", "war_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("war_1", "war_2", "war_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("war_1", "war_2", "war_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("war_1", "war_2", "war_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("war_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Warmth"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("war_1", "war_2", "war_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pm, c("war_1", "war_2", "war_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("war_1", "war_2", "war_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pw, c("war_1", "war_2", "war_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "war"
+result2 <- alphas(db_proc, c("war_1", "war_2", "war_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("war_1", "war_2", "war_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Warmth with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("war_1", "war_2", "war_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Warmth with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("war_1", "war_2", "war_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of InWarmth with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rw[,c("war_1", "war_2", "war_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Warmth with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("war_1", "war_2", "war_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+# model
+model_cfa <- ' 
+  warmth =~ war_1 + war_2 + war_3
+   '
+
+# estimation 
+# overall
+m10_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m10_cfa_pm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m10_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m10_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+
+# argentina
+m10_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m10_cfa_pm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m10_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m10_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m10_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m10_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# españa
+m10_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+m10_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m10_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+```
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Stereotype content model: Warmth"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m10_cfa_rm, m10_cfa_rm_arg, m10_cfa_rm_cl, m10_cfa_rm_col, m10_cfa_rm_esp, m10_cfa_rm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m10_cfa_pm, m10_cfa_pm_arg, m10_cfa_pm_cl, m10_cfa_pm_col, m10_cfa_pm_esp, m10_cfa_pm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Men")
+,
+cfa_tab_fit(
+  models = list(m10_cfa_rw, m10_cfa_rw_arg, m10_cfa_rw_cl, m10_cfa_rw_col, m10_cfa_rw_esp, m10_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+,
+cfa_tab_fit(
+  models = list(m10_cfa_pw, m10_cfa_pw_arg, m10_cfa_pw_cl, m10_cfa_pw_col, m10_cfa_pw_esp, m10_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+
+### Stereotype content model: competence
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Competence"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("com_1", "com_2", "com_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("com_1", "com_2", "com_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("com_1", "com_2", "com_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("com_1", "com_2", "com_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("co_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Competence"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("com_1", "com_2", "com_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pm, c("com_1", "com_2", "com_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("com_1", "com_2", "com_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_pw, c("com_1", "com_2", "com_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "com"
+result2 <- alphas(db_proc, c("com_1", "com_2", "com_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("com_1", "com_2", "com_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of competence with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("com_1", "com_2", "com_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of competence with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("com_1", "com_2", "com_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Incompetence with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rw[,c("com_1", "com_2", "com_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of competence with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("com_1", "com_2", "com_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+# model
+model_cfa <- ' 
+  competence =~ com_1 + com_2 + com_3
+   '
+
+# estimation 
+# overall
+m11_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m11_cfa_pm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m11_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m11_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+
+# argentina
+m11_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m11_cfa_pm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m11_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m11_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m11_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m11_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# españa
+m11_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+m11_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m11_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+```
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Stereotype content model: competence"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m11_cfa_rm, m11_cfa_rm_arg, m11_cfa_rm_cl, m11_cfa_rm_col, m11_cfa_rm_esp, m11_cfa_rm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m11_cfa_pm, m11_cfa_pm_arg, m11_cfa_pm_cl, m11_cfa_pm_col, m11_cfa_pm_esp, m11_cfa_pm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Men")
+,
+cfa_tab_fit(
+  models = list(m11_cfa_rw, m11_cfa_rw_arg, m11_cfa_rw_cl, m11_cfa_rw_col, m11_cfa_rw_esp, m11_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+,
+cfa_tab_fit(
+  models = list(m11_cfa_pw, m11_cfa_pw_arg, m11_cfa_pw_cl, m11_cfa_pw_col, m11_cfa_pw_esp, m11_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+### Intergroup behavioural tendencies: passive harm
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive harm"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("ph_1", "ph_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("ph_1", "ph_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("ph_1", "ph_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("ph_1", "ph_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("ph_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive harm"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("ph_1", "ph_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("ph_1", "ph_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("ph_1", "ph_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("ph_1", "ph_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "ph"
+result2 <- alphas(db_proc, c("ph_1", "ph_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
+```
+
+
+### Intergroup behavioural tendencies: active harm
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active harm"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("ah_1", "ah_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("ah_1", "ah_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("ah_1", "ah_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("ah_1", "ah_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("ah_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active harm"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("ah_1", "ah_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("ah_1", "ah_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("ah_1", "ah_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("ah_1", "ah_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "ah"
+result2 <- alphas(db_proc, c("ah_1", "ah_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ah_1", "ah_2")], na.rm = TRUE)
+```
+
+
+### Intergroup behavioural tendencies: passive facilitation
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive facilitation"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("pf_1", "pf_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("pf_1", "pf_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("pf_1", "pf_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("pf_1", "pf_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("pf_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive facilitation"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("pf_1", "pf_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("pf_1", "pf_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("pf_1", "pf_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("pf_1", "pf_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "pf"
+result2 <- alphas(db_proc, c("pf_1", "pf_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pf_1", "pf_2")], na.rm = TRUE)
+```
+
+
+### Intergroup behavioural tendencies: active facilitation
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active facilitation"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("af_1", "af_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("af_1", "af_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("af_1", "af_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("af_1", "af_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("af_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active facilitation"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("af_1", "af_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("af_1", "af_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("af_1", "af_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("af_1", "af_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "af"
+result2 <- alphas(db_proc, c("af_1", "af_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
+```
+
+### Intergroup affect tendencies: admiration toward
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: admiration toward"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("ad_1", "ad_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("ad_1", "ad_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("ad_1", "ad_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("ad_1", "ad_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("ad_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup affect tendencies:  admiration toward"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("ad_1", "ad_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("ad_1", "ad_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("ad_1", "ad_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("ad_1", "ad_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "ad"
+result2 <- alphas(db_proc, c("ad_1", "ad_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
+```
+
+
+### Intergroup affect tendencies: contempt toward
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: contempt toward"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("co_1", "co_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("co_1", "co_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("co_1", "co_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("co_1", "co_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("co_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup affect tendencies:  contempt toward"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("co_1", "co_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("co_1", "co_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("co_1", "co_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("co_1", "co_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "co"
+result2 <- alphas(db_proc, c("co_1", "co_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
+```
+
+
+### Intergroup affect tendencies: envy toward
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: envy toward"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("en_1", "en_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("en_1", "en_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("en_1", "en_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("en_1", "en_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("en_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup affect tendencies:  envy toward"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("en_1", "en_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("en_1", "en_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("en_1", "en_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("en_1", "en_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "en"
+result2 <- alphas(db_proc, c("en_1", "en_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
+```
+
+
+### Intergroup affect tendencies: pity toward
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: pity toward"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("pi_1", "pi_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_pm[,c("pi_1", "pi_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_rw[,c("pi_1", "pi_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+,
+psych::describe(db_pw[,c("pi_1", "pi_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = paste0("pi_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Intergroup affect tendencies:  pity toward"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("pi_1", "pi_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("pi_1", "pi_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Men")
+
+p3 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("pi_1", "pi_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "III. Rich Women")
+
+p4 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("pi_1", "pi_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  )+ labs(title = "VI. Poor Women")
+
+a <- p1 + p2
+
+b <- p3 + p4
+
+a/b +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=", nrow(db_proc), ")"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "pi"
+result2 <- alphas(db_proc, c("pi_1", "pi_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
+```
+
+
+### Greedy dispositions
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Greedy dispositions"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("greedy_1", "greedy_2", "greedy_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_rw[,c("greedy_1", "greedy_2", "greedy_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+) %>% 
+  mutate(vars = paste0("greedy_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Greedy dispositions"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("greedy_1", "greedy_2", "greedy_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("greedy_1", "greedy_2", "greedy_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Rich Women")
+
+
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=1043)"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "greedy"
+result2 <- alphas(db_proc, c("greedy_1", "greedy_2", "greedy_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3")], na.rm = TRUE)
+```
+
+
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of greedy dispositions with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of greedy dispositions with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+# model
+model_cfa <- ' 
+  greedy_disp =~ greedy_1 + greedy_2 + greedy_3
+   '
+
+# estimation 
+# overall
+m12_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m12_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# argentina
+m12_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m12_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m12_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m12_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m12_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m12_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# españa
+m12_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m12_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# mexico
+m12_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m12_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+```
+
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Greedy dispositions"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m12_cfa_rm, m12_cfa_rm_arg, m12_cfa_rm_cl, m12_cfa_rm_col, m12_cfa_rm_esp, m12_cfa_rm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m12_cfa_rw, m12_cfa_rw_arg, m12_cfa_rw_cl, m12_cfa_rw_col, m12_cfa_rw_esp, m12_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+
+### Punishment rich
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Punishment rich"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("punish_1", "punish_2", "punish_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_rw[,c("punish_1", "punish_2", "punish_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+) %>% 
+  mutate(vars = paste0("punish_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Punishment rich"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rm, c("punish_1", "punish_2", "punish_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_rw, c("punish_1", "punish_2", "punish_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Rich Women")
+
+
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=1043)"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "punish"
+result2 <- alphas(db_proc, c("punish_1", "punish_2", "punish_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3")], na.rm = TRUE)
+```
+
+
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Punishment rich with rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("punish_1", "punish_2", "punish_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Punishment rich with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("punish_1", "punish_2", "punish_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+# model
+model_cfa <- ' 
+  punishment =~ punish_1 + punish_2 + punish_3
+   '
+
+# estimation 
+# overall
+m13_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m13_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# argentina
+m13_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m13_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m13_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m13_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m13_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m13_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# españa
+m13_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m13_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# mexico
+m13_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m13_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+```
+
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Punishment rich"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m13_cfa_rm, m13_cfa_rm_arg, m13_cfa_rm_cl, m13_cfa_rm_col, m13_cfa_rm_esp, m13_cfa_rm_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m13_cfa_rw, m13_cfa_rw_arg, m13_cfa_rw_cl, m13_cfa_rw_col, m13_cfa_rw_esp, m13_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+
+
+## Block 5. Atributions
+### Atributtions about poverty
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Atributtions about poverty"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_pm[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_pw[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = case_when(vars <= 2 ~ paste0("ex_po_", vars),
+                          vars >= 3 ~ paste0("in_po_", vars))) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Atributtions about poverty"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Poor Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Women")
+
+
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=1043)"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "ex_atri_po"
+result2 <- alphas(db_proc, c("ex_po_1", "ex_po_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_po_1", "ex_po_2")], na.rm = TRUE)
+```
+
+
+```{r}
+mi_variable <- "in_atri_po"
+result3 <- alphas(db_proc, c("in_po_1", "in_po_2"), mi_variable)
+
+result3$raw_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = TRUE)
+```
+
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Atributtions about poverty with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Atributtions about poverty with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")], 
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
+#| eval: false
+# model
+#model_cfa <- '
+#  external_atri_po =~ ex_po_1 + ex_po_2
+#  internal_atri_po =~ in_po_1 + in_po_2
+#'
+#
+## estimation 
+## overall
+#m14_cfa_pm <- cfa(model = model_cfa, 
+#              data = subset(db_proc, target == "Poor.Men"),
+#              estimator = "MLR",
+#              ordered = F,
+#              std.lv = F) 
+#
+#m14_cfa_pw <- cfa(model = model_cfa, 
+#              data = subset(db_proc, target == "Poor.Women"),
+#              estimator = "MLR",
+#              ordered = F,
+#              std.lv = F) 
+#
+## argentina
+#m14_cfa_pm_arg <- cfa(model = model_cfa, 
+#                 data = subset(db_proc, group == "1.Poor.Men"),
+#                 estimator = "MLR",
+#                 ordered = F,
+#                 std.lv = F) 
+#
+#m14_cfa_pw_arg <- cfa(model = model_cfa, 
+#                 data = subset(db_proc, group == "1.Poor.Women"),
+#                 estimator = "MLR",
+#                 ordered = F,
+#                 std.lv = F) 
+#
+## chile
+#m14_cfa_pm_cl <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "3.Poor.Men"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+#m14_cfa_pw_cl <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "3.Poor.Women"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+## colombia
+#m14_cfa_pm_col <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "4.Poor.Men"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+#m14_cfa_pw_col <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "4.Poor.Women"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+## españa
+#m14_cfa_pm_esp <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "9.Poor.Men"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+#m14_cfa_pw_esp <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "9.Poor.Women"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+## mexico
+#m14_cfa_pm_mex <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "13.Poor.Men"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+#
+#m14_cfa_pw_mex <- cfa(model = model_cfa, 
+#                     data = subset(db_proc, group == "13.Poor.Women"),
+#                     estimator = "MLR",
+#                     ordered = F,
+#                     std.lv = F) 
+#
+```
+
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Atributtions about poverty"
+#| tbl-cap-location: top
+#| eval: false
+#colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ #(df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+#
+#
+#bind_rows(
+#cfa_tab_fit(
+#  models = list(m14_cfa_pm, m14_cfa_pm_arg, m14_cfa_pm_cl, #m14_cfa_pm_col, m14_cfa_pm_esp, m14_cfa_pm_mex),
+#  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", #"Spain", "México")
+#)$sum_fit %>% 
+#  mutate(target = "Poor Men")
+#,
+#cfa_tab_fit(
+#  models = list(m14_cfa_pw, m14_cfa_pw_arg, m14_cfa_pw_cl, #m14_cfa_pw_col, m14_cfa_pw_esp, m14_cfa_pw_mex),
+#  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", #"Spain", "México")
+#)$sum_fit %>% 
+#  mutate(target = "Poor Women")
+#) %>% 
+#  select(country, target, everything()) %>% 
+#  mutate(country = factor(country, levels = c("Overall scores", #"Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+#  group_by(country) %>% 
+#  arrange(country) %>% 
+#  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+#  kableExtra::kable(
+#  format     = "markdown", 
+#  digits     = 3,
+#  booktabs   = TRUE,
+#  col.names  = colnames_fit,
+#  caption    = NULL
+#) %>%
+#  kableExtra::kable_styling(
+#    full_width        = TRUE,
+#    font_size         = 11,
+#    latex_options     = "HOLD_position",
+#    bootstrap_options = c("striped", "bordered")
+#  ) %>% 
+#  kableExtra::collapse_rows(columns = 1)
+```
+
+
+### Atributtions about wealth
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Atributtions about wealth"
+#| tbl-cap-location: top
+
+bind_rows(
+psych::describe(db_rm[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Men")
+,
+psych::describe(db_rw[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+) %>% 
+  mutate(vars = case_when(vars <= 2 ~ paste0("ex_we_", vars),
+                          vars >= 3 ~ paste0("in_we_", vars))) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Atributtions about wealth"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rm, c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Rich Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_rw, c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Rich Women")
+
+
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI", 
+        " database (n=1043)"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "ex_atri_we"
+result2 <- alphas(db_proc, c("ex_we_1", "ex_we_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_we_1", "ex_we_2")], na.rm = TRUE)
+```
+
+
+```{r}
+mi_variable <- "in_atri_we"
+result3 <- alphas(db_proc, c("in_we_1", "in_we_2"), mi_variable)
+
+result3$raw_alpha
+result3$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = TRUE)
+```
+
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Atributtions about wealth with Rich men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rm[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")], 
+       na.rm = T, plot=T) 
+```
+
+
+```{r}
+#| fig-cap: "Mardia's test of Atributtions about wealth with Rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_rw[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")], 
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+
+# model
+model_cfa <- '
+  external_atri_we =~ ex_we_1 + ex_we_2
+  internal_atri_we =~ in_we_1 + in_we_2
+'
+
+# estimation 
+# overall
+m15_cfa_rm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m15_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# argentina
+m15_cfa_rm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m15_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m15_cfa_rm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m15_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m15_cfa_rm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m15_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# españa
+m15_cfa_rm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m15_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# mexico
+m15_cfa_rm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m15_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+```
+
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Atributtions about wealth"
+#| tbl-cap-location: top
+
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m15_cfa_rm, m15_cfa_rm_cl, m15_cfa_rm_col, m15_cfa_rm_esp, m15_cfa_rm_mex),
+  country_names = c("Overall scores", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Men")
+,
+cfa_tab_fit(
+  models = list(m15_cfa_rw, m15_cfa_rw_arg, m15_cfa_rw_cl, m15_cfa_rw_col, m15_cfa_rw_esp, m15_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+## Block 6. Stereotypes
+### Thick skin bias
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Thick skin bias"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Thick skin bias"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("sk_1", "sk_2", "sk_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "skin"
+result2 <- alphas(db_proc, c("sk_1", "sk_2", "sk_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("sk_1", "sk_2", "sk_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality.
+
+```{r}
+#| fig-cap: "Mardia's test of Thick skin biast"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_proc[,c("sk_1", "sk_2", "sk_3")], 
+       na.rm = T, plot=T) 
+```
+
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+```{r}
+
+# model
+model_cfa <- '
+  skin_bias =~ sk_1 + sk_2 + sk_3
+'
+
+# estimation 
+# overall
+m16_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# argentina
+m16_cfa_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, country_residence_recoded == 1),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m16_cfa_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, country_residence_recoded == 3),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# colombia
+m16_cfa_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, country_residence_recoded == 4),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+
+# españa
+m16_cfa_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, country_residence_recoded == 9),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# mexico
+m16_cfa_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, country_residence_recoded == 13),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+```
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Thick skin bias"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m16_cfa, m16_cfa_arg, m16_cfa_cl, m16_cfa_col, m16_cfa_esp, m16_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+```
+
+
+
+### Deservingness
+
+##### **Descriptive analysis**
+
+```{r}
+#| label: tbl-desc27
+#| tbl-cap: "Descriptive statistics of Deservingness"
+#| tbl-cap-location: top
+
+db_proc$carin_control_2_r <- sjmisc::rec(db_proc$carin_control_2,rec = "rev")
+db_pm$carin_control_2_r <- sjmisc::rec(db_pm$carin_control_2,rec = "rev")
+db_pw$carin_control_2_r <- sjmisc::rec(db_pw$carin_control_2,rec = "rev")
+
+bind_rows(
+psych::describe(db_pm[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Men")
+,
+psych::describe(db_pw[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+) %>% 
+  mutate(vars = case_when(vars %in% c(1:2) ~ paste0("carin_control_", vars),
+                          vars %in% c(3:4) ~ paste0("carin_attitude_", vars),
+                          vars %in% c(5:6) ~ paste0("carin_reciprocity_", vars),
+                          vars %in% c(7:8) ~ paste0("carin_identity_", vars),
+                          vars %in% c(9:10) ~ paste0("carin_need_", vars))) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Deservingness"
+#| fig-cap-location: top
+#| fig-asp: 1
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pm, c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Poor Men")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations_pairwise(db_pw, c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Poor Women")
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Internal consistency**
+
+```{r}
+
+mi_variable <- "carin_control"
+result2 <- alphas(db_proc, c("carin_control_1","carin_control_2_r"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_2_r")], na.rm = TRUE)
+```
+
+
+```{r}
+
+mi_variable <- "carin_attitude"
+result2 <- alphas(db_proc, c("carin_attitude_1","carin_attitude_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitude_2")], na.rm = TRUE)
+```
+
+
+```{r}
+
+mi_variable <- "carin_reciprocity"
+result2 <- alphas(db_proc, c("carin_reciprocity_1","carin_reciprocity_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reciprocity_2")], na.rm = TRUE)
+```
+
+
+```{r}
+
+mi_variable <- "carin_identity"
+result2 <- alphas(db_proc, c("carin_identity_1","carin_identity_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_identity_1","carin_identity_2")], na.rm = TRUE)
+```
+
+```{r}
+
+mi_variable <- "carin_need"
+result2 <- alphas(db_proc, c("carin_need_1","carin_need_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality.
+
+```{r}
+#| fig-cap: "Mardia's test of Deservingnesst with poor men as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pm[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Deservingnesst with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_attitude_2","carin_reciprocity_1","carin_reciprocity_2","carin_identity_1","carin_identity_2","carin_need_1","carin_need_2")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+
+
+
+```{r}
+
+# model
+model_cfa <- '
+  control =~ carin_control_1 + carin_control_2_r 
+  attitude =~ carin_attitude_1 + carin_attitude_2
+  reciprocity =~ carin_reciprocity_1 + carin_reciprocity_2
+  identity =~ carin_identity_1 + carin_identity_2
+  need =~ carin_need_1 + carin_need_2
+'
+
+# estimation 
+# overall
+m17_cfa_pm <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Men"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m17_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+# argentina
+m17_cfa_pm_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Men"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m17_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+m17_cfa_pm_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m17_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+m17_cfa_pm_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m17_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# españa
+m17_cfa_pm_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m17_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+# mexico
+m17_cfa_pm_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Men"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+m17_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+
+```
+
+
+
+```{r}
+#| tbl-cap: "Summary fit indices of Deservingness"
+#| tbl-cap-location: top
+
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m17_cfa_pm, m17_cfa_pm_arg, m17_cfa_pm_esp, m17_cfa_pm_mex),
+  country_names = c("Overall scores", "Argentina", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Men")
+,
+cfa_tab_fit(
+  models = list(m17_cfa_pw, m17_cfa_pw_arg, m17_cfa_pw_cl, m17_cfa_pw_col, m17_cfa_pw_esp, m17_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
+## Block 7. Dehumanization
+
+### Blatant dehumanization
+
+## Block 8. Sexuality
+
+### Perceived promiscuity of women
+
+### Risk sexual behavior of women
+
+### Unplanned pregnancy of women
+
+### Abuse of social assistance by poor mothers
+
+### Paternalistic support for poor mothers
+
+### Hostile support for poor mothers
+
+## Block 9. Policies / Actions
+
+### Support for income redistribution
+
+### Perception of effectiveness in the use of aids
+
+### Social aids that promote autonomy vs. dependence
+
+### Progressive policies
+
+### Restrictive policies
+
+## Block 10. Violence
+
+### Sexual harassment situations
+
+### Domestic abuse situations
+
+### Type of violence
+
+### Barriers to leaving an abusive relationship
+
+### Perpetration of violence
