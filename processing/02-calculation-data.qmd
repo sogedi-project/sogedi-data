@@ -377,6 +377,7 @@ The item to capture individual justification of socioeconomic inequality was cre
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-3
 #| tbl-cap: "Descriptive statistics of Socioeconomic inequality justification"
 #| tbl-cap-location: top
 
@@ -392,6 +393,7 @@ The item to capture individual collective action toward economic inequality was 
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-4
 #| tbl-cap: "Descriptive statistics of Economic inequality collective action"
 #| tbl-cap-location: top
 
@@ -409,7 +411,7 @@ The items to capture ambivalent classism came from previous research from Sainz 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-3
+#| label: tbl-5
 #| tbl-cap: "Descriptive statistics of Protective paternalism toward poor women and men"
 #| tbl-cap-location: top
 
@@ -501,7 +503,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-4
+#| label: tbl-6
 #| tbl-cap: "Descriptive statistics of Complementary class diferenciation toward poor women and men"
 #| tbl-cap-location: top
 
@@ -595,7 +597,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", 
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-5
+#| label: tbl-7
 #| tbl-cap: "Descriptive statistics of Hostile classism toward poor women and men"
 #| tbl-cap-location: top
 
@@ -604,6 +606,7 @@ describe_kable(db_proc, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4", "hc_pm_1","hc
 ```
 
 ```{r}
+#| label: fig-5
 #| fig-cap: "Correlation matrics of Hostile classism toward poor women and men"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -687,6 +690,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-6
 #| fig-cap: "Mardia's test of Ambivalent classism with women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -754,6 +758,7 @@ m2_cfa_mex <- cfa(model = model_cfa,
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-7
 #| fig-cap: "Mardia's test of Ambivalent classism with men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -816,7 +821,7 @@ m3_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
-#| label: tbl-a
+#| label: tbl-8
 #| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory"
 #| tbl-cap-location: top
 
@@ -868,6 +873,7 @@ The items to capture ambivalent sexism came from previous research from Rollero 
 ##### **Descriptive results**
 
 ```{r}
+#| label: tbl-9
 #| tbl-cap: "Descriptive statistics of Paternalism sexism toward women"
 #| tbl-cap-location: top
 
@@ -876,6 +882,7 @@ describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
 ```
 
 ```{r}
+#| label: fig-8
 #| fig-cap: "Correlation matrix of Paternalism sexism toward women"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -923,6 +930,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], n
 ##### **Descriptive results**
 
 ```{r}
+#| label: tbl-10
 #| tbl-cap: "Descriptive statistics of Hostility sexism toward women"
 #| tbl-cap-location: top
 
@@ -931,6 +939,7 @@ describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
 ```
 
 ```{r}
+#| label: fig-9
 #| fig-cap: "Correlation matrix of Hostility sexism toward women"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -979,6 +988,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], n
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-10
 #| fig-cap: "Mardia's test of Ambivalent sexism toward women"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1039,6 +1049,7 @@ m4_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-11
 #| tbl-cap: "Summary fit indices of Ambivalent sexism toward women"
 #| tbl-cap-location: top
 
@@ -1057,6 +1068,7 @@ We selected six items from the original scale developed by Schwartz-Salazar et a
 ##### **Descriptive results**
 
 ```{r}
+#| label: tbl-12
 #| tbl-cap: "Descriptive statistics of Perception of gender inequality"
 #| tbl-cap-location: top
 
@@ -1065,6 +1077,7 @@ describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_i
 ```
 
 ```{r}
+#| label: fig-11
 #| fig-cap: "Correlation matrix of Perception of gender inequality"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1112,6 +1125,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-12
 #| fig-cap: "Mardia's test of Perception of gender inequality"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1168,6 +1182,7 @@ m5_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-13
 #| tbl-cap: "Summary fit indices of Perception of gender inequality"
 #| tbl-cap-location: top
 
@@ -1186,6 +1201,7 @@ The items to capture belief in sexism shift came from previous research from Zeh
 ##### **Descriptive results**
 
 ```{r}
+#| label: tbl-14
 #| tbl-cap: "Descriptive statistics of Belief in sexism shift"
 #| tbl-cap-location: top
 
@@ -1194,7 +1210,7 @@ describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
 ```
 
 ```{r}
-#| label: fig-11
+#| label: fig-13
 #| fig-cap: "Correlation matrix of Belief in sexism shift"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1228,7 +1244,6 @@ wrap_elements(
 ##### **Reliability**
 
 ```{r}
-# 2. Alpha
 
 mi_variable <- "shif"
 result2 <- alphas(db_proc, c("shif_1", "shif_2", "shif_3"), mi_variable)
@@ -1244,6 +1259,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], n
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-14
 #| fig-cap: "Mardia's test of Belief in sexism shift"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1300,6 +1316,7 @@ m6_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-15
 #| tbl-cap: "Summary fit indices of Belief in sexism shift"
 #| tbl-cap-location: top
 
@@ -1316,6 +1333,7 @@ The item to capture feminism identification came from previous research from Est
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-16
 #| tbl-cap: "Descriptive statistics of Feminism identification"
 #| tbl-cap-location: top
 
@@ -1329,6 +1347,7 @@ psych::describe(db_proc$femi) %>%
 The item to capture feminism identification came from previous research from Jost & Kay [-@jost_exposure_2005]. We translated the item from the original scale, adapting to our context and objectives.
 
 ```{r}
+#| label: tbl-17
 #| tbl-cap: "Descriptive statistics of Gender inequality justification"
 #| tbl-cap-location: top
 
@@ -1342,6 +1361,7 @@ psych::describe(db_proc$jus_gen) %>%
 The item to capture gender inequality collective action was created by the project team.
 
 ```{r}
+#| label: tbl-18
 #| tbl-cap: "Descriptive statistics of Gender inequality collective action"
 #| tbl-cap-location: top
 
@@ -1355,6 +1375,7 @@ psych::describe(db_proc$co_gen) %>%
 The item to capture gender inequality collective action was created by the project team.
 
 ```{r}
+#| label: tbl-19
 #| tbl-cap: "Descriptive statistics of Perception of gender competition"
 #| tbl-cap-location: top
 
@@ -1370,6 +1391,7 @@ psych::describe(db_proc$gen_compe) %>%
 The items to capture gender poverty rates was inspired by the research of Kuo et al. [-@kuo_highstatus_2020].
 
 ```{r}
+#| label: tbl-20
 #| tbl-cap: "Descriptive statistics of Gendered poverty rates"
 #| tbl-cap-location: top
 
@@ -1382,6 +1404,7 @@ describe_kable(db_proc, c("ge_ra_wo", "ge_ra_me"))
 The variables used to capture this inter group contacts was derived from previous research from Vargas et al. [-@salfate_contact_2023] and Vázquez et al. [-@vazquez_positive_2023]. The wording of the items is based on the COES longitudinal survey, incorporating some supplementary information from Vargas et al. [-@salfate_contact_2023] regarding the places where contact can occur.
 
 ```{r}
+#| label: tbl-21
 #| tbl-cap: "Descriptive statistics of Intergroup contacts: quantity of contacts"
 #| tbl-cap-location: top
 
@@ -1394,6 +1417,7 @@ describe_kable(db_proc, c("quan_pw", "quan_pm", "quan_rw", "quan_rm"))
 The variables used to capture this inter group friendship was developed by the project team.
 
 ```{r}
+#| label: tbl-22
 #| tbl-cap: "Descriptive statistics of Intergroup contacts: friendship"
 #| tbl-cap-location: top
 
@@ -1406,6 +1430,7 @@ describe_kable(db_proc, c("fri_pw", "fri_pm", "fri_rw", "fri_rm"))
 The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. [-@vazquez_positive_2023] and from Roberto Gonzalez FONDECYT dataset.
 
 ```{r}
+#| label: tbl-23
 #| tbl-cap: "Descriptive statistics of Intergroup contacts: quality of contacts"
 #| tbl-cap-location: top
 
@@ -1415,9 +1440,12 @@ describe_kable(db_proc, c("qual_pw", "qual_pm", "qual_rw", "qual_rm"))
 
 ### Perception of social mobility
 
+For social mobility perceptions, we selected the items from the scale developed by @matamoros-lima_rising_2023 that better suits our context of study having in mind the survey space limitations.
+
 ##### **Descriptive results**
 
 ```{r}
+#| label: tbl-24
 #| tbl-cap: "Descriptive statistics of Perception of social mobility"
 #| tbl-cap-location: top
 
@@ -1426,6 +1454,7 @@ describe_kable(db_proc, c("mobi_up_1", "mobi_up_2", "mobi_up_3", "mobi_down_1", 
 ```
 
 ```{r}
+#| label: fig-15
 #| fig-cap: "Correlation matrixes of Perception of social mobility"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1484,6 +1513,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mo
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-16
 #| fig-cap: "Mardia's test of Perception of social mobility"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1543,6 +1573,7 @@ m7_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-25
 #| tbl-cap: "Summary fit indices of Social mobility"
 #| tbl-cap-location: top
 
@@ -1556,9 +1587,12 @@ cfa_tab_fit(
 
 ### Stereotype content model: inmmorality
 
+We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-26
 #| tbl-cap: "Descriptive statistics of Inmmorality"
 #| tbl-cap-location: top
 
@@ -1601,6 +1635,7 @@ psych::describe(db_pw[,c("inm_1", "inm_2", "inm_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-17
 #| fig-cap: "Correlation matrix of Inmmorality"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -1715,6 +1750,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("inm_1", "inm_2", "inm_3")], na.r
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: tbl-46
 #| fig-cap: "Mardia's test of Inmorality with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1726,6 +1762,7 @@ mardia(db_rm[,c("inm_1", "inm_2", "inm_3")],
 ```
 
 ```{r}
+#| label: tbl-47
 #| fig-cap: "Mardia's test of Inmorality with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1737,6 +1774,7 @@ mardia(db_pm[,c("inm_1", "inm_2", "inm_3")],
 ```
 
 ```{r}
+#| label: tbl-48
 #| fig-cap: "Mardia's test of Inmorality with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1748,6 +1786,7 @@ mardia(db_rw[,c("inm_1", "inm_2", "inm_3")],
 ```
 
 ```{r}
+#| label: tbl-49
 #| fig-cap: "Mardia's test of Inmorality with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -1922,6 +1961,7 @@ m8_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-27
 #| tbl-cap: "Summary fit indices of Stereotype content model: inmmorality"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -1975,9 +2015,13 @@ cfa_tab_fit(
 
 ### Stereotype content model: morality
 
+We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
+
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-28
 #| tbl-cap: "Descriptive statistics of Morality"
 #| tbl-cap-location: top
 
@@ -2008,6 +2052,7 @@ psych::describe(db_pw[,c("mor_1", "mor_2", "mor_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-22
 #| fig-cap: "Correlation matrix of Morality"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -2122,6 +2167,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mor_1", "mor_2", "mor_3")], na.r
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-23
 #| fig-cap: "Mardia's test of Morality with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2133,6 +2179,7 @@ mardia(db_rm[,c("mor_1", "mor_2", "mor_3")],
 ```
 
 ```{r}
+#| label: fig-24
 #| fig-cap: "Mardia's test of Morality with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2144,6 +2191,7 @@ mardia(db_pm[,c("mor_1", "mor_2", "mor_3")],
 ```
 
 ```{r}
+#| label: fig-25
 #| fig-cap: "Mardia's test of Inmorality with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2155,6 +2203,7 @@ mardia(db_rw[,c("mor_1", "mor_2", "mor_3")],
 ```
 
 ```{r}
+#| label: fig-26
 #| fig-cap: "Mardia's test of Inmorality with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2327,6 +2376,7 @@ m9_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-29
 #| tbl-cap: "Summary fit indices of Stereotype content model: morality"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -2379,10 +2429,12 @@ cfa_tab_fit(
 ```
 
 ### Stereotype content model: warmth
+We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
 
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-30
 #| tbl-cap: "Descriptive statistics of Warmth"
 #| tbl-cap-location: top
 
@@ -2413,6 +2465,7 @@ psych::describe(db_pw[,c("war_1", "war_2", "war_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-27
 #| fig-cap: "Correlation matrix of Warmth"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -2527,6 +2580,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("war_1", "war_2", "war_3")], na.r
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-28
 #| fig-cap: "Mardia's test of Warmth with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2538,6 +2592,7 @@ mardia(db_rm[,c("war_1", "war_2", "war_3")],
 ```
 
 ```{r}
+#| label: fig-29
 #| fig-cap: "Mardia's test of Warmth with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2549,6 +2604,7 @@ mardia(db_pm[,c("war_1", "war_2", "war_3")],
 ```
 
 ```{r}
+#| label: fig-30
 #| fig-cap: "Mardia's test of InWarmth with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2560,6 +2616,7 @@ mardia(db_rw[,c("war_1", "war_2", "war_3")],
 ```
 
 ```{r}
+#| label: fig-31
 #| fig-cap: "Mardia's test of Warmth with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2732,6 +2789,7 @@ m10_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-31
 #| tbl-cap: "Summary fit indices of Stereotype content model: Warmth"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -2785,9 +2843,13 @@ cfa_tab_fit(
 
 ### Stereotype content model: competence
 
+
+We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-32
 #| tbl-cap: "Descriptive statistics of Competence"
 #| tbl-cap-location: top
 
@@ -2818,6 +2880,7 @@ psych::describe(db_pw[,c("com_1", "com_2", "com_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-32
 #| fig-cap: "Correlation matrix of Competence"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -2932,6 +2995,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("com_1", "com_2", "com_3")], na.r
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-33
 #| fig-cap: "Mardia's test of competence with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2943,6 +3007,7 @@ mardia(db_rm[,c("com_1", "com_2", "com_3")],
 ```
 
 ```{r}
+#| label: fig-34
 #| fig-cap: "Mardia's test of competence with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2954,6 +3019,7 @@ mardia(db_pm[,c("com_1", "com_2", "com_3")],
 ```
 
 ```{r}
+#| label: fig-35
 #| fig-cap: "Mardia's test of Incompetence with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -2965,6 +3031,7 @@ mardia(db_rw[,c("com_1", "com_2", "com_3")],
 ```
 
 ```{r}
+#| label: fig-36
 #| fig-cap: "Mardia's test of competence with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -3137,6 +3204,7 @@ m11_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-33
 #| tbl-cap: "Summary fit indices of Stereotype content model: competence"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -3190,9 +3258,12 @@ cfa_tab_fit(
 
 ### Intergroup behavioural tendencies: passive harm
 
+This behavior scale is a combination of two scales by @lopez-rodriguez_will_2017 and @lopez-rodriguez_acculturation_2016, modified to better fit our context. We utilized the scale from the second paper and made adjustments to some collaboration items to better align it with our objectives and the groups being assessed.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-34
 #| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive harm"
 #| tbl-cap-location: top
 
@@ -3223,6 +3294,7 @@ psych::describe(db_pw[,c("ph_1", "ph_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-37
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive harm"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -3334,9 +3406,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
 
 ### Intergroup behavioural tendencies: active harm
 
+This behavior scale is a combination of two scales by Lucía Lopez, modified to better fit our context. We utilized the scale from the second paper and made adjustments to some collaboration items to better align it with our objectives and the groups being assessed.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-50
 #| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active harm"
 #| tbl-cap-location: top
 
@@ -3367,6 +3442,7 @@ psych::describe(db_pw[,c("ah_1", "ah_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-38
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active harm"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -3478,9 +3554,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ah_1", "ah_2")], na.rm = TRUE)
 
 ### Intergroup behavioural tendencies: passive facilitation
 
+This behavior scale is a combination of two scales by Lucía Lopez, modified to better fit our context. We utilized the scale from the second paper and made adjustments to some collaboration items to better align it with our objectives and the groups being assessed.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-36
 #| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: passive facilitation"
 #| tbl-cap-location: top
 
@@ -3511,6 +3590,7 @@ psych::describe(db_pw[,c("pf_1", "pf_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-39
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive facilitation"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -3622,9 +3702,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pf_1", "pf_2")], na.rm = TRUE)
 
 ### Intergroup behavioural tendencies: active facilitation
 
+This behavior scale is a combination of two scales by Lucía Lopez, modified to better fit our context. We utilized the scale from the second paper and made adjustments to some collaboration items to better align it with our objectives and the groups being assessed.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-37
 #| tbl-cap: "Descriptive statistics of Intergroup behavioural tendencies: active facilitation"
 #| tbl-cap-location: top
 
@@ -3655,6 +3738,7 @@ psych::describe(db_pw[,c("af_1", "af_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-40
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active facilitation"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -3766,9 +3850,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("af_1", "af_2")], na.rm = TRUE)
 
 ### Intergroup affect tendencies: admiration toward
 
+We selected emotions that have been used in various studies that test the BIAS map from @cuddy_bias_2007.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-38
 #| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: admiration toward"
 #| tbl-cap-location: top
 
@@ -3799,6 +3886,7 @@ psych::describe(db_pw[,c("ad_1", "ad_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-41
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  admiration toward"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -3910,9 +3998,13 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
 
 ### Intergroup affect tendencies: contempt toward
 
+
+We selected emotions that have been used in various studies that test the BIAS map from @cuddy_bias_2007.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-39
 #| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: contempt toward"
 #| tbl-cap-location: top
 
@@ -3943,6 +4035,7 @@ psych::describe(db_pw[,c("co_1", "co_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-42
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  contempt toward"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4054,9 +4147,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
 
 ### Intergroup affect tendencies: envy toward
 
+We selected emotions that have been used in various studies that test the BIAS map from @cuddy_bias_2007.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-51
 #| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: envy toward"
 #| tbl-cap-location: top
 
@@ -4087,6 +4183,7 @@ psych::describe(db_pw[,c("en_1", "en_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-43
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  envy toward"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4198,9 +4295,13 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
 
 ### Intergroup affect tendencies: pity toward
 
+
+We selected emotions that have been used in various studies that test the BIAS map from @cuddy_bias_2007.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-41
 #| tbl-cap: "Descriptive statistics of Intergroup affect tendencies: pity toward"
 #| tbl-cap-location: top
 
@@ -4231,6 +4332,7 @@ psych::describe(db_pw[,c("pi_1", "pi_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-44
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  pity toward"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4342,9 +4444,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
 
 ### Greedy dispositions
 
+X
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-42
 #| tbl-cap: "Descriptive statistics of Greedy dispositions"
 #| tbl-cap-location: top
 
@@ -4367,6 +4472,7 @@ psych::describe(db_rw[,c("greedy_1", "greedy_2", "greedy_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-45
 #| fig-cap: "Correlation matrix of Greedy dispositions"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4442,6 +4548,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-50
 #| fig-cap: "Mardia's test of greedy dispositions with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -4453,6 +4560,7 @@ mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")],
 ```
 
 ```{r}
+#| label: fig-46
 #| fig-cap: "Mardia's test of greedy dispositions with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -4559,6 +4667,7 @@ m12_cfa_rw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-43
 #| tbl-cap: "Summary fit indices of Greedy dispositions"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -4600,9 +4709,12 @@ cfa_tab_fit(
 
 ### Punishment rich
 
+X
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-44
 #| tbl-cap: "Descriptive statistics of Punishment rich"
 #| tbl-cap-location: top
 
@@ -4625,6 +4737,7 @@ psych::describe(db_rw[,c("punish_1", "punish_2", "punish_3")]) %>%
 ```
 
 ```{r}
+#| label: fig-47
 #| fig-cap: "Correlation matrix of Punishment rich"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4700,6 +4813,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-48
 #| fig-cap: "Mardia's test of Punishment rich with rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -4711,6 +4825,7 @@ mardia(db_rm[,c("punish_1", "punish_2", "punish_3")],
 ```
 
 ```{r}
+#| label: fig-49
 #| fig-cap: "Mardia's test of Punishment rich with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -4817,6 +4932,7 @@ m13_cfa_rw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-45
 #| tbl-cap: "Summary fit indices of Punishment rich"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -4860,9 +4976,12 @@ cfa_tab_fit(
 
 ### Atributtions about poverty
 
+We use the items with higher loading on each factor from the Spanish adaptation of the poverty and wealth attributions scales based on @sainz_how_2023.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-52
 #| tbl-cap: "Descriptive statistics of Atributtions about poverty"
 #| tbl-cap-location: top
 
@@ -4886,6 +5005,7 @@ psych::describe(db_pw[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-51
 #| fig-cap: "Correlation matrix of Atributtions about poverty"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -4971,6 +5091,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = T
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-52
 #| fig-cap: "Mardia's test of Atributtions about poverty with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -4982,6 +5103,7 @@ mardia(db_pm[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")],
 ```
 
 ```{r}
+#| label: fig-53
 #| fig-cap: "Mardia's test of Atributtions about poverty with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5090,6 +5212,7 @@ We first specify the factorial structure of the items, then fit models using a r
 ```
 
 ```{r}
+#| label: tbl-53
 #| tbl-cap: "Summary fit indices of Atributtions about poverty"
 #| tbl-cap-location: top
 #| eval: false
@@ -5132,9 +5255,12 @@ We first specify the factorial structure of the items, then fit models using a r
 
 ### Atributtions about wealth
 
+We use the items with higher loading on each factor from the Spanish adaptation of the poverty and wealth attributions scales based on @sainz_how_2023.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-80
 #| tbl-cap: "Descriptive statistics of Atributtions about wealth"
 #| tbl-cap-location: top
 
@@ -5158,6 +5284,7 @@ psych::describe(db_rw[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")]) %>%
 ```
 
 ```{r}
+#| label: fig-54
 #| fig-cap: "Correlation matrix of Atributtions about wealth"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -5243,6 +5370,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = T
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-55
 #| fig-cap: "Mardia's test of Atributtions about wealth with Rich men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5254,6 +5382,7 @@ mardia(db_rm[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")],
 ```
 
 ```{r}
+#| label: fig-56
 #| fig-cap: "Mardia's test of Atributtions about wealth with Rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5362,6 +5491,7 @@ m15_cfa_rw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-54
 #| tbl-cap: "Summary fit indices of Atributtions about wealth"
 #| tbl-cap-location: top
 
@@ -5406,9 +5536,12 @@ cfa_tab_fit(
 
 ### Thick skin bias
 
+We reduced the amount of items that the original authors used and silly adapted to our context of study [@cheek_thick_2024]. We did not find any information regarding factorial analyses so we selected the items that were more likely to be applied to low-SES groups in our context. 
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-55
 #| tbl-cap: "Descriptive statistics of Thick skin bias"
 #| tbl-cap-location: top
 
@@ -5417,6 +5550,7 @@ describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
 ```
 
 ```{r}
+#| label: fig-57
 #| fig-cap: "Correlation matrix of Thick skin bias"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -5466,6 +5600,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("sk_1", "sk_2", "sk_3")], na.rm =
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-58
 #| fig-cap: "Mardia's test of Thick skin biast"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5536,6 +5671,7 @@ m16_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-56
 #| tbl-cap: "Summary fit indices of Thick skin bias"
 #| tbl-cap-location: top
 
@@ -5547,10 +5683,13 @@ cfa_tab_fit(
 
 ### Deservingness
 
+Items adapted (own translation) from Meleuman, Roosma & Abts [-@meuleman_welfare_2020]. These items are uniquely presented for participants in the poverty condition.
+
+
 ##### **Descriptive analysis**
 
 ```{r}
-#| label: tbl-desc27
+#| label: tbl-57
 #| tbl-cap: "Descriptive statistics of Deservingness"
 #| tbl-cap-location: top
 
@@ -5581,6 +5720,7 @@ psych::describe(db_pw[,c("carin_control_1","carin_control_2_r","carin_attitude_1
 ```
 
 ```{r}
+#| label: fig-59
 #| fig-cap: "Correlation matrix of Deservingness"
 #| fig-cap-location: top
 #| fig-asp: 1
@@ -5697,6 +5837,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_need_1","carin_need_2")], 
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-60
 #| fig-cap: "Mardia's test of Deservingnesst with poor men as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5708,6 +5849,7 @@ mardia(db_pm[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_
 ```
 
 ```{r}
+#| label: fig-61
 #| fig-cap: "Mardia's test of Deservingnesst with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -5820,6 +5962,7 @@ m17_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-58
 #| tbl-cap: "Summary fit indices of Deservingness"
 #| tbl-cap-location: top
 
@@ -5864,9 +6007,12 @@ cfa_tab_fit(
 
 ### Blatant dehumanization
 
+These items comes from the work of @kteily_ascent_2015.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-59
 #| tbl-cap: "Descriptive statistics of Blatant dehumanization items"
 #| tbl-cap-location: top
 
@@ -5875,6 +6021,7 @@ describe_kable(db_proc, c("asc_pw", "asc_pm", "asc_rw", "asc_rm"))
 ```
 
 ```{r}
+#| label: fig-62
 #| fig-cap: "Correlation matrix of Blatant dehumanization items"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -5910,9 +6057,12 @@ wrap_elements(
 
 ### Perceived promiscuity of women
 
+Items taken from Spencer's work [-@spencer_impact_2016], we changed the response format to fit the survey.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-60
 #| tbl-cap: "Descriptive statistics of Perceived promiscuity of women"
 #| tbl-cap-location: top
 
@@ -5921,6 +6071,7 @@ describe_kable(db_proc, c("pro_pw", "pro_rw"))
 ```
 
 ```{r}
+#| label: fig-63
 #| fig-cap: "Correlation matrix of Perceived promiscuity of women"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -5967,9 +6118,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pro_pw", "pro_rw")], na.rm = TRU
 
 ### Risk sexual behavior of women
 
+In the literature, there are scales to measure this, but they are almost always from a personal perspective (evaluating the risk one takes). We used the scale provided in @raiford_low_2014 paper to create this single item in order not to lengthen the scale too much.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-61
 #| tbl-cap: "Descriptive statistics of Risk sexual behavior of women"
 #| tbl-cap-location: top
 
@@ -5978,6 +6132,7 @@ describe_kable(db_proc, c("ris_pw", "ris_rw"))
 ```
 
 ```{r}
+#| label: fig-64
 #| fig-cap: "Correlation matrix of Risk sexual behavior of women"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6023,10 +6178,11 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ris_pw", "ris_rw")], na.rm = TRU
 ```
 
 ### Unplanned pregnancy of women
-
+We have created this item, but we believe it could be interesting to explore the idea that poor women have children to take advantage of social assistance.
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-62
 #| tbl-cap: "Descriptive statistics of Unplanned pregnancy of women"
 #| tbl-cap-location: top
 
@@ -6035,6 +6191,7 @@ describe_kable(db_proc, c("pre_pw", "pre_rw"))
 ```
 
 ```{r}
+#| label: fig-65
 #| fig-cap: "Correlation matrix of Unplanned pregnancy of women"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6081,9 +6238,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pre_pw", "pre_rw")], na.rm = TRU
 
 ### Abuse of social assistance by poor mothers
 
+The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales [@kim_attitudes_2013].
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-63
 #| tbl-cap: "Descriptive statistics of Abuse of social assistance by poor mothers"
 #| tbl-cap-location: top
 
@@ -6092,6 +6252,7 @@ describe_kable(db_proc, c("wel_abu_1","wel_abu_2"))
 ```
 
 ```{r}
+#| label: fig-66
 #| fig-cap: "Correlation matrix of Abuse of social assistance by poor mothers"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6137,10 +6298,11 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm 
 ```
 
 ### Paternalistic support for poor mothers
-
+The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales [@kim_attitudes_2013].
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-64
 #| tbl-cap: "Descriptive statistics of Paternalistic support for poor mothers"
 #| tbl-cap-location: top
 
@@ -6149,6 +6311,7 @@ describe_kable(db_proc, c("wel_pa_1","wel_pa_2"))
 ```
 
 ```{r}
+#| label: fig-67
 #| fig-cap: "Correlation matrix of Paternalistic support for poor mothers"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6194,10 +6357,11 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_pa_1","wel_pa_2")], na.rm = 
 ```
 
 ### Hostile support for poor mothers
-
+The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales [@kim_attitudes_2013].
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-65
 #| tbl-cap: "Descriptive statistics of Hostile support for poor mothers"
 #| tbl-cap-location: top
 
@@ -6206,6 +6370,7 @@ describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
 ```
 
 ```{r}
+#| label: fig-68
 #| fig-cap: "Correlation matrix of Hostile support for poor mothers"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6254,9 +6419,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_ho_1","wel_ho_2")], na.rm = 
 
 ### Support for income redistribution
 
+Items adapted from @garcia-sanchez_two_2022.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-81
 #| tbl-cap: "Descriptive statistics of Support for income redistribution"
 #| tbl-cap-location: top
 
@@ -6266,6 +6434,7 @@ describe_kable(db_proc, c("redi_1","redi_2"))
 
 
 ```{r}
+#| label: fig-80
 #| fig-cap: "Correlation matrix of Support for income redistribution"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6313,9 +6482,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("redi_1","redi_2")], na.rm = TRU
 
 ### Perception of effectiveness in the use of aids
 
+Items previously used in @alcaniz-colomer_gendered_2023.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-66
 #| tbl-cap: "Descriptive statistics of Perception of effectiveness in the use of aids"
 #| tbl-cap-location: top
 
@@ -6325,6 +6497,7 @@ describe_kable(db_proc, c("effec_pw_1", "effec_pw_2", "effec_pm_1", "effec_pm_2"
 
 
 ```{r}
+#| label: fig-69
 #| fig-cap: "Correlation matrix of Perception of effectiveness in the use of aids"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6387,6 +6560,7 @@ summary(db_proc$effec_pw)
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-70
 #| fig-cap: "Mardia's test of Perception of effectiveness in the use of aids"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -6447,6 +6621,7 @@ m18_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-68
 #| tbl-cap: "Summary fit indices of Perception of effectiveness in the use of aids"
 #| tbl-cap-location: top
 #| warning: false
@@ -6461,9 +6636,12 @@ cfa_tab_fit(
 
 ### Social aids that promote autonomy vs. dependence
 
+Single item based on Sainz et al. [-@sainz_dehumanization_2020] about governmental control of social welfare spending. This is supposed to capture dependence assistance towards poor men/women. Single item from the scale used in @alcaniz-colomer_gendered_2023. It is the item that worked best and most clearly represents dependence vs. autonomy. 
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-69
 #| tbl-cap: "Descriptive statistics of Social aids that promote autonomy vs. dependence"
 #| tbl-cap-location: top
 
@@ -6473,9 +6651,13 @@ describe_kable(db_proc, c("depe_pw_1", "depe_pm_1", "aut_pw_1", "aut_pm_1"))
 
 
 ### Progressive policies
+
+Items comes from @jordan_ambivalent_2021.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-70
 #| tbl-cap: "Descriptive statistics of Progressive policies"
 #| tbl-cap-location: top
 
@@ -6485,6 +6667,7 @@ describe_kable(db_proc, c("poli_progre_1", "poli_progre_2"))
 
 
 ```{r}
+#| label: fig-71
 #| fig-cap: "Correlation matrix of Progressive policies"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6531,10 +6714,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("poli_progre_1", "poli_progre_2"
 
 
 ### Restrictive policies
+Items comes from @jordan_ambivalent_2021.
 
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-71
 #| tbl-cap: "Descriptive statistics of Restrictive policies"
 #| tbl-cap-location: top
 
@@ -6544,6 +6729,7 @@ describe_kable(db_proc, c("poli_restri_1", "poli_restri_2"))
 
 
 ```{r}
+#| label: fig-72
 #| fig-cap: "Correlation matrix of Restrictive policies"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6593,9 +6779,12 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("poli_restri_1", "poli_restri_2")
 
 ### Sexual harassment situations
 
+We used items from previous publications [@cheek_people_2023] but slightly modified them to adapt to the context of the study.
+
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-72
 #| tbl-cap: "Descriptive statistics of Sexual harassment situations"
 #| tbl-cap-location: top
 
@@ -6622,6 +6811,7 @@ bind_rows(
 ```
 
 ```{r}
+#| label: fig-73
 #| fig-cap: "Correlation matrix of Sexual harassment situations"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6694,6 +6884,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hara_pw_1", "hara_pw_2", "hara_p
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-74
 #| fig-cap: "Mardia's test of Sexual harassment situations with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -6705,6 +6896,7 @@ mardia(db_vio0[,c("hara_pw_1", "hara_pw_2", "hara_pw_3")],
 ```
 
 ```{r}
+#| label: fig-75
 #| fig-cap: "Mardia's test of Sexual harassment situations with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -6819,6 +7011,7 @@ m19_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-73
 #| tbl-cap: "Summary fit indices of Sexual harassment situations"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -6859,10 +7052,11 @@ cfa_tab_fit(
 ```
 
 ### Domestic abuse situations
-
+We used items from previous publications [@cheek_people_2023] but slightly modified them to adapt to the context of the study.
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-74
 #| tbl-cap: "Descriptive statistics of Domestic abuse situations"
 #| tbl-cap-location: top
 
@@ -6885,6 +7079,7 @@ bind_rows(
 ```
 
 ```{r}
+#| label: fig-76
 #| fig-cap: "Correlation matrix of Domestic abuse situations"
 #| fig-cap-location: top
 #| fig-asp: 0.8
@@ -6957,6 +7152,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("abu_pw_1", "abu_pw_2", "abu_pw_3
 Mardia's test for evaluate multivariate normality for each target.
 
 ```{r}
+#| label: fig-77
 #| fig-cap: "Mardia's test of Domestic abuse situations with poor women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -6968,6 +7164,7 @@ mardia(db_vio0[,c("abu_pw_1", "abu_pw_2", "abu_pw_3")],
 ```
 
 ```{r}
+#| label: fig-78
 #| fig-cap: "Mardia's test of Domestic abuse situations with rich women as target"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -7075,6 +7272,7 @@ m20_cfa_pw_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-75
 #| tbl-cap: "Summary fit indices of Domestic abuse situations"
 #| tbl-cap-location: top
 colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
@@ -7115,10 +7313,11 @@ cfa_tab_fit(
 ```
 
 ### Type of violence
-
+We have created these items with the purpose of determining if there are differences in the type of violence perceived associated with each social class.
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-76
 #| tbl-cap: "Descriptive statistics of Type of violence items"
 #| tbl-cap-location: top
 
@@ -7128,10 +7327,11 @@ describe_kable(db_proc, c("viole_pw_1", "viole_pw_2", "viole_pw_3", "viole_pw_4"
 ```
 
 ### Barriers to leaving an abusive relationship
-
+We have created these items with the purpose of determining if there are differences in the type of barriers associated with leaving an abusive relationship each social class.
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-77
 #| tbl-cap: "Descriptive statistics of Barriers to leaving an abusive relationship items"
 #| tbl-cap-location: top
 
@@ -7142,10 +7342,12 @@ describe_kable(db_proc, c("barri_pw_1", "barri_pw_2", "barri_pw_3", "barri_pw_4"
 
 
 ### Perpetration of violence
+Exploratory items from Rosa Rodríguez Bailón.
 
 ##### **Descriptive analysis**
 
 ```{r}
+#| label: tbl-78
 #| tbl-cap: "Descriptive statistics of Perpetration of violence"
 #| tbl-cap-location: top
 
@@ -7171,6 +7373,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("perpe_1", "perpe_2", "perpe_3", 
 Mardia's test for evaluate multivariate normality.
 
 ```{r}
+#| label: fig-79
 #| fig-cap: "Mardia's test of Perpetration of violence"
 #| fig-cap-location: top
 #| fig-asp: 1.1
@@ -7227,6 +7430,7 @@ m21_cfa_mex <- cfa(model = model_cfa,
 ```
 
 ```{r}
+#| label: tbl-79
 #| tbl-cap: "Summary fit indices of Perpetration of violence"
 #| tbl-cap-location: top
 
