@@ -22,6 +22,7 @@ format:
   pdf:
     number-sections: true
     number-depth: 3
+editor: source
 editor_options: 
   chunk_output_type: console
 bibliography: "../input/bib/sogedi-data.bib"
@@ -31,24 +32,23 @@ link-citations: true
 
 # Presentation
 
-This document presents the code employed for calculating and analyzing the variables in the project Socioeconomic and Gender Disparities: A Multi-Country Study. The dataset used, `db_proc.RData`,  is derived from a previously processed [source](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html).
+This document presents the code employed for calculating and analyzing the variables in the project Socioeconomic and Gender Disparities: A Multi-Country Study. The dataset used, `db_proc.RData`, is derived from a previously processed [source](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html).
 
-A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and internal consistency indices (Cronbach’s alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.
+A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and Reliability indices (Cronbach's alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.
 
-Data processing and variable construction are organized according to the SOGEDI survey modules. For those items whose internal consistency or factorial structure prove insufficient, we make recommendations for their use in empirical research.
+Data processing and variable construction are organized according to the SOGEDI survey modules. For those items whose Reliability or factorial structure prove insufficient, we make recommendations for their use in empirical research.
 
-In order to assess the multivariate normality of the items included in the measurement models, we apply Mardia’s test, which evaluates deviations in both skewness and kurtosis [@mardia_measures_1970]. A statistically significant result suggests that the data deviate from a multivariate normal distribution, underscoring the need to use estimation methods suited to potential non-normality.
+In order to assess the multivariate normality of the items included in the measurement models, we apply Mardia's test, which evaluates deviations in both skewness and kurtosis [@mardia_measures_1970]. A statistically significant result suggests that the data deviate from a multivariate normal distribution, underscoring the need to use estimation methods suited to potential non-normality.
 
 The following fit criteria, drawn from Brown [-@brown_confirmatory_2015] and Kline [-@kline_principles_2023], guide the evaluation of model adequacy:
 
-- Chi-square: $p$>0.05
-- Chi-square ratio $(\chi^2/df)$: < 3
-- Comparative Fit Index (CFI): > 0.95
-- Tucker–Lewis Index (TLI): > 0.95
-- Root Mean Square Error of Approximation (RMSEA): < 0.06
-- Standardized Root Mean Square Residual (SRMR): < 0.08 
-- Akaike Information Criterion (AIC): no fixed cutoff; lower values indicate better fit.
-
+-   Chi-square: $p$\>0.05
+-   Chi-square ratio $(\chi^2/df)$: \< 3
+-   Comparative Fit Index (CFI): \> 0.95
+-   Tucker--Lewis Index (TLI): \> 0.95
+-   Root Mean Square Error of Approximation (RMSEA): \< 0.06
+-   Standardized Root Mean Square Residual (SRMR): \< 0.08
+-   Akaike Information Criterion (AIC): no fixed cutoff; lower values indicate better fit.
 
 ```{r}
 #| label: set
@@ -76,8 +76,7 @@ options(knitr.kable.NA = "")
 
 # Libraries
 
-First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move. 
-
+First, we load the necessary libraries. In this case, we use `pacman::p_load` to load and call libraries in one move.
 
 ```{r}
 #| label: libraries
@@ -231,14 +230,11 @@ fit_correlations_pairwise <- function(data, vars) {
 
 ```
 
-
 # Processing and analysis
-
 
 ## Block 1. Class inequality / Attitudes
 
 ### Perception of economic inequality in daily live
-
 
 The items to capture individual subjective perception of daily economic inequality came from previous research from García-Castro et al. [-@garcia-castro_know_2019]. For the SOGEDI study we selected the items from the original scale that had the highest saturation on the construct and could potentially be more suitable for application in different countries.
 
@@ -252,7 +248,6 @@ The items to capture individual subjective perception of daily economic inequali
 describe_kable(db_proc, c("eco_in_1", "eco_in_2", "eco_in_3"))
 
 ```
-
 
 ```{r}
 #| label: fig-1
@@ -286,7 +281,7 @@ wrap_elements(
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -315,8 +310,7 @@ mardia(db_proc[,c("eco_in_1", "eco_in_2", "eco_in_3")],
        na.rm = T, plot=T) 
 ```
 
-
-We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
 
 ```{r}
 
@@ -362,7 +356,6 @@ m1_cfa_mex <- cfa(model = model_cfa,
 
 ```
 
-
 ```{r}
 #| label: tbl-2
 #| tbl-cap: "Summary fit indices of Perception of economic inequality in daily live"
@@ -377,10 +370,9 @@ cfa_tab_fit(
 
 ```
 
-
 ### Socioeconomic inequality justification
 
-The item to capture individual justification of socioeconomic inequality was created by the project team. 
+The item to capture individual justification of socioeconomic inequality was created by the project team.
 
 ##### **Descriptive analysis**
 
@@ -392,7 +384,6 @@ psych::describe(db_proc$jus_ine) %>%
     kableExtra::kable(format = "markdown", digits = 3)
 
 ```
-
 
 ### Economic inequality collective action
 
@@ -409,11 +400,9 @@ psych::describe(db_proc$co_eco) %>%
 
 ```
 
-
 ### Ambivalent classism
 
 The items to capture ambivalent classism came from previous research from Sainz et al. [-@sainz_spanish_2021]. For the SOGEDI study we used all items from the paternalistic/complementary dimensions of the scale adapted by the authors. For the hostile dimension, we selected the four items most strongly associated with the construct, based on the scale adaptation, while omitting items that could be misinterpreted in other spanish speaker contexts.
-
 
 #### Protective paternalism toward poor women and men
 
@@ -427,8 +416,6 @@ The items to capture ambivalent classism came from previous research from Sainz 
 describe_kable(db_proc, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4", "pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4"))
 
 ```
-
-
 
 ```{r}
 #| label: fig-3
@@ -485,9 +472,7 @@ p1 / p2 + labs(
 
 ```
 
-
-
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -499,7 +484,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4")], na.rm = TRUE)
 ```
-
 
 ```{r}
 
@@ -524,7 +508,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pp_pm_1", "pp_pm_2", "pp_pm_3", 
 describe_kable(db_proc, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4", "cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4"))
 
 ```
-
 
 ```{r}
 #| label: fig-4
@@ -581,9 +564,8 @@ p1 / p2 + labs(
 
 ```
 
+##### **Reliability**
 
-
-##### **Internal consistency**
 ```{r}
 
 
@@ -595,7 +577,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pw_1", "cc_pw_2", "cc_pw_3", "cc_pw_4")], na.rm = TRUE)
 ```
-
 
 ```{r}
 
@@ -609,9 +590,7 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("cc_pm_1", "cc_pm_2", "cc_pm_3", "cc_pm_4")], na.rm = TRUE)
 ```
 
-
 #### Hostile classism toward poor women and men
-
 
 ##### **Descriptive analysis**
 
@@ -677,9 +656,8 @@ p1 / p2 + labs(
 
 ```
 
+##### **Reliability**
 
-
-##### **Internal consistency**
 ```{r}
 
 mi_variable <- "hc_pw"
@@ -690,7 +668,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pw_1","hc_pw_2","hc_pw_3","hc_pw_4")], na.rm = TRUE)
 ```
-
 
 ```{r}
 
@@ -703,10 +680,9 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hc_pm_1","hc_pm_2","hc_pm_3","hc_pm_4")], na.rm = TRUE)
 ```
 
-
 ##### **Confirmatory Factor Analysis**
 
-_**Ambilavent classim with woman as target**_
+***Ambilavent classim with woman as target***
 
 Mardia's test for evaluate multivariate normality.
 
@@ -722,7 +698,6 @@ mardia(db_proc[,c("pp_pw_1", "pp_pw_2", "pp_pw_3", "pp_pw_4",
                   "hc_pw_1", "hc_pw_2", "hc_pw_3", "hc_pw_4")], 
        na.rm = T, plot=T)
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
 
@@ -774,7 +749,7 @@ m2_cfa_mex <- cfa(model = model_cfa,
 
 ```
 
-_**Ambilavent classim with men as target**_
+***Ambilavent classim with men as target***
 
 Mardia's test for evaluate multivariate normality.
 
@@ -790,7 +765,6 @@ mardia(db_proc[,c("pp_pm_1", "pp_pm_2", "pp_pm_3", "pp_pm_4",
                   "hc_pm_1", "hc_pm_2", "hc_pm_3", "hc_pm_4")], 
        na.rm = T, plot=T)
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
 
@@ -841,7 +815,6 @@ m3_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-
 ```{r}
 #| label: tbl-a
 #| tbl-cap: "Summary fit indices of Ambivalent Classism Inventory"
@@ -884,15 +857,11 @@ bind_rows(
 
 ```
 
-
-
-
 ## Block 2. Gender inequality / Attitudes
 
 ### Ambivalent sexism
 
 The items to capture ambivalent sexism came from previous research from Rollero et al. [-@rollero_psychometric_2014] and Rodríguez-Castro et al. [-@rodriguezcastro_validacion_2009]. For the SOGEDI study ee included the Ambivalent Sexism Inventory (ASI) and the Ambivalence Toward Men Inventory (AMI), attempting to have a structure similar to that of ambivalent classim scale. We used the short versions of the scales and selected the items that best fit our study. The items are from the adaptation to Spanish.
-
 
 #### Paternalism sexism toward women
 
@@ -905,8 +874,6 @@ The items to capture ambivalent sexism came from previous research from Rollero 
 describe_kable(db_proc, c("ps_m_1", "ps_m_2", "ps_m_3"))
 
 ```
-
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Paternalism sexism toward women"
@@ -939,8 +906,7 @@ wrap_elements(
 
 ```
 
-
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 mi_variable <- "ps_m"
@@ -963,7 +929,6 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ps_m_1", "ps_m_2", "ps_m_3")], n
 describe_kable(db_proc, c("hs_m_1", "hs_m_2", "hs_m_3"))
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Hostility sexism toward women"
@@ -997,9 +962,7 @@ wrap_elements(
 
 ```
 
-
-##### **Internal consistency**
-
+##### **Reliability**
 
 ```{r}
 mi_variable <- "hs_m"
@@ -1010,7 +973,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hs_m_1", "hs_m_2", "hs_m_3")], na.rm = TRUE)
 ```
-
 
 ##### **Confirmatory Factor Analysis**
 
@@ -1076,8 +1038,6 @@ m4_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Ambivalent sexism toward women"
 #| tbl-cap-location: top
@@ -1094,7 +1054,6 @@ cfa_tab_fit(
 
 We selected six items from the original scale developed by Schwartz-Salazar et al. [-@schwartz-salazar_development_2024] that have several subdimensions. The reduced scale has not being published before so we will explore the factor structure of this four items.
 
-
 ##### **Descriptive results**
 
 ```{r}
@@ -1104,7 +1063,6 @@ We selected six items from the original scale developed by Schwartz-Salazar et a
 describe_kable(db_proc, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6"))
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Perception of gender inequality"
@@ -1137,8 +1095,7 @@ wrap_elements(
 
 ```
 
-
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 mi_variable <- "gen_in"
@@ -1149,7 +1106,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("gen_in_1", "gen_in_2", "gen_in_3", "gen_in_4", "gen_in_5", "gen_in_6")], na.rm = TRUE)
 ```
-
 
 ##### **Confirmatory factor analysis**
 
@@ -1168,7 +1124,6 @@ mardia(db_proc[,c("gen_in_1", "gen_in_2", "gen_in_3",
 ```
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
-
 
 ```{r}
 # model
@@ -1212,7 +1167,6 @@ m5_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Perception of gender inequality"
 #| tbl-cap-location: top
@@ -1224,8 +1178,6 @@ cfa_tab_fit(
 
 
 ```
-
-
 
 ### Belief in sexism shift
 
@@ -1240,7 +1192,6 @@ The items to capture belief in sexism shift came from previous research from Zeh
 describe_kable(db_proc, c("shif_1", "shif_2", "shif_3"))
 
 ```
-
 
 ```{r}
 #| label: fig-11
@@ -1274,8 +1225,7 @@ wrap_elements(
 
 ```
 
-##### **Internal consistency**
-
+##### **Reliability**
 
 ```{r}
 # 2. Alpha
@@ -1289,9 +1239,7 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("shif_1", "shif_2", "shif_3")], na.rm = TRUE)
 ```
 
-
 ##### **Confirmatory factor analysis**
-
 
 Mardia's test for evaluate multivariate normality.
 
@@ -1306,9 +1254,7 @@ mardia(db_proc[,c("shif_1", "shif_2", "shif_3")],
        na.rm = T, plot=T) 
 ```
 
-
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
-
 
 ```{r}
 
@@ -1353,8 +1299,6 @@ m6_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Belief in sexism shift"
 #| tbl-cap-location: top
@@ -1364,7 +1308,6 @@ cfa_tab_fit(
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$fit_table
 ```
-
 
 ### Feminism identification
 
@@ -1385,7 +1328,6 @@ psych::describe(db_proc$femi) %>%
 
 The item to capture feminism identification came from previous research from Jost & Kay [-@jost_exposure_2005]. We translated the item from the original scale, adapting to our context and objectives.
 
-
 ```{r}
 #| tbl-cap: "Descriptive statistics of Gender inequality justification"
 #| tbl-cap-location: top
@@ -1399,7 +1341,6 @@ psych::describe(db_proc$jus_gen) %>%
 
 The item to capture gender inequality collective action was created by the project team.
 
-
 ```{r}
 #| tbl-cap: "Descriptive statistics of Gender inequality collective action"
 #| tbl-cap-location: top
@@ -1408,7 +1349,6 @@ psych::describe(db_proc$co_gen) %>%
     kableExtra::kable(format = "markdown", digits = 3)
 
 ```
-
 
 ### Perception of gender competition
 
@@ -1422,9 +1362,6 @@ psych::describe(db_proc$gen_compe) %>%
     kableExtra::kable(format = "markdown", digits = 3)
 
 ```
-
-
-
 
 ## Block 3. Contacts and rates
 
@@ -1440,9 +1377,9 @@ describe_kable(db_proc, c("ge_ra_wo", "ge_ra_me"))
 
 ```
 
-### Intergroup contacts: quantity of contacts 
+### Intergroup contacts: quantity of contacts
 
-The variables used to capture this inter group contacts was derived from previous research from Vargas et al. [-@salfate_contact_2023] and Vázquez et al. [-@vazquez_positive_2023]. The wording of the items is based on the COES longitudinal survey, incorporating some supplementary information from Vargas et al. [-@salfate_contact_2023] regarding the places where contact can occur. 
+The variables used to capture this inter group contacts was derived from previous research from Vargas et al. [-@salfate_contact_2023] and Vázquez et al. [-@vazquez_positive_2023]. The wording of the items is based on the COES longitudinal survey, incorporating some supplementary information from Vargas et al. [-@salfate_contact_2023] regarding the places where contact can occur.
 
 ```{r}
 #| tbl-cap: "Descriptive statistics of Intergroup contacts: quantity of contacts"
@@ -1451,7 +1388,6 @@ The variables used to capture this inter group contacts was derived from previou
 describe_kable(db_proc, c("quan_pw", "quan_pm", "quan_rw", "quan_rm"))
 
 ```
-
 
 ### Intergroup contacts: friendship
 
@@ -1465,7 +1401,7 @@ describe_kable(db_proc, c("fri_pw", "fri_pm", "fri_rw", "fri_rm"))
 
 ```
 
-### Intergroup contacts: quality of contacts 
+### Intergroup contacts: quality of contacts
 
 The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. [-@vazquez_positive_2023] and from Roberto Gonzalez FONDECYT dataset.
 
@@ -1477,11 +1413,7 @@ describe_kable(db_proc, c("qual_pw", "qual_pm", "qual_rw", "qual_rm"))
 
 ```
 
-
-
-
 ### Perception of social mobility
-
 
 ##### **Descriptive results**
 
@@ -1523,10 +1455,7 @@ wrap_elements(
 
 ```
 
-
-
-
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -1550,7 +1479,6 @@ result3$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("mobi_down_1", "mobi_down_2", "mobi_down_3")], na.rm = TRUE)
 ```
 
-
 ##### **Confirmatory factor analysis**
 
 Mardia's test for evaluate multivariate normality.
@@ -1567,9 +1495,7 @@ mardia(db_proc[,c("mobi_up_1", "mobi_up_2", "mobi_up_3",
        na.rm = T, plot=T) 
 ```
 
-
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
-
 
 ```{r}
 # model
@@ -1616,7 +1542,6 @@ m7_cfa_mex <- cfa(model = model_cfa,
               std.lv = F) 
 ```
 
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Social mobility"
 #| tbl-cap-location: top
@@ -1626,8 +1551,6 @@ cfa_tab_fit(
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$fit_table
 ```
-
-
 
 ## Block 4. Stereotypes
 
@@ -1676,7 +1599,6 @@ psych::describe(db_pw[,c("inm_1", "inm_2", "inm_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Inmmorality"
@@ -1775,7 +1697,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -1803,7 +1725,6 @@ mardia(db_rm[,c("inm_1", "inm_2", "inm_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Inmorality with poor men as target"
 #| fig-cap-location: top
@@ -1814,7 +1735,6 @@ mardia(db_rm[,c("inm_1", "inm_2", "inm_3")],
 mardia(db_pm[,c("inm_1", "inm_2", "inm_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 ```{r}
 #| fig-cap: "Mardia's test of Inmorality with rich women as target"
@@ -2001,8 +1921,6 @@ m8_cfa_pw_mex <- cfa(model = model_cfa,
                      std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Stereotype content model: inmmorality"
 #| tbl-cap-location: top
@@ -2088,7 +2006,6 @@ psych::describe(db_pw[,c("mor_1", "mor_2", "mor_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Morality"
@@ -2187,7 +2104,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -2215,7 +2132,6 @@ mardia(db_rm[,c("mor_1", "mor_2", "mor_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Morality with poor men as target"
 #| fig-cap-location: top
@@ -2226,7 +2142,6 @@ mardia(db_rm[,c("mor_1", "mor_2", "mor_3")],
 mardia(db_pm[,c("mor_1", "mor_2", "mor_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 ```{r}
 #| fig-cap: "Mardia's test of Inmorality with rich women as target"
@@ -2411,8 +2326,6 @@ m9_cfa_pw_mex <- cfa(model = model_cfa,
                      std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Stereotype content model: morality"
 #| tbl-cap-location: top
@@ -2465,7 +2378,6 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-
 ### Stereotype content model: warmth
 
 ##### **Descriptive analysis**
@@ -2499,7 +2411,6 @@ psych::describe(db_pw[,c("war_1", "war_2", "war_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Warmth"
@@ -2598,7 +2509,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -2626,7 +2537,6 @@ mardia(db_rm[,c("war_1", "war_2", "war_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Warmth with poor men as target"
 #| fig-cap-location: top
@@ -2637,7 +2547,6 @@ mardia(db_rm[,c("war_1", "war_2", "war_3")],
 mardia(db_pm[,c("war_1", "war_2", "war_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 ```{r}
 #| fig-cap: "Mardia's test of InWarmth with rich women as target"
@@ -2822,8 +2731,6 @@ m10_cfa_pw_mex <- cfa(model = model_cfa,
                      std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Stereotype content model: Warmth"
 #| tbl-cap-location: top
@@ -2876,7 +2783,6 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-
 ### Stereotype content model: competence
 
 ##### **Descriptive analysis**
@@ -2910,7 +2816,6 @@ psych::describe(db_pw[,c("com_1", "com_2", "com_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Competence"
@@ -3009,7 +2914,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -3037,7 +2942,6 @@ mardia(db_rm[,c("com_1", "com_2", "com_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of competence with poor men as target"
 #| fig-cap-location: top
@@ -3048,7 +2952,6 @@ mardia(db_rm[,c("com_1", "com_2", "com_3")],
 mardia(db_pm[,c("com_1", "com_2", "com_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 ```{r}
 #| fig-cap: "Mardia's test of Incompetence with rich women as target"
@@ -3233,8 +3136,6 @@ m11_cfa_pw_mex <- cfa(model = model_cfa,
                      std.lv = F) 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Stereotype content model: competence"
 #| tbl-cap-location: top
@@ -3320,7 +3221,6 @@ psych::describe(db_pw[,c("ph_1", "ph_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive harm"
@@ -3419,7 +3319,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -3431,7 +3331,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ph_1", "ph_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup behavioural tendencies: active harm
 
@@ -3466,7 +3365,6 @@ psych::describe(db_pw[,c("ah_1", "ah_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active harm"
@@ -3565,7 +3463,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -3577,7 +3475,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ah_1", "ah_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup behavioural tendencies: passive facilitation
 
@@ -3612,7 +3509,6 @@ psych::describe(db_pw[,c("pf_1", "pf_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: passive facilitation"
@@ -3711,7 +3607,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -3723,7 +3619,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pf_1", "pf_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup behavioural tendencies: active facilitation
 
@@ -3758,7 +3653,6 @@ psych::describe(db_pw[,c("af_1", "af_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup behavioural tendencies: active facilitation"
@@ -3857,7 +3751,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -3903,7 +3797,6 @@ psych::describe(db_pw[,c("ad_1", "ad_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  admiration toward"
@@ -4002,7 +3895,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4014,7 +3907,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ad_1", "ad_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup affect tendencies: contempt toward
 
@@ -4049,7 +3941,6 @@ psych::describe(db_pw[,c("co_1", "co_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  contempt toward"
@@ -4148,7 +4039,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4160,7 +4051,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("co_1", "co_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup affect tendencies: envy toward
 
@@ -4195,7 +4085,6 @@ psych::describe(db_pw[,c("en_1", "en_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  envy toward"
@@ -4294,7 +4183,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4306,7 +4195,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("en_1", "en_2")], na.rm = TRUE)
 ```
-
 
 ### Intergroup affect tendencies: pity toward
 
@@ -4341,7 +4229,6 @@ psych::describe(db_pw[,c("pi_1", "pi_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Intergroup affect tendencies:  pity toward"
@@ -4440,7 +4327,7 @@ a/b +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4452,7 +4339,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
 ```
-
 
 ### Greedy dispositions
 
@@ -4479,7 +4365,6 @@ psych::describe(db_rw[,c("greedy_1", "greedy_2", "greedy_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Greedy dispositions"
@@ -4539,7 +4424,7 @@ p1/p2 +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4551,8 +4436,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("greedy_1", "greedy_2", "greedy_3")], na.rm = TRUE)
 ```
-
-
 
 ##### **Confirmatory factor analysis**
 
@@ -4569,7 +4452,6 @@ mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of greedy dispositions with rich women as target"
 #| fig-cap-location: top
@@ -4580,7 +4462,6 @@ mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")],
 mardia(db_rm[,c("greedy_1", "greedy_2", "greedy_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
 
@@ -4677,9 +4558,6 @@ m12_cfa_rw_mex <- cfa(model = model_cfa,
 
 ```
 
-
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Greedy dispositions"
 #| tbl-cap-location: top
@@ -4720,7 +4598,6 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-
 ### Punishment rich
 
 ##### **Descriptive analysis**
@@ -4746,7 +4623,6 @@ psych::describe(db_rw[,c("punish_1", "punish_2", "punish_3")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Punishment rich"
@@ -4806,7 +4682,7 @@ p1/p2 +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -4818,8 +4694,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("punish_1", "punish_2", "punish_3")], na.rm = TRUE)
 ```
-
-
 
 ##### **Confirmatory factor analysis**
 
@@ -4836,7 +4710,6 @@ mardia(db_rm[,c("punish_1", "punish_2", "punish_3")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Punishment rich with rich women as target"
 #| fig-cap-location: top
@@ -4847,7 +4720,6 @@ mardia(db_rm[,c("punish_1", "punish_2", "punish_3")],
 mardia(db_rm[,c("punish_1", "punish_2", "punish_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
 
@@ -4944,9 +4816,6 @@ m13_cfa_rw_mex <- cfa(model = model_cfa,
 
 ```
 
-
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Punishment rich"
 #| tbl-cap-location: top
@@ -4987,9 +4856,8 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-
-
 ## Block 5. Atributions
+
 ### Atributtions about poverty
 
 ##### **Descriptive analysis**
@@ -5016,7 +4884,6 @@ psych::describe(db_pw[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Atributtions about poverty"
@@ -5076,7 +4943,7 @@ p1/p2 +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -5089,7 +4956,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_po_1", "ex_po_2")], na.rm = TRUE)
 ```
 
-
 ```{r}
 mi_variable <- "in_atri_po"
 result3 <- alphas(db_proc, c("in_po_1", "in_po_2"), mi_variable)
@@ -5099,7 +4965,6 @@ result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_po_1", "in_po_2")], na.rm = TRUE)
 ```
-
 
 ##### **Confirmatory factor analysis**
 
@@ -5116,7 +4981,6 @@ mardia(db_pm[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Atributtions about poverty with poor women as target"
 #| fig-cap-location: top
@@ -5127,7 +4991,6 @@ mardia(db_pm[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")],
 mardia(db_pw[,c("ex_po_1", "ex_po_2", "in_po_1", "in_po_2")], 
        na.rm = T, plot=T) 
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
 
@@ -5226,9 +5089,6 @@ We first specify the factorial structure of the items, then fit models using a r
 #
 ```
 
-
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Atributtions about poverty"
 #| tbl-cap-location: top
@@ -5270,7 +5130,6 @@ We first specify the factorial structure of the items, then fit models using a r
 #  kableExtra::collapse_rows(columns = 1)
 ```
 
-
 ### Atributtions about wealth
 
 ##### **Descriptive analysis**
@@ -5297,7 +5156,6 @@ psych::describe(db_rw[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")]) %>%
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Atributtions about wealth"
@@ -5357,7 +5215,7 @@ p1/p2 +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -5370,7 +5228,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ex_we_1", "ex_we_2")], na.rm = TRUE)
 ```
 
-
 ```{r}
 mi_variable <- "in_atri_we"
 result3 <- alphas(db_proc, c("in_we_1", "in_we_2"), mi_variable)
@@ -5380,7 +5237,6 @@ result3$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("in_we_1", "in_we_2")], na.rm = TRUE)
 ```
-
 
 ##### **Confirmatory factor analysis**
 
@@ -5397,7 +5253,6 @@ mardia(db_rm[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")],
        na.rm = T, plot=T) 
 ```
 
-
 ```{r}
 #| fig-cap: "Mardia's test of Atributtions about wealth with Rich women as target"
 #| fig-cap-location: top
@@ -5408,7 +5263,6 @@ mardia(db_rm[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")],
 mardia(db_rw[,c("ex_we_1", "ex_we_2", "in_we_1", "in_we_2")], 
        na.rm = T, plot=T) 
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
 
@@ -5507,9 +5361,6 @@ m15_cfa_rw_mex <- cfa(model = model_cfa,
 
 ```
 
-
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Atributtions about wealth"
 #| tbl-cap-location: top
@@ -5552,6 +5403,7 @@ cfa_tab_fit(
 ```
 
 ## Block 6. Stereotypes
+
 ### Thick skin bias
 
 ##### **Descriptive analysis**
@@ -5563,7 +5415,6 @@ cfa_tab_fit(
 describe_kable(db_proc, c("sk_1", "sk_2", "sk_3"))
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Thick skin bias"
@@ -5597,7 +5448,7 @@ wrap_elements(
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -5624,7 +5475,6 @@ Mardia's test for evaluate multivariate normality.
 mardia(db_proc[,c("sk_1", "sk_2", "sk_3")], 
        na.rm = T, plot=T) 
 ```
-
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
 
@@ -5685,8 +5535,6 @@ m16_cfa_mex <- cfa(model = model_cfa,
 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Thick skin bias"
 #| tbl-cap-location: top
@@ -5696,8 +5544,6 @@ cfa_tab_fit(
   country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
 )$fit_table
 ```
-
-
 
 ### Deservingness
 
@@ -5733,7 +5579,6 @@ psych::describe(db_pw[,c("carin_control_1","carin_control_2_r","carin_attitude_1
 
 
 ```
-
 
 ```{r}
 #| fig-cap: "Correlation matrix of Deservingness"
@@ -5790,7 +5635,7 @@ p1/p2 +
 
 ```
 
-##### **Internal consistency**
+##### **Reliability**
 
 ```{r}
 
@@ -5803,7 +5648,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_control_1","carin_control_2_r")], na.rm = TRUE)
 ```
 
-
 ```{r}
 
 mi_variable <- "carin_attitude"
@@ -5815,7 +5659,6 @@ result2$new_var_summary
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_attitude_1","carin_attitude_2")], na.rm = TRUE)
 ```
 
-
 ```{r}
 
 mi_variable <- "carin_reciprocity"
@@ -5826,7 +5669,6 @@ result2$new_var_summary
 
 db_proc[[mi_variable]] <- rowMeans(db_proc[, c("carin_reciprocity_1","carin_reciprocity_2")], na.rm = TRUE)
 ```
-
 
 ```{r}
 
@@ -5877,8 +5719,6 @@ mardia(db_pw[,c("carin_control_1","carin_control_2_r","carin_attitude_1","carin_
 ```
 
 We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodnes of fit indicators are shown.
-
-
 
 ```{r}
 
@@ -5979,8 +5819,6 @@ m17_cfa_pw_mex <- cfa(model = model_cfa,
 
 ```
 
-
-
 ```{r}
 #| tbl-cap: "Summary fit indices of Deservingness"
 #| tbl-cap-location: top
@@ -6026,40 +5864,1376 @@ cfa_tab_fit(
 
 ### Blatant dehumanization
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Blatant dehumanization items"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("asc_pw", "asc_pm", "asc_rw", "asc_rm"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Blatant dehumanization items"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("asc_pw", "asc_pm", "asc_rw", "asc_rm")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
 ## Block 8. Sexuality
 
 ### Perceived promiscuity of women
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Perceived promiscuity of women"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("pro_pw", "pro_rw"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Perceived promiscuity of women"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("pro_pw", "pro_rw")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "pro"
+result2 <- alphas(db_proc, c("pro_pw", "pro_rw"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pro_pw", "pro_rw")], na.rm = TRUE)
+```
+
 ### Risk sexual behavior of women
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Risk sexual behavior of women"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("ris_pw", "ris_rw"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Risk sexual behavior of women"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("ris_pw", "ris_rw")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "ris"
+result2 <- alphas(db_proc, c("ris_pw", "ris_rw"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("ris_pw", "ris_rw")], na.rm = TRUE)
+```
 
 ### Unplanned pregnancy of women
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Unplanned pregnancy of women"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("pre_pw", "pre_rw"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Unplanned pregnancy of women"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("pre_pw", "pre_rw")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "pre"
+result2 <- alphas(db_proc, c("pre_pw", "pre_rw"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pre_pw", "pre_rw")], na.rm = TRUE)
+```
+
 ### Abuse of social assistance by poor mothers
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Abuse of social assistance by poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_abu_1","wel_abu_2"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Abuse of social assistance by poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("wel_abu_1","wel_abu_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "wel_abu"
+result2 <- alphas(db_proc, c("wel_abu_1","wel_abu_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm = TRUE)
+```
 
 ### Paternalistic support for poor mothers
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Paternalistic support for poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_pa_1","wel_pa_2"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Paternalistic support for poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("wel_pa_1","wel_pa_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "wel_pa"
+result2 <- alphas(db_proc, c("wel_pa_1","wel_pa_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_pa_1","wel_pa_2")], na.rm = TRUE)
+```
+
 ### Hostile support for poor mothers
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Hostile support for poor mothers"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("wel_ho_1","wel_ho_2"))
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Hostile support for poor mothers"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("wel_ho_1","wel_ho_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "wel_ho"
+result2 <- alphas(db_proc, c("wel_ho_1","wel_ho_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_ho_1","wel_ho_2")], na.rm = TRUE)
+```
 
 ## Block 9. Policies / Actions
 
 ### Support for income redistribution
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Support for income redistribution"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("redi_1","redi_2"))
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Support for income redistribution"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc,  c("redi_1","redi_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "redi"
+result2 <- alphas(db_proc,  c("redi_1","redi_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("redi_1","redi_2")], na.rm = TRUE)
+```
+
+
 ### Perception of effectiveness in the use of aids
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Perception of effectiveness in the use of aids"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("effec_pw_1", "effec_pw_2", "effec_pm_1", "effec_pm_2"))
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Perception of effectiveness in the use of aids"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("effec_pw_1", "effec_pw_2", "effec_pm_1", "effec_pm_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "effec_pw"
+result2 <- psych::alpha(db_proc[,c("effec_pw_1", "effec_pw_2")], check.keys = T)
+
+result2$total$raw_alpha
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("effec_pw_1", "effec_pw_2")], na.rm = TRUE)
+
+summary(db_proc$effec_pw)
+```
+
+```{r}
+
+mi_variable <- "effec_pm"
+result2 <- psych::alpha(db_proc[,c("effec_pm_1", "effec_pm_2")], check.keys = T)
+
+result2$total$raw_alpha
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("effec_pm_1", "effec_pm_2")], na.rm = TRUE)
+
+summary(db_proc$effec_pw)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality.
+
+```{r}
+#| fig-cap: "Mardia's test of Perception of effectiveness in the use of aids"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_pw[,c("effec_pw_1", "effec_pw_2", "effec_pm_1", "effec_pm_2")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
+
+# model
+model_cfa <- ' 
+  effectivness_pw =~ effec_pw_1 + effec_pw_2
+  effectivness_pm =~ effec_pm_1 + effec_pm_2
+   '
+
+# estimation 
+m18_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m18_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m18_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m18_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m18_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m18_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+```
+
+```{r}
+#| tbl-cap: "Summary fit indices of Perception of effectiveness in the use of aids"
+#| tbl-cap-location: top
+#| warning: false
+
+cfa_tab_fit(
+  models = list(m18_cfa, m18_cfa_cl, m18_cfa_mex),
+  country_names = c("Overall scores", "Chile", "México")
+)$fit_table
+
+
+```
 
 ### Social aids that promote autonomy vs. dependence
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Social aids that promote autonomy vs. dependence"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("depe_pw_1", "depe_pm_1", "aut_pw_1", "aut_pm_1"))
+
+```
+
+
 ### Progressive policies
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Progressive policies"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("poli_progre_1", "poli_progre_2"))
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Progressive policies"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("poli_progre_1", "poli_progre_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "poli_progre"
+result2 <- alphas(db_proc,  c("poli_progre_1", "poli_progre_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[,  c("poli_progre_1", "poli_progre_2")], na.rm = TRUE)
+```
+
 
 ### Restrictive policies
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Restrictive policies"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("poli_restri_1", "poli_restri_2"))
+
+```
+
+
+```{r}
+#| fig-cap: "Correlation matrix of Restrictive policies"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_proc, c("poli_restri_1", "poli_restri_2")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "poli_restri"
+result2 <- alphas(db_proc, c("poli_restri_1", "poli_restri_2"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("poli_restri_1", "poli_restri_2")], na.rm = TRUE)
+```
+
 
 ## Block 10. Violence
 
 ### Sexual harassment situations
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Sexual harassment situations"
+#| tbl-cap-location: top
+
+db_vio0 <- subset(db_proc, condi_viole == 0) 
+db_vio1 <- subset(db_proc, condi_viole == 1) 
+
+
+bind_rows(
+  psych::describe(db_vio0[,c("hara_pw_1", "hara_pw_2", "hara_pw_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+  ,
+  psych::describe(db_vio1[,c("hara_pw_1", "hara_pw_2", "hara_pw_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+) %>% 
+  mutate(vars = paste0("hara_pw_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Sexual harassment situations"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_vio0, c("hara_pw_1", "hara_pw_2", "hara_pw_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Poor Women")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_vio1, c("hara_pw_1", "hara_pw_2", "hara_pw_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Rich Women")
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "hara"
+result2 <- alphas(db_proc, c("hara_pw_1", "hara_pw_2", "hara_pw_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("hara_pw_1", "hara_pw_2", "hara_pw_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Sexual harassment situations with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_vio0[,c("hara_pw_1", "hara_pw_2", "hara_pw_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Sexual harassment situations with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_vio1[,c("hara_pw_1", "hara_pw_2", "hara_pw_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
+
+db_proc <- db_proc %>% 
+  mutate(target = if_else(condi_viole == 0, "Poor.Women", "Rich.Women"))
+
+# model
+model_cfa <- ' 
+  harassment =~ hara_pw_1 + hara_pw_2 + hara_pw_3
+   '
+
+# estimation 
+# overall
+
+m19_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F)
+
+m19_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+ 
+
+# per country
+db_proc$group <- interaction(db_proc$natio_recoded, db_proc$target)
+
+# argentina
+
+m19_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m19_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+
+m19_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m19_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+
+m19_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m19_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# españa
+
+
+m19_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m19_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+
+m19_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m19_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+```
+
+```{r}
+#| tbl-cap: "Summary fit indices of Sexual harassment situations"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m19_cfa_rw, m19_cfa_rw_arg, m19_cfa_rw_cl, m19_cfa_rw_col, m19_cfa_rw_esp, m19_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+,
+cfa_tab_fit(
+  models = list(m19_cfa_pw, m19_cfa_pw_arg, m19_cfa_pw_cl, m19_cfa_pw_col, m19_cfa_pw_esp, m19_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
+
 ### Domestic abuse situations
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Domestic abuse situations"
+#| tbl-cap-location: top
+
+bind_rows(
+  psych::describe(db_vio0[,c("abu_pw_1", "abu_pw_2", "abu_pw_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Poor Women")
+  ,
+  psych::describe(db_vio1[,c("abu_pw_1", "abu_pw_2", "abu_pw_3")]) %>% 
+    as_tibble() %>% 
+    mutate(target = "Rich Women")
+) %>% 
+  mutate(vars = paste0("hara_pw_", vars)) %>% 
+  select(target, everything()) %>% 
+  group_by(target) %>% 
+  mutate(target = if_else(duplicated(target), NA, target)) %>% 
+  kableExtra::kable(format = "markdown", digits = 3)
+
+
+```
+
+```{r}
+#| fig-cap: "Correlation matrix of Domestic abuse situations"
+#| fig-cap-location: top
+#| fig-asp: 0.8
+#| out-width: '100%'
+
+p1 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_vio0, c("abu_pw_1", "abu_pw_2", "abu_pw_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "I. Poor Women")
+
+
+p2 <- wrap_elements(
+    ~corrplot::corrplot(
+      fit_correlations(db_vio1, c("abu_pw_1", "abu_pw_2", "abu_pw_3")),
+      method = "color",
+      type = "upper",
+      col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+      tl.pos = "lt",
+      tl.col = "black",
+      addrect = 2,
+      rect.col = "black",
+      addCoef.col = "white",
+      cl.cex = 0.8,
+      cl.align.text = 'l',
+      number.cex = 1.1,
+      na.label = "-",
+      bg = "white"
+    )
+  ) + labs(title = "II. Rich Women")
+
+
+p1/p2 +
+    plot_annotation(
+      caption = paste0(
+        "Source: Authors calculation based on SOGEDI database"
+      )
+    )
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "abu"
+result2 <- alphas(db_proc, c("abu_pw_1", "abu_pw_2", "abu_pw_3"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("abu_pw_1", "abu_pw_2", "abu_pw_3")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality for each target.
+
+```{r}
+#| fig-cap: "Mardia's test of Domestic abuse situations with poor women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_vio0[,c("abu_pw_1", "abu_pw_2", "abu_pw_3")], 
+       na.rm = T, plot=T) 
+```
+
+```{r}
+#| fig-cap: "Mardia's test of Domestic abuse situations with rich women as target"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_vio1[,c("abu_pw_1", "abu_pw_2", "abu_pw_3")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
+
+# model
+model_cfa <- ' 
+  abuse =~ abu_pw_1 + abu_pw_2 + abu_pw_3
+   '
+
+# estimation 
+# overall
+
+m20_cfa_rw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Rich.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F)
+
+m20_cfa_pw <- cfa(model = model_cfa, 
+              data = subset(db_proc, target == "Poor.Women"),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+ 
+# argentina
+
+m20_cfa_rw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Rich.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+m20_cfa_pw_arg <- cfa(model = model_cfa, 
+                 data = subset(db_proc, group == "1.Poor.Women"),
+                 estimator = "MLR",
+                 ordered = F,
+                 std.lv = F) 
+
+# chile
+
+m20_cfa_rw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m20_cfa_pw_cl <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "3.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# colombia
+
+m20_cfa_rw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m20_cfa_pw_col <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "4.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# españa
+
+
+m20_cfa_rw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m20_cfa_pw_esp <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "9.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+# mexico
+
+m20_cfa_rw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Rich.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+
+m20_cfa_pw_mex <- cfa(model = model_cfa, 
+                     data = subset(db_proc, group == "13.Poor.Women"),
+                     estimator = "MLR",
+                     ordered = F,
+                     std.lv = F) 
+```
+
+```{r}
+#| tbl-cap: "Summary fit indices of Domestic abuse situations"
+#| tbl-cap-location: top
+colnames_fit  <- c("","Target","$N$","Estimator","$\\chi^2$ (df)","CFI","TLI","RMSEA 90% CI [Lower-Upper]", "SRMR", "AIC")
+
+
+bind_rows(
+cfa_tab_fit(
+  models = list(m20_cfa_rw, m20_cfa_rw_arg, m20_cfa_rw_cl, m20_cfa_rw_col, m20_cfa_rw_esp, m20_cfa_rw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Rich Women")
+,
+cfa_tab_fit(
+  models = list(m20_cfa_pw, m20_cfa_pw_arg, m20_cfa_pw_cl, m20_cfa_pw_col, m20_cfa_pw_esp, m20_cfa_pw_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$sum_fit %>% 
+  mutate(target = "Poor Women")
+) %>% 
+  select(country, target, everything()) %>% 
+  mutate(country = factor(country, levels = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México"))) %>% 
+  group_by(country) %>% 
+  arrange(country) %>% 
+  mutate(country = if_else(duplicated(country), NA, country)) %>% 
+  kableExtra::kable(
+  format     = "markdown", 
+  digits     = 3,
+  booktabs   = TRUE,
+  col.names  = colnames_fit,
+  caption    = NULL
+) %>%
+  kableExtra::kable_styling(
+    full_width        = TRUE,
+    font_size         = 11,
+    latex_options     = "HOLD_position",
+    bootstrap_options = c("striped", "bordered")
+  ) %>% 
+  kableExtra::collapse_rows(columns = 1)
+```
 
 ### Type of violence
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Type of violence items"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("viole_pw_1", "viole_pw_2", "viole_pw_3", "viole_pw_4", "viole_pw_5", "viole_pw_6"))
+
+
+```
+
 ### Barriers to leaving an abusive relationship
 
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Barriers to leaving an abusive relationship items"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("barri_pw_1", "barri_pw_2", "barri_pw_3", "barri_pw_4", "barri_pw_5"))
+
+
+```
+
+
 ### Perpetration of violence
+
+##### **Descriptive analysis**
+
+```{r}
+#| tbl-cap: "Descriptive statistics of Perpetration of violence"
+#| tbl-cap-location: top
+
+describe_kable(db_proc, c("perpe_1", "perpe_2", "perpe_3", "perpe_4", "perpe_5"))
+
+```
+
+##### **Reliability**
+
+```{r}
+
+mi_variable <- "perpe"
+result2 <- alphas(db_proc, c("perpe_1", "perpe_2", "perpe_3", "perpe_4", "perpe_5"), mi_variable)
+
+result2$raw_alpha
+result2$new_var_summary
+
+db_proc[[mi_variable]] <- rowMeans(db_proc[, c("perpe_1", "perpe_2", "perpe_3", "perpe_4", "perpe_5")], na.rm = TRUE)
+```
+
+##### **Confirmatory factor analysis**
+
+Mardia's test for evaluate multivariate normality.
+
+```{r}
+#| fig-cap: "Mardia's test of Perpetration of violence"
+#| fig-cap-location: top
+#| fig-asp: 1.1
+#| out-width: '70%'
+#| results: asis
+
+mardia(db_proc[,c("perpe_1", "perpe_2", "perpe_3", "perpe_4", "perpe_5")], 
+       na.rm = T, plot=T) 
+```
+
+We first specify the factorial structure of the items, then fit models using a robust maximum likelihood estimator for the entire sample as well as for each country individually. The goodness of fit indicators are shown.
+
+```{r}
+
+# model
+model_cfa <- ' perpe_viole =~ perpe_1 + perpe_2 + perpe_3 + perpe_4 + perpe_5 '
+
+# estimation 
+m21_cfa <- cfa(model = model_cfa, 
+              data = db_proc,
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m21_cfa_arg <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 1),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m21_cfa_cl <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 3),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m21_cfa_col <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 4),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m21_cfa_es <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 9),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+
+m21_cfa_mex <- cfa(model = model_cfa, 
+              data = subset(db_proc, country_residence_recoded == 13),
+              estimator = "MLR",
+              ordered = F,
+              std.lv = F) 
+```
+
+```{r}
+#| tbl-cap: "Summary fit indices of Perpetration of violence"
+#| tbl-cap-location: top
+
+cfa_tab_fit(
+  models = list(m21_cfa, m21_cfa_arg, m21_cfa_cl, m21_cfa_col, m21_cfa_es, m21_cfa_mex),
+  country_names = c("Overall scores", "Argentina", "Chile", "Colombia", "Spain", "México")
+)$fit_table
+
+```
+
