@@ -81,12 +81,12 @@ rm(list = ls())
 
 # Data
 
-We load the database from the local path. Modify this later.
+We load the database from the the Github [repository](https://github.com/sogedi-project/sogedi-data/tree/main/input/data) project. 
 
 ```{r}
 #| label: data
 
-sogedi_db <- haven::read_sav(file = here("input/data/original/SOGEDI_dataset_V1.sav"), user_na = T)
+sogedi_db <- haven::read_sav(url("https://github.com/sogedi-project/sogedi-data/raw/refs/heads/main/input/data/original/SOGEDI_dataset_V1.sav"), user_na = T)
 
 glimpse(sogedi_db)
 ```

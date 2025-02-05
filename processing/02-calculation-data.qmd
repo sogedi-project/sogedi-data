@@ -30,13 +30,13 @@ csl: "../input/bib/apa6.csl"
 link-citations: true
 ---
 
+
+
 # Presentation
 
-This document presents the code employed for calculating and analyzing the variables in the project Socioeconomic and Gender Disparities: A Multi-Country Study. The dataset used, `db_proc.RData`, is derived from a previously processed [source](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html).
+This document presents the code employed for calculating and analyzing the variables in the project "Socioeconomic and Gender Disparities: A Multi-Country Study". The dataset used, `db_proc.RData`, is derived from a previously processed [source](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html). Data processing and variable construction are organized according to the SOGEDI survey modules.
 
-A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and Reliability indices (Cronbach's alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.
-
-Data processing and variable construction are organized according to the SOGEDI survey modules. For those items whose Reliability or factorial structure prove insufficient, we make recommendations for their use in empirical research.
+A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and reliability indices (Cronbach's alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.
 
 In order to assess the multivariate normality of the items included in the measurement models, we apply Mardia's test, which evaluates deviations in both skewness and kurtosis [@mardia_measures_1970]. A statistically significant result suggests that the data deviate from a multivariate normal distribution, underscoring the need to use estimation methods suited to potential non-normality.
 
@@ -49,6 +49,10 @@ The following fit criteria, drawn from Brown [-@brown_confirmatory_2015] and Kli
 -   Root Mean Square Error of Approximation (RMSEA): \< 0.06
 -   Standardized Root Mean Square Residual (SRMR): \< 0.08
 -   Akaike Information Criterion (AIC): no fixed cutoff; lower values indicate better fit.
+
+
+Although these criteria provide a robust framework for determining acceptable model fit [@brown_confirmatory_2015; @kline_principles_2023], **not all proposed variables in this dataset satisfy these standards**. In instances where the factorial structure or reliability is inadequate, we recommend that each researcher exercise discretion in handling the data—either by adjusting the measurement strategy, dropping problematic items, or proceeding with caution in empirical analyses. By framing these guidelines as suggestions rather than prescriptive mandates, researchers can maintain analytical flexibility and ensure that their chosen approach is grounded in both theoretical considerations and empirical evidence.
+
 
 ```{r}
 #| label: set
@@ -103,12 +107,12 @@ rm(list = ls())
 
 # Data
 
-We load the database from the local path. Modify this later.
+We load the database from the Github [repository](https://github.com/sogedi-project/sogedi-data/tree/main/output/data) project.
 
 ```{r}
 #| label: data
 
-load(file = here("output/data/db_proc.RData"))
+load(url("https://github.com/sogedi-project/sogedi-data/raw/refs/heads/main/output/data/db_proc.RData"))
 
 glimpse(db_proc)
 ```
@@ -866,7 +870,7 @@ bind_rows(
 
 ### Ambivalent sexism
 
-The items to capture ambivalent sexism came from previous research from Rollero et al. [-@rollero_psychometric_2014] and Rodríguez-Castro et al. [-@rodriguezcastro_validacion_2009]. For the SOGEDI study ee included the Ambivalent Sexism Inventory (ASI) and the Ambivalence Toward Men Inventory (AMI), attempting to have a structure similar to that of ambivalent classim scale. We used the short versions of the scales and selected the items that best fit our study. The items are from the adaptation to Spanish.
+The items to capture ambivalent sexism came from previous research from Rollero et al. [-@rollero_psychometric_2014] and Rodríguez-Castro et al. [-@rodriguezcastro_validacion_2009]. 
 
 #### Paternalism sexism toward women
 
@@ -1427,7 +1431,7 @@ describe_kable(db_proc, c("fri_pw", "fri_pm", "fri_rw", "fri_rm"))
 
 ### Intergroup contacts: quality of contacts
 
-The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. [-@vazquez_positive_2023] and from Roberto Gonzalez FONDECYT dataset.
+The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. [-@vazquez_positive_2023].
 
 ```{r}
 #| label: tbl-23
@@ -1583,9 +1587,9 @@ cfa_tab_fit(
 )$fit_table
 ```
 
-## Block 4. Stereotypes
+## Block 4. Stereotype content model
 
-### Stereotype content model: inmmorality
+### Inmmorality
 
 We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
 
@@ -2013,7 +2017,7 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-### Stereotype content model: morality
+### Morality
 
 We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
 
@@ -2428,7 +2432,7 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-### Stereotype content model: warmth
+### Warmth
 We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
 
 ##### **Descriptive analysis**
@@ -2841,7 +2845,7 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-### Stereotype content model: competence
+### Competence
 
 
 We included the immorality scale in an exploratory manner. The items are form the published article from @sanchez-castello_intergroup_2022.
@@ -4444,7 +4448,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("pi_1", "pi_2")], na.rm = TRUE)
 
 ### Greedy dispositions
 
-X
+Exploratory items were developed by the project team.
 
 ##### **Descriptive analysis**
 
@@ -4709,7 +4713,7 @@ cfa_tab_fit(
 
 ### Punishment rich
 
-X
+Exploratory items were developed by the project team.
 
 ##### **Descriptive analysis**
 
@@ -5532,7 +5536,7 @@ cfa_tab_fit(
   kableExtra::collapse_rows(columns = 1)
 ```
 
-## Block 6. Stereotypes
+## Block 6. Poverty Implications
 
 ### Thick skin bias
 
@@ -6299,6 +6303,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_abu_1","wel_abu_2")], na.rm 
 
 ### Paternalistic support for poor mothers
 The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales [@kim_attitudes_2013].
+
 ##### **Descriptive analysis**
 
 ```{r}
@@ -6358,6 +6363,7 @@ db_proc[[mi_variable]] <- rowMeans(db_proc[, c("wel_pa_1","wel_pa_2")], na.rm = 
 
 ### Hostile support for poor mothers
 The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales [@kim_attitudes_2013].
+
 ##### **Descriptive analysis**
 
 ```{r}
@@ -6636,7 +6642,7 @@ cfa_tab_fit(
 
 ### Social aids that promote autonomy vs. dependence
 
-Single item based on Sainz et al. [-@sainz_dehumanization_2020] about governmental control of social welfare spending. This is supposed to capture dependence assistance towards poor men/women. Single item from the scale used in @alcaniz-colomer_gendered_2023. It is the item that worked best and most clearly represents dependence vs. autonomy. 
+Single item based on Sainz et al. [-@sainz_dehumanization_2020] about governmental control of social welfare spending. This is supposed to capture dependence assistance towards poor men/women. We selected the item from @alcaniz-colomer_gendered_2023 that worked best and most clearly represents dependence vs. autonomy.
 
 ##### **Descriptive analysis**
 
@@ -7342,7 +7348,8 @@ describe_kable(db_proc, c("barri_pw_1", "barri_pw_2", "barri_pw_3", "barri_pw_4"
 
 
 ### Perpetration of violence
-Exploratory items from Rosa Rodríguez Bailón.
+
+Exploratory items were developed by the project team.
 
 ##### **Descriptive analysis**
 

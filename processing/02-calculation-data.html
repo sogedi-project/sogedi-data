@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.4.554">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andreas Laffert, Research asistant">
-<meta name="dcterms.date" content="2025-01-27">
+<meta name="dcterms.date" content="2025-02-05">
 <title>Calculation and analysis of variables</title>
 <style>
 code{white-space: pre-wrap;}
@@ -133,7 +133,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 27, 2025</p>
+        <p class="date">February 5, 2025</p>
       </div>
     </div>
     
@@ -198,12 +198,12 @@ window.Quarto = {
   </ul>
 </li>
   <li>
-<a href="#block-4.-stereotypes" id="toc-block-4.-stereotypes" class="nav-link" data-scroll-target="#block-4.-stereotypes"><span class="header-section-number">5.4</span> Block 4. Stereotypes</a>
+<a href="#block-4.-stereotype-content-model" id="toc-block-4.-stereotype-content-model" class="nav-link" data-scroll-target="#block-4.-stereotype-content-model"><span class="header-section-number">5.4</span> Block 4. Stereotype content model</a>
   <ul class="collapse">
-<li><a href="#stereotype-content-model-inmmorality" id="toc-stereotype-content-model-inmmorality" class="nav-link" data-scroll-target="#stereotype-content-model-inmmorality"><span class="header-section-number">5.4.1</span> Stereotype content model: inmmorality</a></li>
-  <li><a href="#stereotype-content-model-morality" id="toc-stereotype-content-model-morality" class="nav-link" data-scroll-target="#stereotype-content-model-morality"><span class="header-section-number">5.4.2</span> Stereotype content model: morality</a></li>
-  <li><a href="#stereotype-content-model-warmth" id="toc-stereotype-content-model-warmth" class="nav-link" data-scroll-target="#stereotype-content-model-warmth"><span class="header-section-number">5.4.3</span> Stereotype content model: warmth</a></li>
-  <li><a href="#stereotype-content-model-competence" id="toc-stereotype-content-model-competence" class="nav-link" data-scroll-target="#stereotype-content-model-competence"><span class="header-section-number">5.4.4</span> Stereotype content model: competence</a></li>
+<li><a href="#inmmorality" id="toc-inmmorality" class="nav-link" data-scroll-target="#inmmorality"><span class="header-section-number">5.4.1</span> Inmmorality</a></li>
+  <li><a href="#morality" id="toc-morality" class="nav-link" data-scroll-target="#morality"><span class="header-section-number">5.4.2</span> Morality</a></li>
+  <li><a href="#warmth" id="toc-warmth" class="nav-link" data-scroll-target="#warmth"><span class="header-section-number">5.4.3</span> Warmth</a></li>
+  <li><a href="#competence" id="toc-competence" class="nav-link" data-scroll-target="#competence"><span class="header-section-number">5.4.4</span> Competence</a></li>
   <li><a href="#intergroup-behavioural-tendencies-passive-harm" id="toc-intergroup-behavioural-tendencies-passive-harm" class="nav-link" data-scroll-target="#intergroup-behavioural-tendencies-passive-harm"><span class="header-section-number">5.4.5</span> Intergroup behavioural tendencies: passive harm</a></li>
   <li><a href="#intergroup-behavioural-tendencies-active-harm" id="toc-intergroup-behavioural-tendencies-active-harm" class="nav-link" data-scroll-target="#intergroup-behavioural-tendencies-active-harm"><span class="header-section-number">5.4.6</span> Intergroup behavioural tendencies: active harm</a></li>
   <li><a href="#intergroup-behavioural-tendencies-passive-facilitation" id="toc-intergroup-behavioural-tendencies-passive-facilitation" class="nav-link" data-scroll-target="#intergroup-behavioural-tendencies-passive-facilitation"><span class="header-section-number">5.4.7</span> Intergroup behavioural tendencies: passive facilitation</a></li>
@@ -224,7 +224,7 @@ window.Quarto = {
   </ul>
 </li>
   <li>
-<a href="#block-6.-stereotypes" id="toc-block-6.-stereotypes" class="nav-link" data-scroll-target="#block-6.-stereotypes"><span class="header-section-number">5.6</span> Block 6. Stereotypes</a>
+<a href="#block-6.-poverty-implications" id="toc-block-6.-poverty-implications" class="nav-link" data-scroll-target="#block-6.-poverty-implications"><span class="header-section-number">5.6</span> Block 6. Poverty Implications</a>
   <ul class="collapse">
 <li><a href="#thick-skin-bias" id="toc-thick-skin-bias" class="nav-link" data-scroll-target="#thick-skin-bias"><span class="header-section-number">5.6.1</span> Thick skin bias</a></li>
   <li><a href="#deservingness" id="toc-deservingness" class="nav-link" data-scroll-target="#deservingness"><span class="header-section-number">5.6.2</span> Deservingness</a></li>
@@ -273,9 +273,8 @@ window.Quarto = {
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content"><section id="presentation" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> Presentation</h1>
-<p>This document presents the code employed for calculating and analyzing the variables in the project Socioeconomic and Gender Disparities: A Multi-Country Study. The dataset used, <code>db_proc.RData</code>, is derived from a previously processed <a href="https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html">source</a>.</p>
-<p>A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and Reliability indices (Cronbach’s alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.</p>
-<p>Data processing and variable construction are organized according to the SOGEDI survey modules. For those items whose Reliability or factorial structure prove insufficient, we make recommendations for their use in empirical research.</p>
+<p>This document presents the code employed for calculating and analyzing the variables in the project “Socioeconomic and Gender Disparities: A Multi-Country Study”. The dataset used, <code>db_proc.RData</code>, is derived from a previously processed <a href="https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html">source</a>. Data processing and variable construction are organized according to the SOGEDI survey modules.</p>
+<p>A descriptive analysis is conducted for all survey items, covering both single variables and those that form part of composite indicators or latent factors. For the latter, correlation matrices and reliability indices (Cronbach’s alpha) are also computed. In several instances, we evaluate factorial structures on the basis of the original sources and the publications from which the items were adapted, while remaining open to alternative configurations during the data exploration phase.</p>
 <p>In order to assess the multivariate normality of the items included in the measurement models, we apply Mardia’s test, which evaluates deviations in both skewness and kurtosis <span class="citation" data-cites="mardia_measures_1970">(<a href="#ref-mardia_measures_1970" role="doc-biblioref">Mardia, 1970</a>)</span>. A statistically significant result suggests that the data deviate from a multivariate normal distribution, underscoring the need to use estimation methods suited to potential non-normality.</p>
 <p>The following fit criteria, drawn from Brown <span class="citation" data-cites="brown_confirmatory_2015">(<a href="#ref-brown_confirmatory_2015" role="doc-biblioref">2015</a>)</span> and Kline <span class="citation" data-cites="kline_principles_2023">(<a href="#ref-kline_principles_2023" role="doc-biblioref">2023</a>)</span>, guide the evaluation of model adequacy:</p>
 <ul>
@@ -286,7 +285,9 @@ window.Quarto = {
 <li>Root Mean Square Error of Approximation (RMSEA): &lt; 0.06</li>
 <li>Standardized Root Mean Square Residual (SRMR): &lt; 0.08</li>
 <li>Akaike Information Criterion (AIC): no fixed cutoff; lower values indicate better fit.</li>
-</ul></section><section id="libraries" class="level1" data-number="2"><h1 data-number="2">
+</ul>
+<p>Although these criteria provide a robust framework for determining acceptable model fit <span class="citation" data-cites="brown_confirmatory_2015 kline_principles_2023">(<a href="#ref-brown_confirmatory_2015" role="doc-biblioref">Brown, 2015</a>; <a href="#ref-kline_principles_2023" role="doc-biblioref">Kline, 2023</a>)</span>, <strong>not all proposed variables in this dataset satisfy these standards</strong>. In instances where the factorial structure or reliability is inadequate, we recommend that each researcher exercise discretion in handling the data—either by adjusting the measurement strategy, dropping problematic items, or proceeding with caution in empirical analyses. By framing these guidelines as suggestions rather than prescriptive mandates, researchers can maintain analytical flexibility and ensure that their chosen approach is grounded in both theoretical considerations and empirical evidence.</p>
+</section><section id="libraries" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> Libraries</h1>
 <p>First, we load the necessary libraries. In this case, we use <code><a href="https://rdrr.io/pkg/pacman/man/p_load.html">pacman::p_load</a></code> to load and call libraries in one move.</p>
 <div class="cell">
@@ -310,9 +311,9 @@ window.Quarto = {
 </div>
 </section><section id="data" class="level1" data-number="3"><h1 data-number="3">
 <span class="header-section-number">3</span> Data</h1>
-<p>We load the database from the local path. Modify this later.</p>
+<p>We load the database from the Github <a href="https://github.com/sogedi-project/sogedi-data/tree/main/output/data">repository</a> project.</p>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"output/data/db_proc.RData"</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html">url</a></span><span class="op">(</span><span class="st">"https://github.com/sogedi-project/sogedi-data/raw/refs/heads/main/output/data/db_proc.RData"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">glimpse</span><span class="op">(</span><span class="va">db_proc</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2211,7 +2212,7 @@ Table&nbsp;8: Summary fit indices of Ambivalent Classism Inventory
 <span class="header-section-number">5.2</span> Block 2. Gender inequality / Attitudes</h2>
 <section id="ambivalent-sexism" class="level3" data-number="5.2.1"><h3 data-number="5.2.1" class="anchored" data-anchor-id="ambivalent-sexism">
 <span class="header-section-number">5.2.1</span> Ambivalent sexism</h3>
-<p>The items to capture ambivalent sexism came from previous research from Rollero et al. <span class="citation" data-cites="rollero_psychometric_2014">(<a href="#ref-rollero_psychometric_2014" role="doc-biblioref">2014</a>)</span> and Rodríguez-Castro et al. <span class="citation" data-cites="rodriguezcastro_validacion_2009">(<a href="#ref-rodriguezcastro_validacion_2009" role="doc-biblioref">2009</a>)</span>. For the SOGEDI study ee included the Ambivalent Sexism Inventory (ASI) and the Ambivalence Toward Men Inventory (AMI), attempting to have a structure similar to that of ambivalent classim scale. We used the short versions of the scales and selected the items that best fit our study. The items are from the adaptation to Spanish.</p>
+<p>The items to capture ambivalent sexism came from previous research from Rollero et al. <span class="citation" data-cites="rollero_psychometric_2014">(<a href="#ref-rollero_psychometric_2014" role="doc-biblioref">2014</a>)</span> and Rodríguez-Castro et al. <span class="citation" data-cites="rodriguezcastro_validacion_2009">(<a href="#ref-rodriguezcastro_validacion_2009" role="doc-biblioref">2009</a>)</span>.</p>
 <section id="paternalism-sexism-toward-women" class="level4" data-number="5.2.1.1"><h4 data-number="5.2.1.1" class="anchored" data-anchor-id="paternalism-sexism-toward-women">
 <span class="header-section-number">5.2.1.1</span> Paternalism sexism toward women</h4>
 <section id="descriptive-results" class="level5"><h5 class="anchored" data-anchor-id="descriptive-results"><strong>Descriptive results</strong></h5>
@@ -3915,7 +3916,7 @@ Table&nbsp;22: Descriptive statistics of Intergroup contacts: friendship
 </div>
 </section><section id="intergroup-contacts-quality-of-contacts" class="level3" data-number="5.3.4"><h3 data-number="5.3.4" class="anchored" data-anchor-id="intergroup-contacts-quality-of-contacts">
 <span class="header-section-number">5.3.4</span> Intergroup contacts: quality of contacts</h3>
-<p>The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. <span class="citation" data-cites="vazquez_positive_2023">(<a href="#ref-vazquez_positive_2023" role="doc-biblioref">2023</a>)</span> and from Roberto Gonzalez FONDECYT dataset.</p>
+<p>The variables used to capture this inter group contacts was derived from previous research from Vázquez et al. <span class="citation" data-cites="vazquez_positive_2023">(<a href="#ref-vazquez_positive_2023" role="doc-biblioref">2023</a>)</span>.</p>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb102"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"qual_pw"</span>, <span class="st">"qual_pm"</span>, <span class="st">"qual_rw"</span>, <span class="st">"qual_rm"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-23" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -4402,10 +4403,10 @@ Table&nbsp;25: Summary fit indices of Social mobility
 </figure>
 </div>
 </div>
-</section></section></section><section id="block-4.-stereotypes" class="level2" data-number="5.4"><h2 data-number="5.4" class="anchored" data-anchor-id="block-4.-stereotypes">
-<span class="header-section-number">5.4</span> Block 4. Stereotypes</h2>
-<section id="stereotype-content-model-inmmorality" class="level3" data-number="5.4.1"><h3 data-number="5.4.1" class="anchored" data-anchor-id="stereotype-content-model-inmmorality">
-<span class="header-section-number">5.4.1</span> Stereotype content model: inmmorality</h3>
+</section></section></section><section id="block-4.-stereotype-content-model" class="level2" data-number="5.4"><h2 data-number="5.4" class="anchored" data-anchor-id="block-4.-stereotype-content-model">
+<span class="header-section-number">5.4</span> Block 4. Stereotype content model</h2>
+<section id="inmmorality" class="level3" data-number="5.4.1"><h3 data-number="5.4.1" class="anchored" data-anchor-id="inmmorality">
+<span class="header-section-number">5.4.1</span> Inmmorality</h3>
 <p>We included the immorality scale in an exploratory manner. The items are form the published article from <span class="citation" data-cites="sanchez-castello_intergroup_2022">Sánchez-Castelló et al. (<a href="#ref-sanchez-castello_intergroup_2022" role="doc-biblioref">2022</a>)</span>.</p>
 <section id="descriptive-analysis-7" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-7"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
@@ -5375,8 +5376,8 @@ Table&nbsp;31: Summary fit indices of Stereotype content model: inmmorality
 </figure>
 </div>
 </div>
-</section></section><section id="stereotype-content-model-morality" class="level3" data-number="5.4.2"><h3 data-number="5.4.2" class="anchored" data-anchor-id="stereotype-content-model-morality">
-<span class="header-section-number">5.4.2</span> Stereotype content model: morality</h3>
+</section></section><section id="morality" class="level3" data-number="5.4.2"><h3 data-number="5.4.2" class="anchored" data-anchor-id="morality">
+<span class="header-section-number">5.4.2</span> Morality</h3>
 <p>We included the immorality scale in an exploratory manner. The items are form the published article from <span class="citation" data-cites="sanchez-castello_intergroup_2022">Sánchez-Castelló et al. (<a href="#ref-sanchez-castello_intergroup_2022" role="doc-biblioref">2022</a>)</span>.</p>
 <section id="descriptive-analysis-8" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-8"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
@@ -6316,8 +6317,8 @@ Table&nbsp;33: Summary fit indices of Stereotype content model: morality
 </figure>
 </div>
 </div>
-</section></section><section id="stereotype-content-model-warmth" class="level3" data-number="5.4.3"><h3 data-number="5.4.3" class="anchored" data-anchor-id="stereotype-content-model-warmth">
-<span class="header-section-number">5.4.3</span> Stereotype content model: warmth</h3>
+</section></section><section id="warmth" class="level3" data-number="5.4.3"><h3 data-number="5.4.3" class="anchored" data-anchor-id="warmth">
+<span class="header-section-number">5.4.3</span> Warmth</h3>
 <p>We included the immorality scale in an exploratory manner. The items are form the published article from <span class="citation" data-cites="sanchez-castello_intergroup_2022">Sánchez-Castelló et al. (<a href="#ref-sanchez-castello_intergroup_2022" role="doc-biblioref">2022</a>)</span>.</p>
 <section id="descriptive-analysis-9" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-9"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
@@ -7257,8 +7258,8 @@ Table&nbsp;35: Summary fit indices of Stereotype content model: Warmth
 </figure>
 </div>
 </div>
-</section></section><section id="stereotype-content-model-competence" class="level3" data-number="5.4.4"><h3 data-number="5.4.4" class="anchored" data-anchor-id="stereotype-content-model-competence">
-<span class="header-section-number">5.4.4</span> Stereotype content model: competence</h3>
+</section></section><section id="competence" class="level3" data-number="5.4.4"><h3 data-number="5.4.4" class="anchored" data-anchor-id="competence">
+<span class="header-section-number">5.4.4</span> Competence</h3>
 <p>We included the immorality scale in an exploratory manner. The items are form the published article from <span class="citation" data-cites="sanchez-castello_intergroup_2022">Sánchez-Castelló et al. (<a href="#ref-sanchez-castello_intergroup_2022" role="doc-biblioref">2022</a>)</span>.</p>
 <section id="descriptive-analysis-10" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-10"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
@@ -10736,7 +10737,7 @@ Figure&nbsp;20: Correlation matrix of Intergroup affect tendencies: pity toward
 </div>
 </section></section><section id="greedy-dispositions" class="level3" data-number="5.4.13"><h3 data-number="5.4.13" class="anchored" data-anchor-id="greedy-dispositions">
 <span class="header-section-number">5.4.13</span> Greedy dispositions</h3>
-<p>X</p>
+<p>Exploratory items were developed by the project team.</p>
 <section id="descriptive-analysis-19" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-19"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb226"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bind_rows</span><span class="op">(</span></span>
@@ -11299,7 +11300,7 @@ Table&nbsp;47: Summary fit indices of Greedy dispositions
 </div>
 </section></section><section id="punishment-rich" class="level3" data-number="5.4.14"><h3 data-number="5.4.14" class="anchored" data-anchor-id="punishment-rich">
 <span class="header-section-number">5.4.14</span> Punishment rich</h3>
-<p>X</p>
+<p>Exploratory items were developed by the project team.</p>
 <section id="descriptive-analysis-20" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-20"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb237"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bind_rows</span><span class="op">(</span></span>
@@ -12898,8 +12899,8 @@ Table&nbsp;53: Summary fit indices of Atributtions about wealth
 </figure>
 </div>
 </div>
-</section></section></section><section id="block-6.-stereotypes" class="level2" data-number="5.6"><h2 data-number="5.6" class="anchored" data-anchor-id="block-6.-stereotypes">
-<span class="header-section-number">5.6</span> Block 6. Stereotypes</h2>
+</section></section></section><section id="block-6.-poverty-implications" class="level2" data-number="5.6"><h2 data-number="5.6" class="anchored" data-anchor-id="block-6.-poverty-implications">
+<span class="header-section-number">5.6</span> Block 6. Poverty Implications</h2>
 <section id="thick-skin-bias" class="level3" data-number="5.6.1"><h3 data-number="5.6.1" class="anchored" data-anchor-id="thick-skin-bias">
 <span class="header-section-number">5.6.1</span> Thick skin bias</h3>
 <p>We reduced the amount of items that the original authors used and silly adapted to our context of study <span class="citation" data-cites="cheek_thick_2024">(<a href="#ref-cheek_thick_2024" role="doc-biblioref">Cheek &amp; Shafir, 2024</a>)</span>. We did not find any information regarding factorial analyses so we selected the items that were more likely to be applied to low-SES groups in our context.</p>
@@ -14753,7 +14754,8 @@ Figure&nbsp;31: Correlation matrix of Abuse of social assistance by poor mothers
 </div>
 </section></section><section id="paternalistic-support-for-poor-mothers" class="level3" data-number="5.8.5"><h3 data-number="5.8.5" class="anchored" data-anchor-id="paternalistic-support-for-poor-mothers">
 <span class="header-section-number">5.8.5</span> Paternalistic support for poor mothers</h3>
-<p>The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales <span class="citation" data-cites="kim_attitudes_2013">(<a href="#ref-kim_attitudes_2013" role="doc-biblioref">Kim et al., 2013</a>)</span>. ##### <strong>Descriptive analysis</strong></p>
+<p>The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales <span class="citation" data-cites="kim_attitudes_2013">(<a href="#ref-kim_attitudes_2013" role="doc-biblioref">Kim et al., 2013</a>)</span>.</p>
+<section id="descriptive-analysis-29" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-29"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb352"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wel_pa_1"</span>,<span class="st">"wel_pa_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-64" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -14869,7 +14871,7 @@ Figure&nbsp;32: Correlation matrix of Paternalistic support for poor mothers
 </div>
 </div>
 </div>
-<section id="reliability-31" class="level5"><h5 class="anchored" data-anchor-id="reliability-31"><strong>Reliability</strong></h5>
+</section><section id="reliability-31" class="level5"><h5 class="anchored" data-anchor-id="reliability-31"><strong>Reliability</strong></h5>
 <div class="cell">
 <div class="sourceCode" id="cb354"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mi_variable</span> <span class="op">&lt;-</span> <span class="st">"wel_pa"</span></span>
 <span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu">alphas</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wel_pa_1"</span>,<span class="st">"wel_pa_2"</span><span class="op">)</span>, <span class="va">mi_variable</span><span class="op">)</span></span>
@@ -14887,7 +14889,8 @@ Figure&nbsp;32: Correlation matrix of Paternalistic support for poor mothers
 </div>
 </section></section><section id="hostile-support-for-poor-mothers" class="level3" data-number="5.8.6"><h3 data-number="5.8.6" class="anchored" data-anchor-id="hostile-support-for-poor-mothers">
 <span class="header-section-number">5.8.6</span> Hostile support for poor mothers</h3>
-<p>The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales <span class="citation" data-cites="kim_attitudes_2013">(<a href="#ref-kim_attitudes_2013" role="doc-biblioref">Kim et al., 2013</a>)</span>. ##### <strong>Descriptive analysis</strong></p>
+<p>The items to measure this process are inspired by scales on teenage mothers but we adapted to capture attitudes towards the group of poor mothers based on our experience with similar scales <span class="citation" data-cites="kim_attitudes_2013">(<a href="#ref-kim_attitudes_2013" role="doc-biblioref">Kim et al., 2013</a>)</span>.</p>
+<section id="descriptive-analysis-30" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-30"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb359"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wel_ho_1"</span>,<span class="st">"wel_ho_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-65" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15003,7 +15006,7 @@ Figure&nbsp;33: Correlation matrix of Hostile support for poor mothers
 </div>
 </div>
 </div>
-<section id="reliability-32" class="level5"><h5 class="anchored" data-anchor-id="reliability-32"><strong>Reliability</strong></h5>
+</section><section id="reliability-32" class="level5"><h5 class="anchored" data-anchor-id="reliability-32"><strong>Reliability</strong></h5>
 <div class="cell">
 <div class="sourceCode" id="cb361"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mi_variable</span> <span class="op">&lt;-</span> <span class="st">"wel_ho"</span></span>
 <span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu">alphas</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wel_ho_1"</span>,<span class="st">"wel_ho_2"</span><span class="op">)</span>, <span class="va">mi_variable</span><span class="op">)</span></span>
@@ -15024,7 +15027,7 @@ Figure&nbsp;33: Correlation matrix of Hostile support for poor mothers
 <section id="support-for-income-redistribution" class="level3" data-number="5.9.1"><h3 data-number="5.9.1" class="anchored" data-anchor-id="support-for-income-redistribution">
 <span class="header-section-number">5.9.1</span> Support for income redistribution</h3>
 <p>Items adapted from <span class="citation" data-cites="garcia-sanchez_two_2022">García-Sánchez et al. (<a href="#ref-garcia-sanchez_two_2022" role="doc-biblioref">2022</a>)</span>.</p>
-<section id="descriptive-analysis-29" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-29"><strong>Descriptive analysis</strong></h5>
+<section id="descriptive-analysis-31" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-31"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb366"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"redi_1"</span>,<span class="st">"redi_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-81" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15159,7 +15162,7 @@ Figure&nbsp;34: Correlation matrix of Support for income redistribution
 </section></section><section id="perception-of-effectiveness-in-the-use-of-aids" class="level3" data-number="5.9.2"><h3 data-number="5.9.2" class="anchored" data-anchor-id="perception-of-effectiveness-in-the-use-of-aids">
 <span class="header-section-number">5.9.2</span> Perception of effectiveness in the use of aids</h3>
 <p>Items previously used in <span class="citation" data-cites="alcaniz-colomer_gendered_2023">Alcañiz-Colomer et al. (<a href="#ref-alcaniz-colomer_gendered_2023" role="doc-biblioref">2023</a>)</span>.</p>
-<section id="descriptive-analysis-30" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-30"><strong>Descriptive analysis</strong></h5>
+<section id="descriptive-analysis-32" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-32"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb373"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"effec_pw_1"</span>, <span class="st">"effec_pw_2"</span>, <span class="st">"effec_pm_1"</span>, <span class="st">"effec_pm_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-66" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15470,8 +15473,8 @@ Table&nbsp;67: Summary fit indices of Perception of effectiveness in the use of 
 </div>
 </section></section><section id="social-aids-that-promote-autonomy-vs.-dependence" class="level3" data-number="5.9.3"><h3 data-number="5.9.3" class="anchored" data-anchor-id="social-aids-that-promote-autonomy-vs.-dependence">
 <span class="header-section-number">5.9.3</span> Social aids that promote autonomy vs.&nbsp;dependence</h3>
-<p>Single item based on Sainz et al. <span class="citation" data-cites="sainz_dehumanization_2020">(<a href="#ref-sainz_dehumanization_2020" role="doc-biblioref">2020</a>)</span> about governmental control of social welfare spending. This is supposed to capture dependence assistance towards poor men/women. Single item from the scale used in <span class="citation" data-cites="alcaniz-colomer_gendered_2023">Alcañiz-Colomer et al. (<a href="#ref-alcaniz-colomer_gendered_2023" role="doc-biblioref">2023</a>)</span>. It is the item that worked best and most clearly represents dependence vs.&nbsp;autonomy.</p>
-<section id="descriptive-analysis-31" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-31"><strong>Descriptive analysis</strong></h5>
+<p>Single item based on Sainz et al. <span class="citation" data-cites="sainz_dehumanization_2020">(<a href="#ref-sainz_dehumanization_2020" role="doc-biblioref">2020</a>)</span> about governmental control of social welfare spending. This is supposed to capture dependence assistance towards poor men/women. We selected the item from <span class="citation" data-cites="alcaniz-colomer_gendered_2023">Alcañiz-Colomer et al. (<a href="#ref-alcaniz-colomer_gendered_2023" role="doc-biblioref">2023</a>)</span> that worked best and most clearly represents dependence vs.&nbsp;autonomy.</p>
+<section id="descriptive-analysis-33" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-33"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb386"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"depe_pw_1"</span>, <span class="st">"depe_pm_1"</span>, <span class="st">"aut_pw_1"</span>, <span class="st">"aut_pm_1"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-69" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15587,7 +15590,7 @@ Table&nbsp;68: Descriptive statistics of Social aids that promote autonomy vs.&n
 </section></section><section id="progressive-policies" class="level3" data-number="5.9.4"><h3 data-number="5.9.4" class="anchored" data-anchor-id="progressive-policies">
 <span class="header-section-number">5.9.4</span> Progressive policies</h3>
 <p>Items comes from <span class="citation" data-cites="jordan_ambivalent_2021">Jordan et al. (<a href="#ref-jordan_ambivalent_2021" role="doc-biblioref">2021</a>)</span>.</p>
-<section id="descriptive-analysis-32" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-32"><strong>Descriptive analysis</strong></h5>
+<section id="descriptive-analysis-34" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-34"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb387"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"poli_progre_1"</span>, <span class="st">"poli_progre_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-70" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15722,7 +15725,7 @@ Figure&nbsp;36: Correlation matrix of Progressive policies
 </section></section><section id="restrictive-policies" class="level3" data-number="5.9.5"><h3 data-number="5.9.5" class="anchored" data-anchor-id="restrictive-policies">
 <span class="header-section-number">5.9.5</span> Restrictive policies</h3>
 <p>Items comes from <span class="citation" data-cites="jordan_ambivalent_2021">Jordan et al. (<a href="#ref-jordan_ambivalent_2021" role="doc-biblioref">2021</a>)</span>.</p>
-<section id="descriptive-analysis-33" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-33"><strong>Descriptive analysis</strong></h5>
+<section id="descriptive-analysis-35" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-35"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb394"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"poli_restri_1"</span>, <span class="st">"poli_restri_2"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-71" class="cell quarto-float anchored" data-tbl-cap-location="top">
@@ -15859,7 +15862,7 @@ Figure&nbsp;37: Correlation matrix of Restrictive policies
 <section id="sexual-harassment-situations" class="level3" data-number="5.10.1"><h3 data-number="5.10.1" class="anchored" data-anchor-id="sexual-harassment-situations">
 <span class="header-section-number">5.10.1</span> Sexual harassment situations</h3>
 <p>We used items from previous publications <span class="citation" data-cites="cheek_people_2023">(<a href="#ref-cheek_people_2023" role="doc-biblioref">Cheek et al., 2023</a>)</span> but slightly modified them to adapt to the context of the study.</p>
-<section id="descriptive-analysis-34" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-34"><strong>Descriptive analysis</strong></h5>
+<section id="descriptive-analysis-36" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-36"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb401"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">db_vio0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">db_proc</span>, <span class="va">condi_viole</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> </span>
 <span><span class="va">db_vio1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">db_proc</span>, <span class="va">condi_viole</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> </span>
@@ -17268,8 +17271,8 @@ Table&nbsp;76: Descriptive statistics of Barriers to leaving an abusive relation
 </div>
 </section><section id="perpetration-of-violence" class="level3" data-number="5.10.5"><h3 data-number="5.10.5" class="anchored" data-anchor-id="perpetration-of-violence">
 <span class="header-section-number">5.10.5</span> Perpetration of violence</h3>
-<p>Exploratory items from Rosa Rodríguez Bailón.</p>
-<section id="descriptive-analysis-35" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-35"><strong>Descriptive analysis</strong></h5>
+<p>Exploratory items were developed by the project team.</p>
+<section id="descriptive-analysis-37" class="level5"><h5 class="anchored" data-anchor-id="descriptive-analysis-37"><strong>Descriptive analysis</strong></h5>
 <div class="cell" data-tbl-cap-location="top">
 <div class="sourceCode" id="cb425"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">describe_kable</span><span class="op">(</span><span class="va">db_proc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"perpe_1"</span>, <span class="st">"perpe_2"</span>, <span class="st">"perpe_3"</span>, <span class="st">"perpe_4"</span>, <span class="st">"perpe_5"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-78" class="cell quarto-float anchored" data-tbl-cap-location="top">

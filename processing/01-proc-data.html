@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.4.554">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andreas Laffert, Research asistant">
-<meta name="dcterms.date" content="2025-01-10">
+<meta name="dcterms.date" content="2025-02-05">
 <title>Data preparation</title>
 <style>
 code{white-space: pre-wrap;}
@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 10, 2025</p>
+        <p class="date">February 5, 2025</p>
       </div>
     </div>
     
@@ -140,9 +140,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section><section id="data" class="level1" data-number="3"><h1 data-number="3">
 <span class="header-section-number">3</span> Data</h1>
-<p>We load the database from the local path. Modify this later.</p>
+<p>We load the database from the the Github <a href="https://github.com/sogedi-project/sogedi-data/tree/main/input/data">repository</a> project.</p>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sogedi_db</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_spss.html">read_sav</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu">here</span><span class="op">(</span><span class="st">"input/data/original/SOGEDI_dataset_V1.sav"</span><span class="op">)</span>, user_na <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sogedi_db</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_spss.html">read_sav</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html">url</a></span><span class="op">(</span><span class="st">"https://github.com/sogedi-project/sogedi-data/raw/refs/heads/main/input/data/original/SOGEDI_dataset_V1.sav"</span><span class="op">)</span>, user_na <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">glimpse</span><span class="op">(</span><span class="va">sogedi_db</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -415,8 +415,8 @@ $ natio_puer                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA
 $ natio_domi                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
 $ natio_urug                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
 $ natio_vene                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-$ nati_other                  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-$ nati_other_text             &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", ""…
+$ natio_other                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ natio_other_text            &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", ""…
 $ lang                        &lt;dbl+lbl&gt; 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
 $ lang_other                  &lt;chr&gt; "", "", "Catalán", "Catalán", "", "", "", …
 $ lang_recoded                &lt;dbl+lbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…

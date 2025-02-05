@@ -21,6 +21,11 @@ img.quarto-cover-image {
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
 }
 
+pre code {
+  white-space: pre-wrap;
+}
+
+
 /* Headings ------------------------------------------------------ */
 
 #title-block-header.quarto-title-block.default .quarto-title h1.title {
