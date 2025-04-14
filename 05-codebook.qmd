@@ -1,0 +1,75 @@
+---
+format: html
+editor: visual
+---
+
+# Codebook {#codebook}
+
+## Introduction
+
+For the proper use of the SOGEDI database, we recommend that researchers work with the codebook presented below. This section seeks to facilitate the use of the database by providing information on variable names, their labels, and the labels of each variable's response categories. First, instructions on how to use the interactive codebook are detailed. Second, the codebook itself is presented.
+
+## Instructions
+
+The Codebook presented in the following section is an interactive tool designed to efficiently present information about the variables included in the database.
+
+The codebook displays each variable's code, the variable label (with the wording of the corresponding item), and the associated response categories and codes. These correspond to three columns in the codebook named ***name***, ***label***, and ***value_label***, respectively.
+
+A search bar at the top of the codebook allows for quick information retrieval. You can also use the search bars in each column, which filter data containing the specified term.
+
+We have included variable labels in both the Codebook and the databases. The SOGEDI team designed them to briefly describe the phenomenon or dimension being measured. The wording of the question follows these labels, including codes and response categories. When building the database, we entered response codes as numeric values and response categories as labels.
+
+The ***value_labels*** column shows the response categories of each variable. However, if the variable is numeric or an open-ended (text) response, the cell will be blank, as there are no categories to display. There may also be cases where the variable is numeric but has the "888. Don't Know" and "999. No Response" categories available. In such cases, only these two categories will appear in the codebook.
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      error = F, 
+                      message = F) 
+```
+
+```{r packages}
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               here, 
+               haven,
+               codebook,
+               sjlabelled)
+
+options(scipen=999)
+rm(list = ls())
+```
+
+```{r data, include=FALSE}
+
+sogedi_db <- haven::read_sav(url("https://github.com/sogedi-project/sogedi-data/raw/refs/heads/main/input/data/original/SOGEDI_dataset_V1.sav"), user_na = T)
+
+db_proc <- sogedi_db %>% 
+  dplyr::select(-c(matches("^(aten|time)"), 247:269, 283)) %>% 
+  dplyr::select(10:212)
+
+db_proc_lab <- db_proc
+
+db_proc <- sjlabelled::remove_all_labels(db_proc)
+
+db_lab <- sjlabelled::copy_labels(df_new = db_proc, df_origin = db_proc_lab)
+```
+
+
+```{r code1, echo=FALSE}
+
+db_lab <- db_lab %>% 
+  as_label() %>% 
+  select(-c(age, n_perso))
+
+db_lab$age <- as.numeric(db_proc$age)
+db_lab$n_perso <- as.numeric(db_proc$n_perso)
+
+db_lab$age <- set_label(db_lab$age, get_label(db_proc_lab$age))
+db_lab$n_perso <- set_label(db_lab$n_perso,  get_label(db_proc_lab$n_perso))
+
+codebook:::label_browser_static(db_lab)
+
+```

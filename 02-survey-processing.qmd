@@ -1,0 +1,14 @@
+---
+format: html
+editor: visual
+---
+
+# Data processing methodology {#dataproc}
+
+This section presents the procedures suggested by the project team for preparing the SOGEDI data, as well as for deriving and analyzing the variables, indicators, and scales included in the survey. Of course, researchers may choose to apply different procedures according to their own research goals.
+
+Separate versions of these codes can be found at the following links, covering both data preparation and the calculation and analysis of variables. 
+
+- [Data preparation](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html)
+
+- [Calculation and analysis of variables](https://sogedi-project.github.io/sogedi-data/processing/02-calculation-data.html)

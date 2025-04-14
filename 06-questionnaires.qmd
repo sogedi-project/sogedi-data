@@ -1,0 +1,10 @@
+---
+format: html
+editor: visual
+---
+
+# Questionnaire {#quest}
+
+
+The questionnaire for the SOGEDI Survey is available in the project's official OSF repository at [https://osf.io/h5pmz/files/osfstorage](https://osf.io/h5pmz/files/osfstorage). Researchers will find both the PDF version of the questionnaire and the Qualtrics file, enabling direct replication of the original study.
+

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.4.554">
@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Manual Metodológico SOGEDI - 6&nbsp; Bases de datos</title>
+<title>SOGEDI Survey Methodological Manual - 1&nbsp; Survey design and implementation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,7 +20,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -30,9 +50,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./07-etichs.html" rel="next">
-<link href="./05-survey-processing.html" rel="prev">
-<link href="./logo-sogedi.png" rel="icon" type="image/png">
+<link href="./02-survey-processing.html" rel="next">
+<link href="./index.html" rel="prev">
+<link href="./images/ogo-sogedi.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -55,17 +75,17 @@ ul.task-list li input[type="checkbox"] {
     "s"
   ],
   "language": {
-    "search-no-results-text": "Sin resultados",
-    "search-matching-documents-text": "documentos encontrados",
-    "search-copy-link-title": "Copiar el enlace en la búsqueda",
-    "search-hide-matches-text": "Ocultar resultados adicionales",
-    "search-more-match-text": "resultado adicional en este documento",
-    "search-more-matches-text": "resultados adicionales en este documento",
-    "search-clear-button-title": "Borrar",
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
     "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancelar",
-    "search-submit-button-title": "Enviar",
-    "search-label": "Buscar"
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
@@ -78,11 +98,11 @@ ul.task-list li input[type="checkbox"] {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-database.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-sample-desing.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Survey design and implementation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -96,10 +116,10 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Manual Metodológico SOGEDI</a> 
+      <a href="./">SOGEDI Survey Methodological Manual</a> 
         <div class="sidebar-tools-main">
-    <a href="https://github.com/sogedi-project/sogedi-data" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+    <a href="https://github.com/sogedi-project/sogedi-data" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
@@ -109,7 +129,7 @@ ul.task-list li input[type="checkbox"] {
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Buscar"></div>
+        <div id="quarto-search" class="" title="Search"></div>
         </div>
         </div>
     <div class="sidebar-menu-container"> 
@@ -122,50 +142,50 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./01-antecedents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Antecedentes</span></span></a>
+  <a href="./01-sample-desing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Survey design and implementation</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-sample-desing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Diseño estadístico</span></span></a>
+  <a href="./02-survey-processing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data processing methodology</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-instrument-desing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Diseño del instrumento</span></span></a>
+  <a href="./03-database.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Databases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./04-survey-implementation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Implementación del instrumento</span></span></a>
+  <a href="./04-etichs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Funding, ethics and procedures for data use</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./05-survey-processing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Metodología de procesamiento de datos</span></span></a>
+  <a href="./05-codebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Codebook</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./06-database.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></span></a>
+  <a href="./06-questionnaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Cuestionarios</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./07-etichs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ética</span></span></a>
+  <a href="./07-technical-sheet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ficha Técnica</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./08-codebook.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Libro de códigos</span></span></a>
+  <a href="./08-publications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Publications and associated studies</span></span></a>
   </div>
 </li>
     </ul>
@@ -174,14 +194,22 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sampling-design-and-data-collection-methods" id="toc-sampling-design-and-data-collection-methods" class="nav-link active" data-scroll-target="#sampling-design-and-data-collection-methods"><span class="header-section-number">1.1</span> Sampling Design and Data Collection Methods</a></li>
+  <li><a href="#questionnaire-design" id="toc-questionnaire-design" class="nav-link" data-scroll-target="#questionnaire-design"><span class="header-section-number">1.2</span> Questionnaire Design</a></li>
+  <li><a href="#list-of-variables" id="toc-list-of-variables" class="nav-link" data-scroll-target="#list-of-variables"><span class="header-section-number">1.3</span> List of Variables</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="databases" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></span></h1>
+<h1 class="title"><span id="dis-muest" class="quarto-section-identifier"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Survey design and implementation</span></span></h1>
 </div>
 
 
@@ -198,8 +226,153 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="sampling-design-and-data-collection-methods" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="sampling-design-and-data-collection-methods"><span class="header-section-number">1.1</span> Sampling Design and Data Collection Methods</h2>
+<p>The SOGEDI survey was conducted by a data collection company. It was agreed that participants from Argentina, Colombia, Chile, Mexico, and Spain would be included in the survey. A minimum of 800 participants per country was set to ensure sufficient statistical power for the planned studies using the survey data, considering that some variables are answered by only a quarter of the total sample.</p>
+<p>The questionnaire was administered using Qualtrics (see section <a href="06-questionnaires.html">Questionnaire</a>) and was distributed online through the panel of the recruiting company. No specific sampling was conducted, nor were quotas established in the implementation of the survey.</p>
+</section>
+<section id="questionnaire-design" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="questionnaire-design"><span class="header-section-number">1.2</span> Questionnaire Design</h2>
+<p>The SOGEDI survey has been carefully designed to include a limited number of items for each construct being assessed. To measure each construct, we selected the necessary items from the original articles, which can be found in the codebook. The selection of items was based on two criteria: first, the suitability of the items for our study context and the objectives of our survey; and second, the factorial loading of each item within each construct.</p>
+<p>For example, based on the adaptation by Sainz et al. <span class="citation" data-cites="sainz_spanish_2021">(<a href="index.html#ref-sainz_spanish_2021" role="doc-biblioref">2021</a>)</span>, we selected only four items that capture the dimension of hostile classism from the full scale. In the data processing document mentioned in the following sections, the factorial structure of the selected items is analysed so that each research team can determine the appropriate use of the indicators included in the SOGEDI survey. It is also important to highlight that the codebook includes information on the original references from which the items were drawn, along with a series of notes on how they were selected.</p>
+<p>Finally, it is also important to highlight certain peculiarities of the survey design. Some variables, such as the perception of economic inequality, were answered by the entire sample, whereas others, such as behavioral tendencies towards poor women, were answered by only a quarter of the sample. In other words, some measures followed a within-subjects design, while others followed a between-subjects design. In some cases, the entire sample responded to the questions, whereas in others, participants answered only questions related to one of the targets: poor women, wealthy women, poor men, or wealthy men.</p>
+</section>
+<section id="list-of-variables" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="list-of-variables"><span class="header-section-number">1.3</span> List of Variables</h2>
+<p>The SOGEDI survey consists of variables related to the social perception of women/men in poverty/wealth. As a whole, the survey addresses a broad set of variables across different thematic blocks. For a detailed review of the variables, it is recommended to consult the codebook, where you will find the variables with the most relevant information to understand the database and the origin of the items. In general, the survey follows this structure:</p>
+<section id="block-1.-meta-data." class="level4" data-number="1.3.0.1">
+<h4 data-number="1.3.0.1" class="anchored" data-anchor-id="block-1.-meta-data."><span class="header-section-number">1.3.0.1</span> Block 1. Meta-data.</h4>
+<p>This block includes some of the variables that help identify the participants, check the data in which the information was collected, and determine the IP location:</p>
+<ul>
+<li>participant identification number</li>
+<li>start date</li>
+<li>end date</li>
+<li>IP address</li>
+<li>duration in seconds</li>
+<li>recorded date</li>
+<li>response ID</li>
+<li>location latitude</li>
+<li>location longitude</li>
+<li>attentional check item 1</li>
+<li>attentional check item 2</li>
+<li>attentional check item 3</li>
+</ul>
+</section>
+<section id="block-2.-class-inequality-and-attitudes." class="level4" data-number="1.3.0.2">
+<h4 data-number="1.3.0.2" class="anchored" data-anchor-id="block-2.-class-inequality-and-attitudes."><span class="header-section-number">1.3.0.2</span> Block 2. Class inequality and attitudes.</h4>
+<p>This block serves to capture the individual’s perception of economic inequality within their country, as well as their classist attitudes towards women and men on poverty:</p>
+<ul>
+<li>perception of economic inequality</li>
+<li>socioeconomic inequality justification</li>
+<li>economic inequality related collective action</li>
+<li>ambivalent classism towards women and men on poverty</li>
+</ul>
+</section>
+<section id="block-3.-gender-inequality-and-attitudes." class="level4" data-number="1.3.0.3">
+<h4 data-number="1.3.0.3" class="anchored" data-anchor-id="block-3.-gender-inequality-and-attitudes."><span class="header-section-number">1.3.0.3</span> Block 3. Gender inequality and attitudes.</h4>
+<p>This block serves to capture the individual’s perception of gender inequality within their country, as well as their sexism attitudes towards women:</p>
+<ul>
+<li>ambivalent sexism</li>
+<li>perception of gender inequality</li>
+<li>belief in sexism shift</li>
+<li>feminism identification</li>
+<li>gender inequality justification</li>
+<li>gender inequality collective action</li>
+<li>perception of gender competition</li>
+</ul>
+</section>
+<section id="block-4.-intergroup-contact-and-poverty-rates." class="level4" data-number="1.3.0.4">
+<h4 data-number="1.3.0.4" class="anchored" data-anchor-id="block-4.-intergroup-contact-and-poverty-rates."><span class="header-section-number">1.3.0.4</span> Block 4. Intergroup contact and poverty rates.</h4>
+<p>This block addresses the individual’s contact with poor and wealthy women and men, as well as participants’ perceptions of poverty rates and the perceived social mobility within their country:</p>
+<ul>
+<li>woman/men poverty rates</li>
+<li>quantity of contact</li>
+<li>friendship</li>
+<li>quality of contact</li>
+<li>perceived social mobility</li>
+</ul>
+</section>
+<section id="block-5-7.-stereotype-content-model-povertywealth-implications-and-dehumanization." class="level4" data-number="1.3.0.5">
+<h4 data-number="1.3.0.5" class="anchored" data-anchor-id="block-5-7.-stereotype-content-model-povertywealth-implications-and-dehumanization."><span class="header-section-number">1.3.0.5</span> Block 5-7. Stereotype content model, poverty/wealth implications and dehumanization.</h4>
+<p>These blocks address the content of the stereotype applied to the study of socioeconomic and gender differences. Therefore, traits, behavioural tendencies, and emotions towards women and men in poverty and wealth are measured. Additionally, some specific items are included on causal attributions regarding poverty, wealth, and other variables related to the perception of poverty and wealth.</p>
+<ul>
+<li>stereotype content model</li>
+<li>intergroup behavioural tendencies</li>
+<li>intergroup affect tendencies</li>
+<li>greedy disposition</li>
+<li>punish rich</li>
+<li>attributions about poverty and wealth</li>
+<li>thick skin bias</li>
+<li>deservingness</li>
+<li>dehumanization</li>
+</ul>
+</section>
+<section id="block-8.-perceived-sexuality-and-welfare-use-of-poor-and-rich-women." class="level4" data-number="1.3.0.6">
+<h4 data-number="1.3.0.6" class="anchored" data-anchor-id="block-8.-perceived-sexuality-and-welfare-use-of-poor-and-rich-women."><span class="header-section-number">1.3.0.6</span> Block 8. Perceived sexuality and welfare use of poor and rich women.</h4>
+<p>This block addresses the perceived promiscuity, engagement in risky sexual behaviours, and the likelihood of unwanted pregnancy among both poor and wealthy women, as well as the support for welfare for poor mothers:</p>
+<ul>
+<li>perceived promiscuity</li>
+<li>risk sexual behaviour</li>
+<li>unplanned pregnancy</li>
+<li>abuse of social assistance by poor mothers.</li>
+<li>paternalistic support for poor mothers</li>
+<li>hostile support for poor mothers</li>
+</ul>
+</section>
+<section id="block-9.-support-for-social-policiesactions." class="level4" data-number="1.3.0.7">
+<h4 data-number="1.3.0.7" class="anchored" data-anchor-id="block-9.-support-for-social-policiesactions."><span class="header-section-number">1.3.0.7</span> Block 9. Support for social policies/actions.</h4>
+<p>This block is about the individual’s support for economic redistribution, as well as their support for different welfare policies for women and men in poverty:</p>
+<ul>
+<li>support for income redistribution</li>
+<li>perception of effectiveness in the use of aids.</li>
+<li>social aids that promote autonomy vs.&nbsp;dependence.</li>
+<li>progressive policies</li>
+<li>restrictive policies</li>
+</ul>
+</section>
+<section id="block-10.-gender-violence." class="level4" data-number="1.3.0.8">
+<h4 data-number="1.3.0.8" class="anchored" data-anchor-id="block-10.-gender-violence."><span class="header-section-number">1.3.0.8</span> Block 10. Gender violence.</h4>
+<p>This block addresses the perception of violence and the types of violence people believe women in poverty versus women in wealth experience, as well as some items about the perpetration of violence:</p>
+<ul>
+<li>violence block condition</li>
+<li>sexual harassment situations</li>
+<li>domestic abuse situations</li>
+<li>type of most common forms of violence</li>
+<li>barriers to leaving an abusive relationship</li>
+<li>perpetration of violence</li>
+</ul>
+</section>
+<section id="block-11.-demographics." class="level4" data-number="1.3.0.9">
+<h4 data-number="1.3.0.9" class="anchored" data-anchor-id="block-11.-demographics."><span class="header-section-number">1.3.0.9</span> Block 11. Demographics.</h4>
+<p>This final block includes socio-demographic information as well as details that allow for the characterization of participants:</p>
+<ul>
+<li>age</li>
+<li>sex</li>
+<li>education level</li>
+<li>subjective socioeconomic status</li>
+<li>identification with a social class</li>
+<li>identification with a social class</li>
+<li>identification with a social class</li>
+<li>political orientation</li>
+<li>nationality language</li>
+<li>currency</li>
+<li>income</li>
+<li>postal code</li>
+<li>number of household members</li>
+<li>sexual orientation</li>
+<li>relationship status</li>
+<li>country of residence</li>
+<li>municipality</li>
+</ul>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
+<div id="ref-sainz_spanish_2021" class="csl-entry" role="listitem">
+Sainz, M., Lobato, R. M., &amp; Jiménez-Moya, G. (2021). Spanish adaptation of the <span>Ambivalent Classism Inventory</span> (<span>ACI</span>). <em>Revista Latinoamericana de Psicolog<span>í</span>a</em>, <em>53</em>. <a href="https://doi.org/10.14349/rlp.2021.v53.18">https://doi.org/10.14349/rlp.2021.v53.18</a>
+</div>
+</div>
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -256,12 +429,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copiado");
+    button.setAttribute("title", "Copied!");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copiado");
+      button.setAttribute("data-bs-title", "Copied!");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",
@@ -613,13 +786,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./05-survey-processing.html" class="pagination-link" aria-label="Metodología de procesamiento de datos">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Metodología de procesamiento de datos</span></span>
+      <a href="./index.html" class="pagination-link" aria-label="Presentation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Presentation</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./07-etichs.html" class="pagination-link" aria-label="Ética">
-        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ética</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./02-survey-processing.html" class="pagination-link" aria-label="Data processing methodology">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data processing methodology</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -627,13 +800,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>Proyecto “Desigualdad Socioeconómica y de Género: Un Estudio Multi-País”</p>
+<p>Project “Socioeconomic and Gender Disparities: A Multi-Country Study (SOGEDI)”</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>
     <div class="nav-footer-right">
-<p>Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.</p>
+<p>This book was built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>
   </div>
 </footer>

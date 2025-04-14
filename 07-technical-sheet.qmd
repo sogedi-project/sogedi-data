@@ -3,4 +3,4 @@ format: html
 editor: visual
 ---
 
-# Ficha Técnica {#ficha}
+# Technical Data Sheet {#ficha}

@@ -3,31 +3,29 @@ project:
   output-dir: docs
 
 book:
-  title: "Manual Metodológico SOGEDI"
-  author: "Equipo SOGEDI"
-  date: "22/07/2023"
+  title: "SOGEDI Survey Methodological Manual"
   reader-mode: true
   page-footer:
     left: |
-      Proyecto "Desigualdad Socioeconómica y de Género: Un Estudio Multi-País"
-
+      Project "Socioeconomic and Gender Disparities: A Multi-Country Study (SOGEDI)"
     right: |
-      Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.
+      This book was built with <a href="https://quarto.org/">Quarto</a>.
   page-navigation: true
-  cover-image: logo-sogedi.png
-  favicon: logo-sogedi.png
+  cover-image: images/logo-sogedi.png
+  favicon: images/ogo-sogedi.png
   repo-url: https://github.com/sogedi-project/sogedi-data
   repo-branch: main
   chapters:
     - index.qmd
-    - 01-antecedents.qmd
-    - 02-sample-desing.qmd
-    - 03-instrument-desing.qmd
-    - 04-survey-implementation.qmd
-    - 05-survey-processing.qmd
-    - 06-database.qmd
-    - 07-etichs.qmd
-    - 08-codebook.qmd
+    - 01-sample-desing.qmd
+    - 02-survey-processing.qmd
+    - 03-database.qmd
+    - 04-etichs.qmd
+    - 05-codebook.qmd
+    - 06-questionnaires.qmd
+    - 07-technical-sheet.qmd
+    - 08-publications.qmd
+    
   search:
     location: sidebar
     type: textbox
@@ -45,8 +43,8 @@ format:
     code-link: true
 
 editor: visual
-lang: es
+lang: en
 
-bibliography: "input/bib/manual-metod.bib"
+bibliography: "input/bib/sogedi-data.bib"
 csl: "input/bib/apa6.csl"
 

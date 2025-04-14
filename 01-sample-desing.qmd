@@ -1,0 +1,141 @@
+---
+format: html
+editor: visual
+---
+
+# Survey design and implementation {#dis-muest}
+
+## Sampling Design and Data Collection Methods
+
+The SOGEDI survey was conducted by a data collection company. It was agreed that participants from Argentina, Colombia, Chile, Mexico, and Spain would be included in the survey. A minimum of 800 participants per country was set to ensure sufficient statistical power for the planned studies using the survey data, considering that some variables are answered by only a quarter of the total sample.
+
+The questionnaire was administered using Qualtrics (see section [Questionnaire](#quest)) and was distributed online through the panel of the recruiting company. No specific sampling was conducted, nor were quotas established in the implementation of the survey.
+
+## Questionnaire Design
+
+The SOGEDI survey has been carefully designed to include a limited number of items for each construct being assessed. To measure each construct, we selected the necessary items from the original articles, which can be found in the codebook. The selection of items was based on two criteria: first, the suitability of the items for our study context and the objectives of our survey; and second, the factorial loading of each item within each construct.
+
+For example, based on the adaptation by Sainz et al. [-@sainz_spanish_2021], we selected only four items that capture the dimension of hostile classism from the full scale. In the data processing document mentioned in the following sections, the factorial structure of the selected items is analysed so that each research team can determine the appropriate use of the indicators included in the SOGEDI survey. It is also important to highlight that the codebook includes information on the original references from which the items were drawn, along with a series of notes on how they were selected.
+
+Finally, it is also important to highlight certain peculiarities of the survey design. Some variables, such as the perception of economic inequality, were answered by the entire sample, whereas others, such as behavioral tendencies towards poor women, were answered by only a quarter of the sample. In other words, some measures followed a within-subjects design, while others followed a between-subjects design. In some cases, the entire sample responded to the questions, whereas in others, participants answered only questions related to one of the targets: poor women, wealthy women, poor men, or wealthy men.
+
+## List of Variables
+
+The SOGEDI survey consists of variables related to the social perception of women/men in poverty/wealth. As a whole, the survey addresses a broad set of variables across different thematic blocks. For a detailed review of the variables, it is recommended to consult the codebook, where you will find the variables with the most relevant information to understand the database and the origin of the items. In general, the survey follows this structure:
+
+#### Block 1. Meta-data.
+
+This block includes some of the variables that help identify the participants, check the data in which the information was collected, and determine the IP location:
+
+- participant identification number
+- start date
+- end date
+- IP address
+- duration in seconds
+- recorded date
+- response ID
+- location latitude
+- location longitude
+- attentional check item 1
+- attentional check item 2
+- attentional check item 3
+
+#### Block 2. Class inequality and attitudes.
+
+This block serves to capture the individual's perception of economic inequality within their country, as well as their classist attitudes towards women and men on poverty:
+
+- perception of economic inequality
+- socioeconomic inequality justification
+- economic inequality related collective action
+- ambivalent classism towards women and men on poverty
+
+#### Block 3. Gender inequality and attitudes.
+
+This block serves to capture the individual's perception of gender inequality within their country, as well as their sexism attitudes towards women:
+
+- ambivalent sexism
+- perception of gender inequality
+- belief in sexism shift
+- feminism identification
+- gender inequality justification
+- gender inequality collective action
+- perception of gender competition
+
+#### Block 4. Intergroup contact and poverty rates.
+
+This block addresses the individual's contact with poor and wealthy women and men, as well as participants' perceptions of poverty rates and the perceived social mobility within their country:
+
+- woman/men poverty rates
+- quantity of contact 
+- friendship
+- quality of contact 
+- perceived social mobility
+
+#### Block 5-7. Stereotype content model, poverty/wealth implications and dehumanization.
+
+These blocks address the content of the stereotype applied to the study of socioeconomic and gender differences. Therefore, traits, behavioural tendencies, and emotions towards women and men in poverty and wealth are measured. Additionally, some specific items are included on causal attributions regarding poverty, wealth, and other variables related to the perception of poverty and wealth.
+
+- stereotype content model
+- intergroup behavioural tendencies 
+- intergroup affect tendencies
+- greedy disposition
+- punish rich 
+- attributions about poverty and wealth
+- thick skin bias
+- deservingness
+- dehumanization
+
+#### Block 8. Perceived sexuality and welfare use of poor and rich women.
+
+This block addresses the perceived promiscuity, engagement in risky sexual behaviours, and the likelihood of unwanted pregnancy among both poor and wealthy women, as well as the support for welfare for poor mothers:
+
+- perceived promiscuity 
+- risk sexual behaviour 
+- unplanned pregnancy 
+- abuse of social assistance by poor mothers.
+- paternalistic support for poor mothers
+- hostile support for poor mothers
+
+#### Block 9. Support for social policies/actions.
+
+This block is about the individual's support for economic redistribution, as well as their support for different welfare policies for women and men in poverty:
+
+- support for income redistribution
+- perception of effectiveness in the use of aids.
+- social aids that promote autonomy vs. dependence.
+- progressive policies
+- restrictive policies
+
+#### Block 10. Gender violence.
+
+This block addresses the perception of violence and the types of violence people believe women in poverty versus women in wealth experience, as well as some items about the perpetration of violence:
+
+- violence block condition
+- sexual harassment situations
+- domestic abuse situations
+- type of most common forms of violence
+- barriers to leaving an abusive relationship
+- perpetration of violence
+
+#### Block 11. Demographics.
+
+This final block includes socio-demographic information as well as details that allow for the characterization of participants:
+
+- age
+- sex
+- education level
+- subjective socioeconomic status
+- identification with a social class
+- identification with a social class
+- identification with a social class
+- political orientation
+- nationality language
+- currency
+- income
+- postal code
+- number of household members
+- sexual orientation
+- relationship status
+- country of residence
+- municipality
+

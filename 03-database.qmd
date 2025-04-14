@@ -1,0 +1,8 @@
+---
+format: html
+editor: visual
+---
+
+# Databases {#databases}
+
+We encourage researchers to access the SOGEDI Survey Database through the project’s official OSF repository at: [https://osf.io/sr2xq/](https://osf.io/sr2xq/). An additional version of this database is available via the project’s  [GitHub repository](https://github.com/sogedi-project/sogedi-data).  

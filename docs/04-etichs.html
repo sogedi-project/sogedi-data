@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.4.554">
@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Manual Metodológico SOGEDI - 6&nbsp; Bases de datos</title>
+<title>SOGEDI Survey Methodological Manual - 4&nbsp; Funding, ethics and procedures for data use</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,9 +30,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./07-etichs.html" rel="next">
-<link href="./05-survey-processing.html" rel="prev">
-<link href="./logo-sogedi.png" rel="icon" type="image/png">
+<link href="./05-codebook.html" rel="next">
+<link href="./03-database.html" rel="prev">
+<link href="./images/ogo-sogedi.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -55,17 +55,17 @@ ul.task-list li input[type="checkbox"] {
     "s"
   ],
   "language": {
-    "search-no-results-text": "Sin resultados",
-    "search-matching-documents-text": "documentos encontrados",
-    "search-copy-link-title": "Copiar el enlace en la búsqueda",
-    "search-hide-matches-text": "Ocultar resultados adicionales",
-    "search-more-match-text": "resultado adicional en este documento",
-    "search-more-matches-text": "resultados adicionales en este documento",
-    "search-clear-button-title": "Borrar",
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
     "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancelar",
-    "search-submit-button-title": "Enviar",
-    "search-label": "Buscar"
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
@@ -78,11 +78,11 @@ ul.task-list li input[type="checkbox"] {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-database.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-etichs.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Funding, ethics and procedures for data use</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -96,10 +96,10 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Manual Metodológico SOGEDI</a> 
+      <a href="./">SOGEDI Survey Methodological Manual</a> 
         <div class="sidebar-tools-main">
-    <a href="https://github.com/sogedi-project/sogedi-data" title="Ejecutar el código" class="quarto-navigation-tool px-1" aria-label="Ejecutar el código"><i class="bi bi-github"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+    <a href="https://github.com/sogedi-project/sogedi-data" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
@@ -109,7 +109,7 @@ ul.task-list li input[type="checkbox"] {
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Buscar"></div>
+        <div id="quarto-search" class="" title="Search"></div>
         </div>
         </div>
     <div class="sidebar-menu-container"> 
@@ -122,50 +122,50 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./01-antecedents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Antecedentes</span></span></a>
+  <a href="./01-sample-desing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Survey design and implementation</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-sample-desing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Diseño estadístico</span></span></a>
+  <a href="./02-survey-processing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data processing methodology</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-instrument-desing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Diseño del instrumento</span></span></a>
+  <a href="./03-database.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Databases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./04-survey-implementation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Implementación del instrumento</span></span></a>
+  <a href="./04-etichs.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Funding, ethics and procedures for data use</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./05-survey-processing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Metodología de procesamiento de datos</span></span></a>
+  <a href="./05-codebook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Codebook</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./06-database.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></span></a>
+  <a href="./06-questionnaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Cuestionarios</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./07-etichs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ética</span></span></a>
+  <a href="./07-technical-sheet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ficha Técnica</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./08-codebook.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Libro de códigos</span></span></a>
+  <a href="./08-publications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Publications and associated studies</span></span></a>
   </div>
 </li>
     </ul>
@@ -174,14 +174,22 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#funding" id="toc-funding" class="nav-link active" data-scroll-target="#funding"><span class="header-section-number">4.1</span> Funding</a></li>
+  <li><a href="#ethics-committee-approval" id="toc-ethics-committee-approval" class="nav-link" data-scroll-target="#ethics-committee-approval"><span class="header-section-number">4.2</span> Ethics Committee Approval</a></li>
+  <li><a href="#permission-for-the-use-of-sogedi-survey-data" id="toc-permission-for-the-use-of-sogedi-survey-data" class="nav-link" data-scroll-target="#permission-for-the-use-of-sogedi-survey-data"><span class="header-section-number">4.3</span> Permission for the use of SOGEDI Survey Data</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="databases" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Bases de datos</span></span></h1>
+<h1 class="title"><span id="etica" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Funding, ethics and procedures for data use</span></span></h1>
 </div>
 
 
@@ -198,8 +206,33 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="funding" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="funding"><span class="header-section-number">4.1</span> Funding</h2>
+<p>The SOGEDI survey has been funded by two research projects led by <a href="https://www.psicologia.uc.cl/persona/gloria-jimenez-moya/">Gloria Jiménez-Moya</a> and <a href="https://www.ugr.es/personal/mario-sainz-martinez">Mario Sainz</a>. The use of resources associated with this survey (data, codes, repositories) in scientific publications, books, presentations, outreach materials, or any other products that utilize or mention the SOGEDI survey must include the mandatory reference to the following projects. The reference text should be as follows:</p>
+<p>“Antecedents, Manifestations, and Consequences of Ambivalent Classism” (PID2022-136736NA-I00) an I+D+I project funded by MCIN/AEI/10.13039/501100011033/ and FEDER “A way to make Europe” granted to Mario Sainz.</p>
+<p><img src="images/espain.png" class="img-fluid"></p>
+<p>“Socioeconomic and Gender Disparities: A Multi-Country Study” a project funded by the <a href="https://coes.cl/">Centre for Social Conflict and Cohesion Studies – COES</a> (ANID/FONDAP/1523A0005) granted to Gloria Jiménez-Moya.</p>
+<p><img src="images/coes.png" class="img-fluid"></p>
+<p>In addition, the reference to the data that must be included is as follows:</p>
+<p><em>Sainz, M. &amp; Jiménez-Moya, G. (2025). Socioeconomic and gender disparities: A multi-country study (SOGEDI-COES). [Data set and code book]. Retrieved from <a href="osf.io/nv6rs">osf.io/nv6rs</a></em></p>
+</section>
+<section id="ethics-committee-approval" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="ethics-committee-approval"><span class="header-section-number">4.2</span> Ethics Committee Approval</h2>
+<p>The SOGEDI project was submitted for ethical approval by the ethical project evaluation committee of the Universidad Nacional de Educación a Distancia (UNED). According to the certification obtained, the project meets all the suitability requirements established by this Committee for research involving human participants. The ethical approval reference for this project is as follows: 11-SISH-PSI-2024.</p>
+</section>
+<section id="permission-for-the-use-of-sogedi-survey-data" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="permission-for-the-use-of-sogedi-survey-data"><span class="header-section-number">4.3</span> Permission for the use of SOGEDI Survey Data</h2>
+<p>To use the SOGEDI survey data, the following steps must be followed:</p>
+<ol type="1">
+<li><p><strong>Request approval</strong>: Submit a formal request detailing the intended use of the data, including the research objectives, methodology, and expected items to use. This step is important to ensure that the team leading the survey can verify that different research teams are not working on the same variables or pursuing the same objectives. The request should be sent to Mario Sainz (see details below).</p></li>
+<li><p><strong>Mandatory citation</strong>: In any publication, presentation, or dissemination material using the SOGEDI survey data, the official references and logos provided must be included. The SOGEDI team will not request authorship in the works; however, the institutional sources of funding must be acknowledged.</p></li>
+<li><p><strong>Pre-print and communication</strong>: It is expected that, after using SOGEDI resources, the researcher who is responsible for the output—whether in the form of chapters, books, presentations, etc.—will send the SOGEDI team the full reference of the work for its inclusion in the corresponding section of this methodological document. Similarly, the researcher is expected to submit a pre-print of the completed document and provide links to institutional or private repositories where the outputs derived from the survey are stored. This process ensures that the research products based on the SOGEDI survey remain publicly accessible.</p></li>
+<li><p><strong>Restricted use</strong>: The data may only be used for the approved research purposes and cannot be shared with third parties without prior authorization. The SOGEDI team adheres to open science guidelines and the proper use of public research funds. For this reason, the team does not authorize the use of the data for research outputs published in journals or publishers that do not adhere to open science principles or that are considered predatory publishers or journals.</p></li>
+</ol>
+<p>For further inquiries or to submit a request, please contact Mario Sainz, c/ Juan del Rosal, Number 10, Madrid, Spain (email: <a href="msainz@psi.uned.es">msainz@psi.uned.es</a>).</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -256,12 +289,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copiado");
+    button.setAttribute("title", "Copied!");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copiado");
+      button.setAttribute("data-bs-title", "Copied!");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",
@@ -613,13 +646,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./05-survey-processing.html" class="pagination-link" aria-label="Metodología de procesamiento de datos">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Metodología de procesamiento de datos</span></span>
+      <a href="./03-database.html" class="pagination-link" aria-label="Databases">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Databases</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./07-etichs.html" class="pagination-link" aria-label="Ética">
-        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ética</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./05-codebook.html" class="pagination-link" aria-label="Codebook">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Codebook</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -627,13 +660,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>Proyecto “Desigualdad Socioeconómica y de Género: Un Estudio Multi-País”</p>
+<p>Project “Socioeconomic and Gender Disparities: A Multi-Country Study (SOGEDI)”</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>
     <div class="nav-footer-right">
-<p>Este libro se construyó con <a href="https://quarto.org/">Quarto</a>.</p>
+<p>This book was built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>
   </div>
 </footer>
