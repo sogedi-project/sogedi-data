@@ -16,9 +16,8 @@ Email: msainz\@psi.uned.es
 
 The data and code files are hosted both in the [Open Science Framework project](https://osf.io/nv6rs/) and in the GitHub repository [sogedi-data](https://github.com/Andreas-Lafferte/sogedi-data). They follow the logic of the [IPO protocol](https://github.com/juancarloscastillo/ipo) for academic workflows, based on three main components = **I**nput -\> **P**rocessing -\> **O**utput.
 
-
 ## Files
 
-- [Data preparation](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html)
-- [Calculation and analysis of variables](https://sogedi-project.github.io/sogedi-data/processing/02-calculation-data.html)
-- Methodological manual
+-   [Data preparation](https://sogedi-project.github.io/sogedi-data/processing/01-proc-data.html)
+-   [Calculation and analysis of variables](https://sogedi-project.github.io/sogedi-data/processing/02-calculation-data.html)
+- [Methodological manual](https://sogedi-project.github.io/sogedi-data/docs/index.html)

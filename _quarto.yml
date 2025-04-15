@@ -12,8 +12,8 @@ book:
       This book was built with <a href="https://quarto.org/">Quarto</a>.
   page-navigation: true
   cover-image: images/logo-sogedi.png
-  favicon: images/ogo-sogedi.png
-  repo-url: https://github.com/sogedi-project/sogedi-data
+  favicon: images/logo-sogedi.png
+  repo-url: https://sogedi-project.github.io/sogedi-data/
   repo-branch: main
   chapters:
     - index.qmd
