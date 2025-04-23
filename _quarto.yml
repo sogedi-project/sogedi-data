@@ -23,8 +23,7 @@ book:
     - 04-etichs.qmd
     - 05-codebook.qmd
     - 06-questionnaires.qmd
-    - 07-technical-sheet.qmd
-    - 08-publications.qmd
+    - 07-publications.qmd
     
   search:
     location: sidebar

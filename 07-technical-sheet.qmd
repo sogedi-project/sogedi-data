@@ -1,6 +1,0 @@
----
-format: html
-editor: visual
----
-
-# Technical Data Sheet {#ficha}

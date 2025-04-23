@@ -37,4 +37,5 @@ To use the SOGEDI survey data, the following steps must be followed:
 
 4.  **Restricted use**: The data may only be used for the approved research purposes and cannot be shared with third parties without prior authorization. The SOGEDI team adheres to open science guidelines and the proper use of public research funds. For this reason, the team does not authorize the use of the data for research outputs published in journals or publishers that do not adhere to open science principles or that are considered predatory publishers or journals.
 
-For further inquiries or to submit a request, please contact Mario Sainz, c/ Juan del Rosal, Number 10, Madrid, Spain (email: [msainz\@psi.uned.es](msainz@psi.uned.es)).
+For further inquiries or to submit a request, please contact Mario Sainz, Faculty of Psychology, c/ Beiro, 18011, Granada, Spain (email: [mariosainz@ugr.es](mariosainz@ugr.es))
+

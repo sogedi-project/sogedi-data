@@ -48,7 +48,7 @@ sogedi_db <- haven::read_sav(url("https://github.com/sogedi-project/sogedi-data/
 
 db_proc <- sogedi_db %>% 
   dplyr::select(-c(matches("^(aten|time)"), 247:269, 283)) %>% 
-  dplyr::select(10:212)
+  dplyr::select(1, 10:212)
 
 db_proc_lab <- db_proc
 
@@ -56,7 +56,6 @@ db_proc <- sjlabelled::remove_all_labels(db_proc)
 
 db_lab <- sjlabelled::copy_labels(df_new = db_proc, df_origin = db_proc_lab)
 ```
-
 
 ```{r code1, echo=FALSE}
 
